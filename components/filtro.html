@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OdontoForense - Filtro e Pesquisa</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="filtro-container">
+        <header>
+            <h1>Filtro e Pesquisa de Perícias</h1>
+        </header>
+        <div class="filtro">
+            <input type="text" id="search-filter" placeholder="Pesquisar perícia...">
+            <select id="status-filter">
+                <option value="">Filtrar por Status</option>
+                <option value="em_andamento">Em Andamento</option>
+                <option value="concluida">Concluída</option>
+                <option value="pendente">Pendente</option>
+            </select>
+            <button class="btn-pesquisar">Pesquisar</button>
+        </div>
+        <div class="pericias-list">
+            <div class="pericia-card">
+                <h2>Perícia 1</h2>
+                <button class="btn-visualizar">Visualizar</button>
+            </div>
+            <div class="pericia-card">
+                <h2>Perícia 2</h2>
+                <button class="btn-visualizar">Visualizar</button>
+            </div>
+            <!-- Mais cards de perícia -->
+        </div>
+    </div>
+    <script src="js/app.js"></script>
+</body>
+</html>
