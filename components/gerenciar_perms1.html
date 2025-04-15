@@ -1,22 +1,22 @@
-<html lang="pt-BR">
+<!DOCTYPE html>
+<html lang="pt-br">
 
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="../css/style.css">
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://cdn.jsdelivr.net/npm/alpinejs@2.8.2/dist/alpine.min.js" defer></script>
-  <title>Perícia Bonnie Green</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="../css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/alpinejs@2.8.2/dist/alpine.min.js" defer></script>
+    <title>OdontoForense - Gerenciar Permissões</title>
 </head>
 
-<body class="bg-gray-100 min-h-screen flex flex-col">
+<body>
 
-  <!-- Navigation Bar -->
-
+    <!-- Navigation Bar -->
   <nav class="bg-white border-gray-200 dark:bg-gray-900">
     <div class="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-4">
       <a href="home.html" class="flex items-center space-x-3 rtl:space-x-reverse">
-        <img src="../img/logo.png"class="h-8 w-auto" alt="odontoForense Logo" />
+        <img src="../img/logo.png" class="h-8 w-auto"  alt="odontoForense Logo" />
         <span class="self-center text-2xl font-semibold whitespace-nowrap dark:text-white">Odonto<br>Forense</span>
       </a>
 
@@ -84,7 +84,7 @@
       <div class="items-center justify-between hidden w-full md:flex md:w-auto md:order-1" id="navbar-language">
         <ul class="flex flex-col font-medium p-4 md:p-0 mt-4 border border-gray-100 rounded-lg bg-gray-50 md:space-x-8 rtl:space-x-reverse md:flex-row md:mt-0 md:border-0 md:bg-white dark:bg-gray-800 md:dark:bg-gray-900 dark:border-gray-700">
           <li>
-            <a  href="home.html" class="block py-2 px-3 text-white bg-blue-700 rounded-sm md:bg-transparent md:text-blue-700 md:p-0 md:dark:text-blue-500" aria-current="page">Gerenciar perícias</a>
+            <a href="home.html" class="block py-2 px-3 text-white bg-blue-700 rounded-sm md:bg-transparent md:text-blue-700 md:p-0 md:dark:text-blue-500" aria-current="page">Gerenciar perícias</a>
           </li>
           <li>
             <a href="gerenciar_func.html" class="block py-2 px-3 md:p-0 text-gray-900 rounded-sm hover:bg-gray-100 md:hover:bg-transparent md:hover:text-blue-700 dark:text-white md:dark:hover:text-blue-500 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent dark:border-gray-700 ">Gerenciar funcionários</a>
@@ -101,35 +101,112 @@
     </div>
   </nav>
 
-  <div class="max-w-7xl mx-auto p-6 flex-grow">
+    <div class="max-w-7xl mx-auto p-6">
+        <header class="mb-6">
+            <h1 class="text-3xl font-bold text-blue-900">Gerenciando Permissões do Funcionário</h1>
+        </header>
 
-    <div class="pericia-unic">
+        <div class="space-y-6">
+            <!-- Card de Usuário -->
+            <div class="bg-white p-6 rounded-lg shadow-md flex flex-col sm:flex-row sm:space-x-6">
+                <!-- Foto do Funcionário -->
+                <div class="flex-shrink-0">
+                    <img class="w-36 h-36 mb-3 rounded-full shadow-lg" src="../img/func0.png" alt="Foto do Funcionário 1">
+                </div>
 
-      <header class="mb-6">
-        <h1 class="text-3xl font-bold text-blue-900">Exame de arcada dentária</h1>
-      </header>
+                <div class="flex-1 mt-4 sm:mt-0">
+                    <h2 class="text-2xl font-semibold text-blue-900">Bonnie Green</h2>
+                    <p class="text-gray-700">Cargo: Ortodontista</p>
+                    <p class="text-gray-700">E-mail: funcionario1@odontoforense.com</p>
+                    <p class="text-gray-700">Telefone: (99) 99999-9999</p>
+                    <p class="text-gray-700 mt-2">CRO: 12345</p>
+                    <p class="text-gray-700 mt-2">Data de Criação: 01/01/2021</p>
+                </div>
+            </div>
 
-      <div>
-        <div class="flex flex-col items-center pb-10">
-          <img class="w-24 h-24 mb-3 rounded-full shadow-lg" src="../img/func0.png" alt="Bonnie image" />
-          <h5 class="mb-1 text-xl font-medium text-gray-900 dark:text-black">Bonnie Green</h5>
-          <span class="text-sm text-gray-900 dark:text-gray-900">Ortodontista</span>
-          <span class="text-sm text-gray-500 dark:text-gray-500">Postado a 15 minutos atrás.</span>
-          <span class="text-sm text-gray-500 dark:text-gray-500">Buscando resultados sobre causa da...</span>
-          <span class="text-sm text-gray-600 dark:text-gray-900">Status: Em análise</span>
-        </div>
-      </div>
-    </div>
-  </div>
+            <!-- Carrossel de Perícias Documentadas -->
+            <div class="bg-white p-6 rounded-lg shadow-md mt-6">
+                <h3 class="text-xl font-semibold text-blue-900">Perícias Documentadas</h3>
+                <div class="relative">
+                    <div class="overflow-hidden">
+                        <div class="flex transition-all duration-500" id="carrossel">
+                            <!-- Perícia 1 -->
+                            <div class="w-full sm:w-80 p-4 bg-gray-100 rounded-lg mx-2">
+                                <h4 class="font-semibold text-blue-900">Perícia 1</h4>
+                                <p class="text-gray-700">Descrição da perícia documentada 1...</p>
+                            </div>
+                            <!-- Perícia 2 -->
+                            <div class="w-full sm:w-80 p-4 bg-gray-100 rounded-lg mx-2">
+                                <h4 class="font-semibold text-blue-900">Perícia 2</h4>
+                                <p class="text-gray-700">Descrição da perícia documentada 2...</p>
+                            </div>
+                            <!-- Perícia 3 -->
+                            <div class="w-full sm:w-80 p-4 bg-gray-100 rounded-lg mx-2">
+                                <h4 class="font-semibold text-blue-900">Perícia 3</h4>
+                                <p class="text-gray-700">Descrição da perícia documentada 3...</p>
+                            </div>
+                            <!-- Perícia 4 -->
+                            <div class="w-full sm:w-80 p-4 bg-gray-100 rounded-lg mx-2">
+                                <h4 class="font-semibold text-blue-900">Perícia 4</h4>
+                                <p class="text-gray-700">Descrição da perícia documentada 4...</p>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Botões de navegação do carrossel -->
+                    <button id="prev" class="absolute top-1/2 left-0 transform -translate-y-1/2 bg-blue-500 text-white p-2 rounded-full">
+                        &#10094;
+                    </button>
+                    <button id="next" class="absolute top-1/2 right-0 transform -translate-y-1/2 bg-blue-500 text-white p-2 rounded-full">
+                        &#10095;
+                    </button>
+                </div>
+            </div>
 
-  <!-- Footer -->
-  <footer class="bg-gray-900 text-white p-4 mt-auto text-center">
-    <p>&copy; 2025 OdontoForense. Todos os direitos reservados.</p>
-  </footer>
+           <!-- Divisão para Permissões -->
+<div class="bg-white p-6 rounded-lg shadow-md mt-6">
+    <h3 class="text-xl font-semibold text-blue-900">Permissões</h3>
+    <table class="min-w-full mt-4 border border-gray-300">
+        <thead>
+            <tr class="bg-gray-300">
+                <th class="py-2 px-4 text-left border border-gray-400">Ação</th>
+                <th class="py-2 px-4 text-left border border-gray-400">Descrição</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr class="bg-gray-100">
+                <td class="py-2 px-4 border border-gray-300">ADMIN</td>
+                <td class="py-2 px-4 border border-gray-300">Pode criar, editar, excluir casos e gerenciar usuários.</td>
+            </tr>
+            <tr class="bg-white">
+                <td class="py-2 px-4 border border-gray-300">PERITO</td>
+                <td class="py-2 px-4 border border-gray-300">Pode acessar casos e adicionar laudos técnicos.</td>
+            </tr>
+            <tr class="bg-gray-100">
+                <td class="py-2 px-4 border border-gray-300">ASSISTENTE</td>
+                <td class="py-2 px-4 border border-gray-300">Pode visualizar casos e auxiliar no preenchimento de informações.</td>
+            </tr>
+        </tbody>
+    </table>
+    <a href="gerenciar_perms2.html" class="mt-4 block">
+        <button class="mt-4 w-full bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded transition duration-200">
+            Gerenciar Permissões
+        </button>
+    </a>
+</div>
+        
+</div>
+</div>
+</div>
 
-  <script src="https://cdn.jsdelivr.net/npm/flowbite@1.4.0/dist/flowbite.min.js"></script>
-  <script src="../js/pericia.js" ></script> 
 
+    
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white p-4 mt-auto text-center">
+        <p>&copy; 2025 OdontoForense. Todos os direitos reservados.</p>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/flowbite@1.4.0/dist/flowbite.min.js"></script>
+    <script src="../js/gerenciarperms1.js"></script>
 </body>
 
 </html>

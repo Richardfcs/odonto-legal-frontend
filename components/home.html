@@ -6,7 +6,7 @@
   <link rel="stylesheet" href="../css/style.css">
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/alpinejs@2.8.2/dist/alpine.min.js" defer></script>
-  <title>Perícia Bonnie Green</title>
+  <title>Home</title>
 </head>
 
 <body class="bg-gray-100 min-h-screen flex flex-col">
@@ -16,8 +16,8 @@
   <nav class="bg-white border-gray-200 dark:bg-gray-900">
     <div class="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-4">
       <a href="home.html" class="flex items-center space-x-3 rtl:space-x-reverse">
-        <img src="../img/logo.png"class="h-8 w-auto" alt="odontoForense Logo" />
-        <span class="self-center text-2xl font-semibold whitespace-nowrap dark:text-white">Odonto<br>Forense</span>
+        <img src="../img/logo.png" class="h-9 w-auto" alt="odontoForense Logo" />
+        <span class="self-center text-2x1 font-semibold whitespace-nowrap dark:text-white">Odonto<br>Forense</span>
       </a>
 
       <div class="flex items-center md:order-2 space-x-1 md:space-x-0 rtl:space-x-reverse">
@@ -74,6 +74,7 @@
             </li>
           </ul>
         </div>
+        <div>
         <button data-collapse-toggle="navbar-language" type="button" class="inline-flex items-center p-2 w-10 h-10 justify-center text-sm text-gray-500 rounded-lg md:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 dark:focus:ring-gray-600" aria-controls="navbar-language" aria-expanded="false">
           <span class="sr-only">Open main menu</span>
           <svg class="w-5 h-5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 17 14">
@@ -84,7 +85,7 @@
       <div class="items-center justify-between hidden w-full md:flex md:w-auto md:order-1" id="navbar-language">
         <ul class="flex flex-col font-medium p-4 md:p-0 mt-4 border border-gray-100 rounded-lg bg-gray-50 md:space-x-8 rtl:space-x-reverse md:flex-row md:mt-0 md:border-0 md:bg-white dark:bg-gray-800 md:dark:bg-gray-900 dark:border-gray-700">
           <li>
-            <a  href="home.html" class="block py-2 px-3 text-white bg-blue-700 rounded-sm md:bg-transparent md:text-blue-700 md:p-0 md:dark:text-blue-500" aria-current="page">Gerenciar perícias</a>
+            <a href="home.html" class="block py-2 px-3 text-white bg-blue-700 rounded-sm md:bg-transparent md:text-blue-700 md:p-0 md:dark:text-blue-500" aria-current="page">Gerenciar perícias</a>
           </li>
           <li>
             <a href="gerenciar_func.html" class="block py-2 px-3 md:p-0 text-gray-900 rounded-sm hover:bg-gray-100 md:hover:bg-transparent md:hover:text-blue-700 dark:text-white md:dark:hover:text-blue-500 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent dark:border-gray-700 ">Gerenciar funcionários</a>
@@ -97,26 +98,106 @@
           </li>
         </ul>
       </div>
-    </div>
+      </div>
     </div>
   </nav>
 
-  <div class="max-w-7xl mx-auto p-6 flex-grow">
+  <!-- Barra de pesquisa w-24 h-24 mb-3 mx-auto block-->
+  <div class="search-container"> 
+    <input type="search" class="search-bar" placeholder="Pesquisar..." />
+  </div>
 
-    <div class="pericia-unic">
+  <div class="max-w-7xl mx-auto p-6">
+    <header class="mb-6">
+      <h1 class="text-3xl font-bold text-blue-900">Perícias mais recentes</h1>
+    </header>
 
-      <header class="mb-6">
-        <h1 class="text-3xl font-bold text-blue-900">Exame de arcada dentária</h1>
-      </header>
-
-      <div>
+    <!-- Ajuste para responsividade: uso de grid com diferentes quantidades de colunas conforme o tamanho da tela -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 justify-items-center">
+      <!-- Card de Caso -->
+      <!-- Novo estilo de card para funcionário -->
+      <div class="bg-white p-6 rounded-lg shadow-md min-h-[280px] w-full max-w-[250px] flex flex-col justify-between text-center">
+        <h2 class="text-xl font-semibold text-blue-900 mb-2 text-center">Exame de arcada dentária</h2>
+        <!-- Foto e informações do funcionário -->
         <div class="flex flex-col items-center pb-10">
-          <img class="w-24 h-24 mb-3 rounded-full shadow-lg" src="../img/func0.png" alt="Bonnie image" />
           <h5 class="mb-1 text-xl font-medium text-gray-900 dark:text-black">Bonnie Green</h5>
           <span class="text-sm text-gray-900 dark:text-gray-900">Ortodontista</span>
           <span class="text-sm text-gray-500 dark:text-gray-500">Postado a 15 minutos atrás.</span>
           <span class="text-sm text-gray-500 dark:text-gray-500">Buscando resultados sobre causa da...</span>
           <span class="text-sm text-gray-600 dark:text-gray-900">Status: Em análise</span>
+        </div>
+        <!-- Ações: Visualizar e Chat -->
+        <div class="flex mt-4 md:mt-6 space-x-2 justify-center">
+          <a href="pericia.html" class="inline-flex items-center px-4 py-2 text-sm font-medium text-center text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
+            Visualizar
+          </a>
+          <a class="py-2 px-4 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700">
+            Opções
+          </a>
+        </div>
+      </div>
+
+      <div class="bg-white p-6 rounded-lg shadow-md min-h-[280px] w-full max-w-[250px] flex flex-col justify-between text-center">
+        <h2 class="text-xl font-semibold text-blue-900 mb-2 text-center">Exame de estrutura bucal</h2>
+        <!-- Foto e informações do funcionário -->
+        <div class="flex flex-col items-center pb-10">
+          <h5 class="mb-1 text-xl font-medium text-gray-900 dark:text-black">Edward styles</h5>
+          <span class="text-sm text-gray-700 dark:text-gray-900">Odontopediatra</span>
+          <span class="text-sm text-gray-500 dark:text-gray-500">Postado a 1 hora atrás.</span>
+          <span class="text-sm text-gray-500 dark:text-gray-500">Afirmando a hipótese de...</span>
+          <span class="text-sm text-gray-600 dark:text-gray-900">Status: Em análise</span>
+        </div>
+
+        <!-- Ações: Visualizar e Chat -->
+        <div class="flex mt-4 md:mt-6 space-x-2 justify-center">
+          <a class="inline-flex items-center px-4 py-2 text-sm font-medium text-center text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
+            Visualizar
+          </a>
+          <a class="py-2 px-4 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700">
+            Opções
+          </a>
+        </div>
+      </div>
+      
+      <div class="bg-white p-6 rounded-lg shadow-md min-h-[280px] w-full max-w-[250px] flex flex-col justify-between text-center">
+        <h2 class="text-xl font-semibold text-blue-900 mb-2 text-center">Verificação de lesões</h2>
+        <!-- Foto e informações do funcionário -->
+        <div class="flex flex-col items-center pb-10">
+          <h5 class="mb-1 text-xl font-medium text-gray-900 dark:text-black">Jessie Roberts</h5>
+          <span class="text-sm text-gray-700 dark:text-gray-900">Protesista</span>
+          <span class="text-sm text-gray-500 dark:text-gray-500">Postado a 1 dia atrás.</span>
+          <span class="text-sm text-gray-500 dark:text-gray-500">Verificando a existência de lesões...</span>
+          <span class="text-sm text-gray-600 dark:text-gray-900">Status: Em análise</span>
+        </div>
+        <!-- Ações: Visualizar e Chat -->
+        <div class="flex mt-4 md:mt-6 space-x-2 justify-center">
+          <a class="inline-flex items-center px-4 py-2 text-sm font-medium text-center text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
+            Visualizar
+          </a>
+          <a class="py-2 px-4 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700">
+            Opções
+          </a>
+        </div>
+      </div>
+
+      <div class="bg-white p-6 rounded-lg shadow-md min-h-[280px] w-full max-w-[250px] flex flex-col justify-between text-center">
+        <h2 class="text-xl font-semibold text-blue-900 mb-2 text-center">Exame de patologia</h2>
+        <!-- Foto e informações do funcionário -->
+        <div class="flex flex-col items-center pb-10">
+          <h5 class="mb-1 text-xl font-medium text-gray-900 dark:text-black">Ravi Pinheiro</h5>
+          <span class="text-sm text-gray-700 dark:text-gray-900">Cirurgião Bucomaxilofacial</span>
+          <span class="text-sm text-gray-500 dark:text-gray-500">Postado a 1 semana atrás.</span>
+          <span class="text-sm text-gray-500 dark:text-gray-500">Confirmada a existência de...</span>
+          <span class="text-sm text-gray-600 dark:text-gray-900">Status: Concluída</span>
+        </div>
+        <!-- Ações: Visualizar e Chat -->
+        <div class="flex mt-4 md:mt-6 space-x-2 justify-center">
+          <a class="inline-flex items-center px-4 py-2 text-sm font-medium text-center text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
+            Visualizar
+          </a>
+          <a class="py-2 px-4 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700">
+            Opções
+          </a>
         </div>
       </div>
     </div>
@@ -128,7 +209,8 @@
   </footer>
 
   <script src="https://cdn.jsdelivr.net/npm/flowbite@1.4.0/dist/flowbite.min.js"></script>
-  <script src="../js/pericia.js" ></script> 
+  
+  <script src="../js/home.js"></script>
 
 </body>
 
