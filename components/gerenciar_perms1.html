@@ -140,7 +140,7 @@
         <!-- Dados do Usuário -->
         <div class="bg-white p-6 rounded-lg shadow-md flex flex-col sm:flex-row sm:space-x-6">
             <div class="flex-shrink-0">
-                <img id="userImg" class="w-36 h-36 mb-3 rounded-full shadow-lg" src="../img/func0.png"
+                <img id="userImg" class="w-36 h-36 mb-3 rounded-full shadow-lg" src="../img/default_icon.png"
                     alt="Foto do Funcionário">
             </div>
             <div class="flex-1 mt-4 sm:mt-0">
@@ -192,22 +192,62 @@
             </form>
         </div>
 
+        <div class="mt-6 text-center">
+            <button id="showEditFormButton" class="w-full bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-2 rounded transition duration-200">
+              Editar Perfil
+            </button>
+          </div>
+          
+          <!-- Seção para Editar Dados do Usuário (inicialmente oculta) -->
+          <div id="editUserSection" class="bg-white p-6 rounded-lg shadow-md mt-6 hidden">
+            <h3 class="text-xl font-semibold text-blue-900">Editar Dados do Usuário</h3>
+            <form id="editUserForm" class="space-y-4">
+              <div>
+                <label for="editName" class="block text-blue-900 font-medium">Nome:</label>
+                <input type="text" id="editName" class="w-full p-2 border border-gray-300 rounded" required>
+              </div>
+              <div>
+                <label for="editEmail" class="block text-blue-900 font-medium">E-mail:</label>
+                <input type="email" id="editEmail" class="w-full p-2 border border-gray-300 rounded" required>
+              </div>
+              <div>
+                <label for="editTelefone" class="block text-blue-900 font-medium">Telefone:</label>
+                <input type="text" id="editTelefone" class="w-full p-2 border border-gray-300 rounded" required>
+              </div>
+              <div>
+                <label for="editCro" class="block text-blue-900 font-medium">CRO:</label>
+                <input type="text" id="editCro" class="w-full p-2 border border-gray-300 rounded" required>
+              </div>
+              <!-- Novo campo para mudar a foto de perfil -->
+              <div>
+                <label for="editPhoto" class="block text-blue-900 font-medium">Nova Foto de Perfil:</label>
+                <input type="file" id="editPhoto" accept="image/*" class="w-full p-2 border border-gray-300 rounded">
+              </div>
+              <button type="submit" class="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-2 rounded">
+                Salvar Alterações
+              </button>
+            </form>
+          </div>
+
         <div class="bg-white p-6 rounded-lg shadow-md mt-6">
             <h3 class="text-xl font-semibold text-blue-900">Excluir Usuário</h3>
             <p class="text-gray-700">Atenção: Essa ação excluirá permanentemente o usuário.</p>
-            <button id="deleteUser" class="w-full bg-red-500 hover:bg-red-600 text-white font-bold py-2 rounded transition duration-200 mt-4">
-              Deletar Usuário
+            <button id="deleteUser"
+                class="w-full bg-red-500 hover:bg-red-600 text-white font-bold py-2 rounded transition duration-200 mt-4">
+                Deletar Usuário
             </button>
         </div>
 
-    </div>
-        <!-- Footer -->
-        <footer class="bg-gray-900 text-white p-4 mt-auto text-center">
-            <p>&copy; 2025 OdontoForense. Todos os direitos reservados.</p>
-        </footer>
 
-        <script src="https://cdn.jsdelivr.net/npm/flowbite@1.4.0/dist/flowbite.min.js"></script>
-        <script src="../js/gerenciarperms1.js"></script>
+
+    </div>
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white p-4 mt-auto text-center">
+        <p>&copy; 2025 OdontoForense. Todos os direitos reservados.</p>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/flowbite@1.4.0/dist/flowbite.min.js"></script>
+    <script src="../js/gerenciarperms1.js"></script>
 </body>
 
 </html>

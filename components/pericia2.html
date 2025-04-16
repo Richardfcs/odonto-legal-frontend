@@ -100,59 +100,36 @@
     </div>
     </div>
   </nav>
-  <!-- Conteúdo do Caso -->
-  <div class="max-w-7xl mx-auto p-6">
-    <!-- Seção de Dados do Caso -->
-    <div class="bg-white p-6 rounded-lg shadow-md mb-6">
-      <h1 id="caseName" class="text-3xl font-bold text-blue-900 mb-4">Carregando...</h1>
-      <p id="caseDescription" class="text-gray-800 mb-2"></p>
-      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <div>
-          <span class="font-semibold">Status:</span>
-          <span id="caseStatus" class="text-gray-700"></span>
-        </div>
-        <div>
-          <span class="font-semibold">Local:</span>
-          <span id="caseLocation" class="text-gray-700"></span>
-        </div>
-        <div>
-          <span class="font-semibold">Data:</span>
-          <span id="caseDate" class="text-gray-700"></span>
-        </div>
-        <div>
-          <span class="font-semibold">Hora:</span>
-          <span id="caseHour" class="text-gray-700"></span>
-        </div>
-        <div>
-          <span class="font-semibold">Categoria:</span>
-          <span id="caseCategory" class="text-gray-700"></span>
+
+  <div class="max-w-7xl mx-auto p-6 flex-grow">
+
+    <div class="pericia-unic">
+
+      <header class="mb-6">
+        <h1 class="text-3xl font-bold text-blue-900">Exame de arcada dentária</h1>
+      </header>
+
+      <div>
+        <div class="flex flex-col items-center pb-10">
+          <img class="w-24 h-24 mb-3 rounded-full shadow-lg" src="../img/func0.png" alt="Bonnie image" />
+          <h5 class="mb-1 text-xl font-medium text-gray-900 dark:text-black">Bonnie Green</h5>
+          <span class="text-sm text-gray-900 dark:text-gray-900">Ortodontista</span>
+          <span class="text-sm text-gray-500 dark:text-gray-500">Postado a 15 minutos atrás.</span>
+          <span class="text-sm text-gray-500 dark:text-gray-500">Buscando resultados sobre causa da...</span>
+          <span class="text-sm text-gray-600 dark:text-gray-900">Status: Em análise</span>
         </div>
       </div>
-    </div>
-
-    <!-- Seção de Evidências -->
-    <div class="bg-white p-6 rounded-lg shadow-md mb-6">
-      <h2 class="text-2xl font-bold text-blue-900 mb-4">Evidências Relacionadas</h2>
-      <div id="evidencesContainer" class="space-y-4">
-        <!-- Evidências serão inseridas dinamicamente aqui -->
-      </div>
-    </div>
-
-    <!-- Seção com Botões de Ação -->
-    <div class="flex flex-col md:flex-row md:justify-between gap-4">
-      <button id="addEvidenceBtn" class="w-full md:w-auto bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded">
-        Adicionar Evidência
-      </button>
-      <button id="exportReportBtn" class="w-full md:w-auto bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded">
-        Exportar Laudo
-      </button>
-      <button id="editCaseBtn" class="w-full md:w-auto bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-2 px-4 rounded">
-        Editar Caso
-      </button>
-      <button id="deleteCaseBtn" class="w-full md:w-auto bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded">
-        Deletar Caso
-      </button>
     </div>
   </div>
-  <script src="../js/pericia.js"></script>
+
+  <!-- Footer -->
+  <footer class="bg-gray-900 text-white p-4 mt-auto text-center">
+    <p>&copy; 2025 OdontoForense. Todos os direitos reservados.</p>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/flowbite@1.4.0/dist/flowbite.min.js"></script>
+  <script src="../js/pericia.js" ></script> 
+
 </body>
+
+</html>
