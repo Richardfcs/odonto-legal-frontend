@@ -75,7 +75,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       // Cria o elemento card
       const card = document.createElement("div");
       card.className =
-        "bg-white p-6 rounded-lg shadow-md min-h-[280px] w-full max-w-[250px] flex flex-col justify-between text-center";
+        "bg-white p-6 rounded-lg shadow-md min-h-[280px] w-full max-w-[250px] flex flex-col justify-center text-center";
 
       // Monta o conteúdo do card
       card.innerHTML = `

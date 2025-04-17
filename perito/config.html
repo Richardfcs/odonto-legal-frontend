@@ -8,7 +8,7 @@
       src="https://cdn.jsdelivr.net/npm/alpinejs@2.8.2/dist/alpine.min.js"
       defer
     ></script>
-    <title>Notificações - Settings</title>
+    <title>Configurações</title>
   </head>
 
   <body class="bg-gray-100 min-h-screen flex flex-col">
@@ -182,18 +182,19 @@
               <a
                 href="home.html"
                 class="block py-2 px-3 text-white bg-blue-700 rounded-sm md:bg-transparent md:p-0 md:dark:hover:text-blue-500"
-                >Gerenciar perícias</a
+                >Minhas perícias</a
               >
             </li>
             <li>
               <a
-                href="gerenciar_func.html"
+                href="geral.html"
                 class="block py-2 px-3 md:p-0 text-gray-900 rounded-sm hover:bg-gray-100 md:hover:bg-transparent md:hover:text-blue-700 dark:text-white md:dark:hover:text-blue-500 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent dark:border-gray-700"
-                >Gerenciar funcionários</a
+                >Geral</a
               >
             </li>
             <li>
               <a
+                href="perfil.html"
                 class="block py-2 px-3 md:p-0 text-gray-900 rounded-sm hover:bg-gray-100 md:hover:bg-transparent md:hover:text-blue-700 dark:text-white md:dark:hover:text-blue-500 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent dark:border-gray-700"
                 >Meu perfil</a
               >
@@ -273,7 +274,7 @@
             <li>
               <a
                 href="config.html"
-                class="mt-5 cursor-pointer border-l-2 border-transparent px-2 py-2 font-semibold transition hover:border-l-blue-700 hover:text-blue-700"
+                class="mt-5 cursor-pointer border-l-2 border-l-blue-700 px-2 py-2 font-semibold text-blue-700 transition hover:border-l-blue-700 hover:text-blue-700"
                 >Configurações da Conta</a
               >
             </li>
@@ -288,7 +289,7 @@
             <li>
               <a
                 href="notificacao.html"
-                class="mt-5 cursor-pointer border-l-2 border-l-blue-700 px-2 py-2 font-semibold text-blue-700 transition hover:border-l-blue-700 hover:text-blue-700"
+                class="mt-5 cursor-pointer border-l-2 border-transparent px-2 py-2 font-semibold transition hover:border-l-blue-700 hover:text-blue-700"
                 >Notificações</a
               >
             </li>
@@ -303,222 +304,121 @@
         </div>
 
         <div
-          class="col-span-8 overflow-hidden rounded-xl bg-gray-50 px-8 shadow"
+          class="col-span-8 overflow-hidden rounded-xl sm:bg-gray-50 sm:px-8 sm:shadow"
         >
-          <div class="border-b pt-4 pb-8">
-            <h1 class="py-2 text-2xl font-semibold">
-              Notificações de Perícia Odontológica Forense
-            </h1>
-            <p class="text-slate-600">
-              Gerencie as Notificações de perícias, casos e laudos odontológicos
-              forenses.
+          <div class="pt-4">
+            <h1 class="py-2 text-2xl font-semibold">Configurações da Conta</h1>
+            <!-- <p class="font- text-slate-600">Lorem ipsum dolor, sit amet consectetur adipisicing elit.</p> -->
+          </div>
+          <hr class="mt-4 mb-8" />
+
+          <p class="py-2 text-xl font-semibold">Endereço de E-mail</p>
+          <div
+            class="flex flex-col sm:flex-row sm:items-center sm:justify-between"
+          >
+            <p class="text-gray-600">
+              Seu e-mail é <strong>Bonnie.Green@company.com</strong>
             </p>
+            <button
+              class="inline-flex text-sm font-semibold text-blue-600 underline decoration-2"
+            >
+              Alterar
+            </button>
           </div>
 
-          <!-- Casos -->
-          <div class="grid border-b py-6 sm:grid-cols-2">
-            <div>
-              <h2 class="text-lg font-semibold leading-4 text-slate-700">
-                Casos
-              </h2>
-              <p class="text-slate-600">
-                Acompanhe os casos em andamento, com informações sobre vítimas e
-                status das perícias odontológicas.
-              </p>
-            </div>
-            <div class="mt-4 flex items-center sm:justify-end">
-              <div class="flex flex-col gap-3">
-                <label
-                  for="case-push"
-                  class="relative inline-flex cursor-pointer items-center"
-                >
-                  <input
-                    type="checkbox"
-                    value=""
-                    id="case-push"
-                    class="peer sr-only"
-                    checked
-                  />
-                  <div
-                    class="peer h-6 w-11 rounded-full bg-gray-200 after:absolute after:top-[2px] after:left-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-blue-600 peer-checked:after:translate-x-full peer-checked:after:border-white peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300"
-                  ></div>
-                  <span class="ml-3 text-sm font-medium text-gray-900"
-                    >Notificação Push</span
-                  >
-                </label>
-                <label
-                  for="case-email"
-                  class="relative inline-flex cursor-pointer items-center"
-                >
-                  <input
-                    type="checkbox"
-                    value=""
-                    id="case-email"
-                    class="peer sr-only"
-                    checked
-                  />
-                  <div
-                    class="peer h-6 w-11 rounded-full bg-gray-200 after:absolute after:top-[2px] after:left-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-blue-600 peer-checked:after:translate-x-full peer-checked:after:border-white peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300"
-                  ></div>
-                  <span class="ml-3 text-sm font-medium text-gray-900"
-                    >Email</span
-                  >
-                </label>
-                <label
-                  for="case-sms"
-                  class="relative inline-flex cursor-pointer items-center"
-                >
-                  <input
-                    type="checkbox"
-                    value=""
-                    id="case-sms"
-                    class="peer sr-only"
-                  />
-                  <div
-                    class="peer h-6 w-11 rounded-full bg-gray-200 after:absolute after:top-[2px] after:left-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-blue-600 peer-checked:after:translate-x-full peer-checked:after:border-white peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300"
-                  ></div>
-                  <span class="ml-3 text-sm font-medium text-gray-900"
-                    >SMS</span
-                  >
-                </label>
-              </div>
-            </div>
-          </div>
+          <hr class="mt-4 mb-8" />
 
-          <!-- Peritos -->
-          <div class="grid border-b py-6 sm:grid-cols-2">
-            <div>
-              <h2 class="text-lg font-semibold leading-4 text-slate-700">
-                Peritos Odontológicos
-              </h2>
-              <p class="text-slate-600">
-                Gerencie os peritos responsáveis pelas perícias odontológicas e
-                acompanhe os laudos emitidos.
-              </p>
+          <p class="py-2 text-xl font-semibold">Senha</p>
+          <div class="flex items-center">
+            <div
+              class="flex flex-col space-y-2 sm:flex-row sm:space-y-0 sm:space-x-3"
+            >
+              <label for="login-password">
+                <span class="text-sm text-gray-500">Senha Atual</span>
+                <div
+                  class="relative flex overflow-hidden rounded-md border-2 transition focus-within:border-blue-600"
+                >
+                  <input
+                    type="password"
+                    id="login-password"
+                    class="w-full flex-shrink appearance-none border-gray-300 bg-white py-2 px-4 text-base text-gray-700 placeholder-gray-400 focus:outline-none"
+                    placeholder="***********"
+                  />
+                </div>
+              </label>
+              <label for="login-password">
+                <span class="text-sm text-gray-500">Nova Senha</span>
+                <div
+                  class="relative flex overflow-hidden rounded-md border-2 transition focus-within:border-blue-600"
+                >
+                  <input
+                    type="password"
+                    id="login-password"
+                    class="w-full flex-shrink appearance-none border-gray-300 bg-white py-2 px-4 text-base text-gray-700 placeholder-gray-400 focus:outline-none"
+                    placeholder="***********"
+                  />
+                </div>
+              </label>
             </div>
-            <div class="mt-4 flex items-center sm:justify-end">
-              <div class="flex flex-col gap-3">
-                <label
-                  for="perito-push"
-                  class="relative inline-flex cursor-pointer items-center"
-                >
-                  <input
-                    type="checkbox"
-                    value=""
-                    id="perito-push"
-                    class="peer sr-only"
-                  />
-                  <div
-                    class="peer h-6 w-11 rounded-full bg-gray-200 after:absolute after:top-[2px] after:left-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-blue-600 peer-checked:after:translate-x-full peer-checked:after:border-white peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300"
-                  ></div>
-                  <span class="ml-3 text-sm font-medium text-gray-900"
-                    >Push</span
-                  >
-                </label>
-                <label
-                  for="perito-email"
-                  class="relative inline-flex cursor-pointer items-center"
-                >
-                  <input
-                    type="checkbox"
-                    value=""
-                    id="perito-email"
-                    class="peer sr-only"
-                  />
-                  <div
-                    class="peer h-6 w-11 rounded-full bg-gray-200 after:absolute after:top-[2px] after:left-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-blue-600 peer-checked:after:translate-x-full peer-checked:after:border-white peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300"
-                  ></div>
-                  <span class="ml-3 text-sm font-medium text-gray-900"
-                    >Email</span
-                  >
-                </label>
-                <label
-                  for="perito-sms"
-                  class="relative inline-flex cursor-pointer items-center"
-                >
-                  <input
-                    type="checkbox"
-                    value=""
-                    id="perito-sms"
-                    class="peer sr-only"
-                  />
-                  <div
-                    class="peer h-6 w-11 rounded-full bg-gray-200 after:absolute after:top-[2px] after:left-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-blue-600 peer-checked:after:translate-x-full peer-checked:after:border-white peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300"
-                  ></div>
-                  <span class="ml-3 text-sm font-medium text-gray-900"
-                    >SMS</span
-                  >
-                </label>
-              </div>
-            </div>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="mt-5 ml-2 h-6 w-6 cursor-pointer text-sm font-semibold text-gray-600 underline decoration-2"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"
+              />
+            </svg>
           </div>
+          <p class="mt-2">
+            Não consegue lembrar sua senha atual?
+            <a
+              class="text-sm font-semibold text-blue-600 underline decoration-2"
+              href="#"
+              >Recuperar Conta</a
+            >
+          </p>
+          <button class="mt-4 rounded-lg bg-blue-600 px-4 py-2 text-white">
+            Salvar Senha
+          </button>
 
-          <!-- Laudos Odontológicos -->
-          <div class="grid border-b py-6 sm:grid-cols-2">
-            <div>
-              <h2 class="text-lg font-semibold leading-4 text-slate-700">
-                Laudos Odontológicos
-              </h2>
-              <p class="text-slate-600">
-                Acompanhe os laudos odontológicos gerados para cada caso, com
-                detalhes sobre a análise pericial.
-              </p>
-            </div>
-            <div class="mt-4 flex items-center sm:justify-end">
-              <div class="flex flex-col gap-3">
-                <label
-                  for="laudo-push"
-                  class="relative inline-flex cursor-pointer items-center"
-                >
-                  <input
-                    type="checkbox"
-                    value=""
-                    id="laudo-push"
-                    class="peer sr-only"
-                  />
-                  <div
-                    class="peer h-6 w-11 rounded-full bg-gray-200 after:absolute after:top-[2px] after:left-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-blue-600 peer-checked:after:translate-x-full peer-checked:after:border-white peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300"
-                  ></div>
-                  <span class="ml-3 text-sm font-medium text-gray-900"
-                    >Push</span
-                  >
-                </label>
-                <label
-                  for="laudo-email"
-                  class="relative inline-flex cursor-pointer items-center"
-                >
-                  <input
-                    type="checkbox"
-                    value=""
-                    id="laudo-email"
-                    class="peer sr-only"
-                  />
-                  <div
-                    class="peer h-6 w-11 rounded-full bg-gray-200 after:absolute after:top-[2px] after:left-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-blue-600 peer-checked:after:translate-x-full peer-checked:after:border-white peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300"
-                  ></div>
-                  <span class="ml-3 text-sm font-medium text-gray-900"
-                    >Email</span
-                  >
-                </label>
-                <label
-                  for="laudo-sms"
-                  class="relative inline-flex cursor-pointer items-center"
-                >
-                  <input
-                    type="checkbox"
-                    value=""
-                    id="laudo-sms"
-                    class="peer sr-only"
-                  />
-                  <div
-                    class="peer h-6 w-11 rounded-full bg-gray-200 after:absolute after:top-[2px] after:left-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-blue-600 peer-checked:after:translate-x-full peer-checked:after:border-white peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300"
-                  ></div>
-                  <span class="ml-3 text-sm font-medium text-gray-900"
-                    >SMS</span
-                  >
-                </label>
-              </div>
-            </div>
+          <hr class="mt-4 mb-8" />
+
+          <div class="mb-10">
+            <p class="py-2 text-xl font-semibold">Excluir Conta</p>
+            <p
+              class="inline-flex items-center rounded-full bg-rose-100 px-4 py-1 text-rose-600"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="mr-2 h-5 w-5"
+                viewBox="0 0 20 20"
+                fill="currentColor"
+              >
+                <path
+                  fill-rule="evenodd"
+                  d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
+                  clip-rule="evenodd"
+                />
+              </svg>
+              Proceda com cautela
+            </p>
+            <p class="mt-2">
+              Certifique-se de ter feito backup dos seus dados, caso precise
+              acessá-los no futuro. Todos os dados serão apagados
+              permanentemente. Não será possível recuperar sua conta após essa
+              ação.
+            </p>
+            <button
+              class="ml-auto text-sm font-semibold text-rose-600 underline decoration-2"
+            >
+              Continuar com a exclusão
+            </button>
           </div>
         </div>
       </div>
@@ -530,6 +430,6 @@
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/flowbite@1.4.0/dist/flowbite.min.js"></script>
-    <script src="../js/notificacao.js"></script>
+    <script src="../js/config.js"></script>
   </body>
 </html>

@@ -1,24 +1,21 @@
-<!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="../css/style.css">
+  <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/alpinejs@2.8.2/dist/alpine.min.js" defer></script>
-  <script src="https://kit.fontawesome.com/a076d05399.js"></script> <!-- Ícones FontAwesome -->
-  <title>OdontoForense - Gerenciamento de Funcionários</title>
+  <title>Perícia Bonnie Green</title>
 </head>
 
 <body class="bg-gray-100 min-h-screen flex flex-col">
 
   <!-- Navigation Bar -->
-
   <nav class="bg-white border-gray-200 dark:bg-gray-900">
     <div class="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-4">
-      <a href="index.html" class="flex items-center space-x-3 rtl:space-x-reverse">
-        <img src="../img/icon.png" class="h-10 w-auto" alt="odontoForense Logo" />
+      <a href="home.html" class="flex items-center space-x-3 rtl:space-x-reverse">
+        <img src="../img/icon.png"class="h-10 w-auto" alt="odontoForense Logo" />
         <span class="self-center text-2xl font-semibold whitespace-nowrap dark:text-white">Odonto<br>Forense</span>
       </a>
 
@@ -86,13 +83,13 @@
       <div class="items-center justify-between hidden w-full md:flex md:w-auto md:order-1" id="navbar-language">
         <ul class="flex flex-col font-medium p-4 md:p-0 mt-4 border border-gray-100 rounded-lg bg-gray-50 md:space-x-8 rtl:space-x-reverse md:flex-row md:mt-0 md:border-0 md:bg-white dark:bg-gray-800 md:dark:bg-gray-900 dark:border-gray-700">
           <li>
-            <a href="home.html" class="block py-2 px-3 text-white rounded-sm md:bg-transparent md:p-0 md:dark:hover:text-blue-500">Gerenciar perícias</a>
+            <a  href="home.html" class="block py-2 px-3 text-white bg-blue-700 rounded-sm md:bg-transparent md:p-0 md:dark:hover:text-blue-500" aria-current="page">Minhas perícias</a>
           </li>
           <li>
-            <a href="gerenciar_func.html" class="block py-2 px-3 md:p-0 text-gray-900 rounded-sm hover:bg-gray-100 md:hover:bg-transparent md:hover:text-blue-700 dark:text-white md:dark:hover:text-blue-500 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent dark:border-gray-700 md:text-blue-700 md:dark:text-blue-500 bg-blue-700 bg-blue-700" aria-current="page">Gerenciar funcionários</a>
+            <a href="geral.html" class="block py-2 px-3 md:p-0 text-gray-900 rounded-sm hover:bg-gray-100 md:hover:bg-transparent md:hover:text-blue-700 dark:text-white md:dark:hover:text-blue-500 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent dark:border-gray-700 md:text-blue-700 md:dark:text-blue-500">Geral</a>
           </li>
           <li>
-            <a class="block py-2 px-3 md:p-0 text-gray-900 rounded-sm hover:bg-gray-100 md:hover:bg-transparent md:hover:text-blue-700 dark:text-white md:dark:hover:text-blue-500 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent dark:border-gray-700">Meu perfil</a>
+            <a href="perfil.html" class="block py-2 px-3 md:p-0 text-gray-900 rounded-sm hover:bg-gray-100 md:hover:bg-transparent md:hover:text-blue-700 dark:text-white md:dark:hover:text-blue-500 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent dark:border-gray-700">Meu perfil</a>
           </li>
           <li>
             <a href="config.html" class="block py-2 px-3 md:p-0 text-gray-900 rounded-sm hover:bg-gray-100 md:hover:bg-transparent md:hover:text-blue-700 dark:text-white md:dark:hover:text-blue-500 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent dark:border-gray-700">Configurações</a>
@@ -103,57 +100,83 @@
     </div>
   </nav>
 
-    <!-- Barra de pesquisa w-24 h-24 mb-3 mx-auto block-->
-    <div class="search-container">
+  <div class="max-w-7xl mx-auto p-6 flex-grow">
 
-      <!-- Barra de pesquisa -->
-      <input type="search" class="search-bar" placeholder="Pesquisar..." />
+    <div class="pericia-unic">
 
-      <!-- Botão de pesquisa -->
-      <button class="search-button">🔍</button>
+      <header class="mb-6">
+        <h1 class="text-3xl font-bold text-blue-900">Exame de arcada dentária</h1>
+      </header>
+
+  
+  <div class="flex flex-col items-center pb-10">
+    <img class="w-24 h-24 mb-3 rounded-full shadow-lg" src="../img/func0.png" alt="Bonnie image" />
+  </div>
+
+  <div class="flex flex-col items-start gap-2 px-4 py-6 bg-white rounded-lg shadow-md dark:bg-gray-100">
+    <h2 class="text-2xl font-semibold text-gray-900 mb-2">Detalhes do Caso</h2>
+  
+    <div>
+      <strong class="text-gray-700">Descrição:</strong>
+      <p class="text-gray-800">Paciente envolvido em acidente de trânsito com múltiplas lesões faciais. Análise solicitada para confirmação de trauma contuso e possível fratura maxilar.</p>
     </div>
+  
+    <div>
+      <strong class="text-gray-700">Status:</strong>
+      <span class="text-yellow-600 font-medium">Em andamento</span>
+    </div>
+  
+    <div>
+      <strong class="text-gray-700">Localização:</strong>
+      <span class="text-gray-800">Unidade Central de Perícias - São Paulo/SP</span>
+    </div>
+  
+    <div>
+      <strong class="text-gray-700">Categoria:</strong>
+      <span class="text-gray-800">Acidente</span>
+    </div>
+  
+    <div>
+      <strong class="text-gray-700">Data de criação:</strong>
+      <span class="text-gray-800">03/04/2025 às 14:27</span>
+    </div>
+  
+    <div>
+      <strong class="text-gray-700">Últimas atualizações:</strong>
+      <ul class="list-disc ml-6 text-gray-800">
+        <li>15/04/2025 - Laudo preliminar anexado</li>
+        <li>12/04/2025 - Imagens do local do acidente adicionadas</li>
+        <li>05/04/2025 - Entrevista com o perito agendada</li>
+      </ul>
+    </div>
+  </div>
+ </div>
 
-    <!-- Dropdown de filtro -->
-    <div class="dropdown flex-row justify-items-center">
-      <button
-        class="filter-button"
-        id="filterButton"
-        onclick="toggleDropdown()"
-      >
-        Filtro ▾
+  <div class="button-section">
+    <!-- Botão com dropdown -->
+    <div class="dropdown">
+      <button class="dropdown-button" id="evidenciaBtn" onclick="toggleDropdown('evidenciaDropdown')">
+        Adicionar evidência ▾
       </button>
-      <div class="dropdown-content" id="dropdown">
-        <div onclick="selectFilter(this)">Mais recentes</div>
-        <div onclick="selectFilter(this)">Mais antigos</div>
-        <div onclick="selectFilter(this)">Ordem alfabética</div>
-        <div onclick="selectFilter(this)">Concluídos</div>
-        <div onclick="selectFilter(this)">Em análise</div>
-        <div onclick="selectFilter(this)">Arquivados</div>
+      <div class="dropdown-content" id="evidenciaDropdown">
+        <div onclick="handleOption('Texto')">Texto</div>
+        <div onclick="handleOption('Imagem')">Imagem</div>
+        <div onclick="handleOption('Documento')">Documento</div>
       </div>
     </div>
+    <!-- Botão normal -->
+    <button class="save-button" onclick="salvarAlteracoes()">Salvar alterações</button>
+  </div>
 
-  <div class="max-w-7xl mx-auto p-6">
-    <header class="mb-6">
-      <h1 class="text-3xl font-bold text-blue-900">Gerenciar permissões dos funcionários</h1>
-    </header>
+</div>
 
-    <!-- Ajuste para responsividade: uso de grid com diferentes quantidades de colunas conforme o tamanho da tela -->
-    <div id="usersContainer" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 justify-items-center max-w-screen-xl"></div>
-    
-    <!-- adicionar funcionário -->
-      <div id="addfunc" class="bg-white p-6 rounded-lg shadow-md min-h-[280px] max-w-[250px] justify-items-center text-center mt-4">
-        <h2 class="text-xl font-semibold text-blue-900 mb-2 text-center">Novo funcionário</h2>
-        <img class="w-24 h-24 mb-3 mx-auto block" src="../img/add_icon.png" alt="add_icon"/>
-          <div class="flex mt-4 md:mt-6 space-x-2 justify-center">
-            <a href="cadastro.html" class="inline-flex items-center px-4 py-2 text-sm font-medium text-center text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
-              Cadastrar
-            </a>
-        </div>
-      </div>
-    </div>
+<!-- Footer -->
+<footer class="bg-gray-900 text-white p-4 mt-auto text-center">
+  <p>&copy; 2025 OdontoForense. Todos os direitos reservados.</p>
+</footer>
 
   <script src="https://cdn.jsdelivr.net/npm/flowbite@1.4.0/dist/flowbite.min.js"></script>
-  <script src="../js/gerenciar_func.js"></script>
+  <script src="../js/pericia.js" ></script> 
 
 </body>
 
