@@ -122,7 +122,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const newRole = document.getElementById('roleSelect').value;
     try {
       const response = await fetch(`http://localhost:3000/api/user/${userId}`, {
-        method: 'PUT',
+        method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
@@ -184,7 +184,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       name: updatedName,
       email: updatedEmail,
       telephone: updatedTelefone,
-      cro: updatedCro
+      cro: updatedCro,
     };
 
     // Se o usuário selecionou uma nova foto, converte para Base64 e adiciona ao objeto
