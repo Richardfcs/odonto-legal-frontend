@@ -1,1 +1,8 @@
 md:dark:hover:text-blue-500 = HOVER AZUL DA NAVBAR
+md:text-blue-700 md:dark:text-blue-500 = cor azul selecionado
+bg-blue-700 = fundo azul mobile
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white p-4 mt-auto text-center">
+      <p>&copy; 2025 OdontoForense. Todos os direitos reservados.</p>
+    </footer>

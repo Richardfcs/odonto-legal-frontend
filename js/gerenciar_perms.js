@@ -95,7 +95,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     try {
       const response = await fetch(`http://localhost:3000/api/user/${userId}`, {
-        method: 'PATCH',
+        method: "PUT",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
@@ -138,30 +138,15 @@ document.addEventListener("DOMContentLoaded", async () => {
     carousel.style.transform = `translateX(-${scrollPosition}px)`;
   });
 
-    // Obtém os valores atualizados do formulário
-    const updatedName = document.getElementById('editName').value;
-    const updatedEmail = document.getElementById('editEmail').value;
-    const updatedTelefone = document.getElementById('editTelefone').value;
-    const updatedCro = document.getElementById('editCro').value;
-    const editPhotoInput = document.getElementById('editPhoto');
-
-    // Cria o objeto de atualização
-    const updates = {
-      name: updatedName,
-      email: updatedEmail,
-      telephone: updatedTelefone,
-      cro: updatedCro,
-    };
-
-    // Se o usuário selecionou uma nova foto, converte para Base64 e adiciona ao objeto
-    try {
-      if (editPhotoInput.files && editPhotoInput.files.length > 0) {
-        const base64Photo = await convertImageToBase64(editPhotoInput);
-        updates.photo = base64Photo;
-      }
-    } catch (error) {
-      console.error('Erro ao converter a nova foto:', error);
-      alert("Erro ao processar a imagem. Tente novamente.");
+  // Função para deletar
+  const deleteUserButton = document.getElementById("deleteUser");
+  deleteUserButton.addEventListener("click", async () => {
+    // Confirmação extra para evitar deleção acidental
+    if (
+      !confirm(
+        "Tem certeza de que deseja excluir este usuário? Essa ação não poderá ser desfeita."
+      )
+    ) {
       return;
     }
 
