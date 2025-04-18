@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OdontoForense - Cadastro de Caso</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="flex items-center justify-center min-h-screen bg-gray-100">
+  <div class="bg-white p-8 rounded-lg shadow-md w-full max-w-lg">
+    <h1 class="text-2xl font-bold text-blue-900 text-center mb-6">Cadastro de Caso</h1>
+
+    <form id="caseForm" class="space-y-4">
+      <!-- Nome do Caso -->
+      <div>
+        <label for="nameCase" class="block text-blue-900 font-medium">Nome do Caso</label>
+        <input type="text" id="nameCase" placeholder="Digite o nome do caso" required class="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
+      </div>
+
+      <!-- Descrição -->
+      <div>
+        <label for="description" class="block text-blue-900 font-medium">Descrição</label>
+        <textarea id="description" placeholder="Digite a descrição do caso" class="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+      </div>
+
+      <!-- Status -->
+      <div>
+        <label for="status" class="block text-blue-900 font-medium">Status</label>
+        <select id="status" required class="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
+          <option value="">Selecione um status</option>
+          <option value="em andamento">Em Andamento</option>
+          <option value="finalizado">Finalizado</option>
+          <option value="arquivado">Arquivado</option>
+        </select>
+      </div>
+
+      <!-- Local -->
+      <div>
+        <label for="location" class="block text-blue-900 font-medium">Local</label>
+        <input type="text" id="location" placeholder="Digite o local do caso" required class="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
+      </div>
+
+      <!-- Data e Hora -->
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <label for="dateCase" class="block text-blue-900 font-medium">Data do Caso</label>
+          <input type="date" id="dateCase" class="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
+        </div>
+        <div>
+          <label for="hourCase" class="block text-blue-900 font-medium">Hora do Caso</label>
+          <input type="time" id="hourCase" class="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
+        </div>
+      </div>
+
+      <!-- Categoria -->
+      <div>
+        <label for="category" class="block text-blue-900 font-medium">Categoria</label>
+        <select id="category" required class="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
+          <option value="">Selecione uma categoria</option>
+          <option value="acidente">Acidente</option>
+          <option value="identificação de vítima">Identificação de Vítima</option>
+          <option value="exame criminal">Exame Criminal</option>
+          <option value="outros">Outros</option>
+        </select>
+      </div>
+
+      <!-- Equipe
+      <div>
+        <label for="team" class="block text-blue-900 font-medium">Equipe (IDs, separados por vírgula)</label>
+        <input type="text" id="team" placeholder="Ex: 64ac23..., 64ac23..." class="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
+      </div> -->
+
+      <button type="submit" class="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 rounded transition duration-200">
+        Cadastrar Caso
+      </button>
+    </form>
+  </div>
+
+  <script src="../js/createCase.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/flowbite@1.4.0/dist/flowbite.min.js"></script>
+</body>
+</html>
