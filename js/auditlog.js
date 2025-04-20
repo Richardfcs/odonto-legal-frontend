@@ -1,5 +1,33 @@
 const API_URL = 'https://odonto-legal-backend.onrender.com';
 
+// Fecha o dropdown se clicar fora
+window.onclick = function (event) {
+    if (!event.target.matches(".filter-button")) {
+      const dropdown = document.getElementById("dropdown");
+      if (dropdown && dropdown.style.display === "block") {
+        dropdown.style.display = "none";
+      }
+    }
+  };
+  
+  // Script para mostrar/ocultar o menu dropdown
+  document.querySelectorAll(".fa-pencil-alt").forEach((button) => {
+    button.addEventListener("click", function () {
+      const dropdown =
+        this.closest(".relative").querySelector(".dropdown-content");
+      dropdown.classList.toggle("hidden");
+    });
+  });
+  // Fecha o dropdown se clicar fora
+  window.onclick = function (event) {
+    if (!event.target.matches(".filter-button") && !event.target.closest('.dropdown-content')) { // Adicionado .closest('.dropdown-content') para não fechar ao clicar DENTRO do dropdown
+      const dropdown = document.getElementById("dropdown");
+      if (dropdown && dropdown.style.display === "block") {
+        dropdown.style.display = "none";
+      }
+    }
+  };
+
 // Variáveis globais para controle da paginação
 let currentPage = 1;
 const logsPerPage = 25; // Quantidade de logs a buscar por página (ajuste conforme necessário)
@@ -29,19 +57,18 @@ function formatTimestamp(isoString) {
     }
 }
 
-// Cria o HTML para um único card de log
+// Cria o HTML para um único card de log (MODIFICADO)
 function createLogCard(log) {
     const card = document.createElement('div');
-    card.className = 'bg-white p-4 rounded-lg shadow-sm border border-gray-200 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2'; // Layout flexível
+    // Adiciona overflow-hidden à div principal do card como uma garantia extra
+    card.className = 'bg-white p-4 rounded-lg shadow-sm border border-gray-200 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 overflow-hidden';
 
-    // Formata os detalhes para exibição (truncado se for muito longo)
     let detailsText = 'N/A';
     if (log.details) {
         try {
-            detailsText = JSON.stringify(log.details);
-            if (detailsText.length > 150) { // Limita o tamanho dos detalhes exibidos
-                detailsText = detailsText.substring(0, 150) + '...';
-            }
+            // Formata o JSON com indentação para melhor leitura quando quebrado
+            detailsText = JSON.stringify(log.details, null, 2);
+            // Não truncar aqui, deixar o CSS cuidar do overflow/wrapping
         } catch (e) {
             detailsText = '[Erro ao formatar detalhes]';
         }
@@ -49,7 +76,7 @@ function createLogCard(log) {
 
     // Constrói o HTML interno do card
     card.innerHTML = `
-        <div class="flex-grow mb-2 sm:mb-0">
+        <div class="flex-grow mb-2 sm:mb-0 min-w-0">
             <p class="text-sm text-gray-800">
                 <span class="font-semibold text-blue-700">${log.userId?.name || 'Usuário Desconhecido'}</span>
                 (<span class="italic text-gray-600">${log.userId?.role || 'Role?'}</span>)
@@ -58,18 +85,20 @@ function createLogCard(log) {
             </p>
             <p class="text-xs text-gray-600 mt-1">
                 Alvo: <span class="font-medium">${log.targetModel || '?'}</span> |
-                ID Alvo: <span class="font-medium">${log.targetId || '?'}</span>
+                ID Alvo: <span class="font-medium break-all">${log.targetId || '?'}</span>
             </p>
              <p class="text-xs text-gray-500 mt-1">
-                 Detalhes: <code class="text-xs bg-gray-100 p-1 rounded">${detailsText}</code>
+                 Detalhes:
+                 <code class="block text-xs bg-gray-100 p-1 rounded whitespace-pre-wrap break-all overflow-x-auto">${detailsText}</code>
              </p>
         </div>
-        <div class="flex-shrink-0 text-right text-xs text-gray-500">
+        <div class="flex-shrink-0 text-right text-xs text-gray-500 whitespace-nowrap">
             ${formatTimestamp(log.timestamp)}
         </div>
     `;
     return card;
 }
+
 
 // Exibe a lista de logs no container
 function displayLogs(logs) {
