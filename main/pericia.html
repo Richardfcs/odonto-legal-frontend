@@ -10,7 +10,7 @@
 </head>
 
 <body class="bg-gray-100 min-h-screen flex flex-col">
-<script src="../js/utils/authHelper.js"></script>
+  <script src="../js/utils/authHelper.js"></script>
   <!-- Navigation Bar -->
 
   <nav class="bg-white border-gray-200 dark:bg-gray-900">
@@ -117,7 +117,7 @@
               Banco de casos</a>
           </li>
           <li>
-            <a href="perfil.html" 
+            <a href="perfil.html"
               class="block py-2 px-3 md:p-0 text-gray-900 rounded-sm hover:bg-gray-100 md:hover:bg-transparent md:hover:text-blue-700 dark:text-white md:dark:hover:text-blue-500 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent dark:border-gray-700">Meu
               perfil</a>
           </li>
@@ -131,283 +131,291 @@
     </header>
 
     <!-- Conteúdo do Caso -->
-<div class="max-w-7xl mx-auto p-6">
-  <!-- Seção de Dados do Caso -->
-  <div class="bg-white p-6 rounded-lg shadow-md mb-6">
-    <h2 id="caseName" class="text-2xl font-bold text-blue-900 mb-4">Carregando Nome do Caso...</h2>
-    <p id="caseDescription" class="text-gray-800 mb-2">Carregando Descrição...</p>
-    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-      <div>
-        <span class="font-semibold">Status:</span>
-        <span id="caseStatus" class="text-gray-700">Carregando...</span>
-      </div>
-      <div>
-        <span class="font-semibold">Local:</span>
-        <span id="caseLocation" class="text-gray-700">Carregando...</span>
-      </div>
-      <div>
-        <span class="font-semibold">Data:</span>
-        <span id="caseDate" class="text-gray-700">Carregando...</span>
-      </div>
-      <div>
-        <span class="font-semibold">Hora:</span>
-        <span id="caseHour" class="text-gray-700">Carregando...</span>
-      </div>
-      <div>
-        <span class="font-semibold">Categoria:</span>
-        <span id="caseCategory" class="text-gray-700">Carregando...</span>
-      </div>
-    </div>
-  </div>
-
-  <!-- Seção de Evidências -->
-  <div class="bg-white p-6 rounded-lg shadow-md mb-6">
-    <h3 class="text-xl font-semibold text-blue-900 mb-4">Evidências Relacionadas</h3>
-    <div id="evidencesContainer" class="space-y-4">
-      <!-- Evidências serão inseridas dinamicamente aqui pelo JS -->
-    </div>
-  </div>
-
-  <!-- Seção de Ações (Botões do Caso) -->
-  <div class="bg-white p-6 rounded-lg shadow-md mb-6">
-    <h3 class="text-xl font-semibold text-blue-900 mb-4">Ações do Caso</h3>
-    <div class="flex flex-col gap-4">
-      <button id="addEvidenceBtn"
-        class="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded">
-        Adicionar Evidência
-      </button>
-      <button id="exportReportBtn" class="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded">
-        Exportar Laudo
-      </button>
-      <button id="showEditCaseFormButton"
-        class="w-full bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-2 px-4 rounded transition duration-200">
-        Editar Caso
-      </button>
-      <button id="deleteCaseBtn" class="w-full bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded">
-        Deletar Caso
-      </button>
-    </div>
-    
-  </div>
-
-  <!-- Seção de Adição de Evidência (Inicialmente oculta) -->
-  <div id="addEvidenceSection" class="bg-white p-6 rounded-lg shadow-md mt-6 hidden">
-    <h3 class="text-xl font-semibold text-blue-900 mb-4">Nova Evidência</h3>
-    <form id="addEvidenceForm" class="space-y-4">
-      <div>
-        <label for="evidenceType" class="block text-blue-900 font-medium">Tipo de Evidência</label>
-        <select id="evidenceType" class="w-full p-2 border border-gray-300 rounded" required>
-          <option value="text_description">Descrição de Texto</option>
-          <option value="image">Imagem</option>
-          <option value="odontogram">Odontograma</option>
-          <option value="other">Outro</option>
-        </select>
+    <div class="max-w-7xl mx-auto p-6">
+      <!-- Seção de Dados do Caso -->
+      <div class="bg-white p-6 rounded-lg shadow-md mb-6">
+        <h2 id="caseName" class="text-2xl font-bold text-blue-900 mb-4">Carregando Nome do Caso...</h2>
+        <p id="caseDescription" class="text-gray-800 mb-2">Carregando Descrição...</p>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <span class="font-semibold">Status:</span>
+            <span id="caseStatus" class="text-gray-700">Carregando...</span>
+          </div>
+          <div>
+            <span class="font-semibold">Local:</span>
+            <span id="caseLocation" class="text-gray-700">Carregando...</span>
+          </div>
+          <div>
+            <span class="font-semibold">Data:</span>
+            <span id="caseDate" class="text-gray-700">Carregando...</span>
+          </div>
+          <div>
+            <span class="font-semibold">Hora:</span>
+            <span id="caseHour" class="text-gray-700">Carregando...</span>
+          </div>
+          <div>
+            <span class="font-semibold">Categoria:</span>
+            <span id="caseCategory" class="text-gray-700">Carregando...</span>
+          </div>
+        </div>
       </div>
 
-      <div>
-        <label for="evidenceTitle" class="block text-blue-900 font-medium">Título</label>
-        <input type="text" id="evidenceTitle" class="w-full p-2 border border-gray-300 rounded" required>
+      <!-- Seção de Evidências -->
+      <div class="bg-white p-6 rounded-lg shadow-md mb-6">
+        <h3 class="text-xl font-semibold text-blue-900 mb-4">Evidências Relacionadas</h3>
+        <div id="evidencesContainer" class="space-y-4">
+          <!-- Evidências serão inseridas dinamicamente aqui pelo JS -->
+        </div>
       </div>
 
-      <div>
-        <label for="evidenceDescription" class="block text-blue-900 font-medium">Descrição</label>
-        <textarea id="evidenceDescription" rows="3" class="w-full p-2 border border-gray-300 rounded"></textarea>
+      <!-- Seção de Ações (Botões do Caso) -->
+      <div class="bg-white p-6 rounded-lg shadow-md mb-6">
+        <h3 class="text-xl font-semibold text-blue-900 mb-4">Ações do Caso</h3>
+        <div class="flex flex-col gap-4">
+          <button id="addEvidenceBtn"
+            class="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded">
+            Adicionar Evidência
+          </button>
+          <!-- Botão Exportar Laudo -->
+          <button id="exportReportBtn"
+            class="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded">
+            Exportar Laudo
+          </button>
+          <!-- Container para o link/botão de download do laudo gerado -->
+          <div id="reportDownloadArea" class="text-center"></div>
+          <button id="showEditCaseFormButton"
+            class="w-full bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-2 px-4 rounded transition duration-200">
+            Editar Caso
+          </button>
+          <button id="deleteCaseBtn" class="w-full bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded">
+            Deletar Caso
+          </button>
+        </div>
+
       </div>
 
-      <!-- Campo de dados em texto -->
-      <div id="textDataInput">
-        <label for="evidenceData" class="block text-blue-900 font-medium">Dados (Texto)</label>
-        <textarea id="evidenceData" rows="3" class="w-full p-2 border border-gray-300 rounded"></textarea>
+      <!-- Seção de Adição de Evidência (Inicialmente oculta) -->
+      <div id="addEvidenceSection" class="bg-white p-6 rounded-lg shadow-md mt-6 hidden">
+        <h3 class="text-xl font-semibold text-blue-900 mb-4">Nova Evidência</h3>
+        <form id="addEvidenceForm" class="space-y-4">
+          <div>
+            <label for="evidenceType" class="block text-blue-900 font-medium">Tipo de Evidência</label>
+            <select id="evidenceType" class="w-full p-2 border border-gray-300 rounded" required>
+              <option value="text_description">Descrição de Texto</option>
+              <option value="image">Imagem</option>
+              <option value="odontogram">Odontograma</option>
+              <option value="other">Outro</option>
+            </select>
+          </div>
+
+          <div>
+            <label for="evidenceTitle" class="block text-blue-900 font-medium">Título</label>
+            <input type="text" id="evidenceTitle" class="w-full p-2 border border-gray-300 rounded" required>
+          </div>
+
+          <div>
+            <label for="evidenceDescription" class="block text-blue-900 font-medium">Descrição</label>
+            <textarea id="evidenceDescription" rows="3" class="w-full p-2 border border-gray-300 rounded"></textarea>
+          </div>
+
+          <!-- Campo de dados em texto -->
+          <div id="textDataInput">
+            <label for="evidenceData" class="block text-blue-900 font-medium">Dados (Texto)</label>
+            <textarea id="evidenceData" rows="3" class="w-full p-2 border border-gray-300 rounded"></textarea>
+          </div>
+
+          <!-- Campo de upload de imagem -->
+          <div id="imageDataInput" class="hidden">
+            <label for="evidenceImage" class="block text-blue-900 font-medium">Upload de Imagem</label>
+            <input type="file" id="evidenceImage" accept="image/*" class="w-full p-2 border border-gray-300 rounded">
+
+            <!-- Preview da imagem (opcional) -->
+            <img id="imagePreview" class="mt-2 max-w-xs rounded shadow hidden" />
+          </div>
+
+          <div>
+            <label for="evidenceCategory" class="block text-blue-900 font-medium">Categoria</label>
+            <select id="evidenceCategory" class="w-full p-2 border border-gray-300 rounded">
+              <option value="">Selecionar (opcional)</option>
+              <option value="achados_periciais">Achados Periciais</option>
+              <option value="dados_ante_mortem">Dados Ante-mortem</option>
+              <option value="dados_post_mortem">Dados Post-mortem</option>
+              <option value="outros">Outros</option>
+            </select>
+          </div>
+
+          <div class="flex justify-end space-x-2">
+            <button type="button" id="cancelAddEvidence"
+              class="px-4 py-2 bg-gray-400 text-white rounded hover:bg-gray-500">Cancelar</button>
+            <button type="submit"
+              class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700">Adicionar</button>
+          </div>
+        </form>
       </div>
 
-      <!-- Campo de upload de imagem -->
-      <div id="imageDataInput" class="hidden">
-        <label for="evidenceImage" class="block text-blue-900 font-medium">Upload de Imagem</label>
-        <input type="file" id="evidenceImage" accept="image/*" class="w-full p-2 border border-gray-300 rounded">
+      <!-- Seção de Edição de Evidência (Inicialmente oculta) -->
+      <div id="editEvidenceSection" class="bg-white p-6 rounded-lg shadow-md mt-6 hidden">
+        <h3 class="text-xl font-semibold text-blue-900 mb-4">Editar Evidência</h3>
+        <form id="editEvidenceForm" class="space-y-4">
+          <!-- Campo oculto para armazenar o ID da evidência sendo editada -->
+          <input type="hidden" id="editingEvidenceId">
 
-        <!-- Preview da imagem (opcional) -->
-        <img id="imagePreview" class="mt-2 max-w-xs rounded shadow hidden" />
-      </div>
-
-      <div>
-        <label for="evidenceCategory" class="block text-blue-900 font-medium">Categoria</label>
-        <select id="evidenceCategory" class="w-full p-2 border border-gray-300 rounded">
-          <option value="">Selecionar (opcional)</option>
-          <option value="achados_periciais">Achados Periciais</option>
-          <option value="dados_ante_mortem">Dados Ante-mortem</option>
-          <option value="dados_post_mortem">Dados Post-mortem</option>
-          <option value="outros">Outros</option>
-        </select>
-      </div>
-
-      <div class="flex justify-end space-x-2">
-        <button type="button" id="cancelAddEvidence"
-          class="px-4 py-2 bg-gray-400 text-white rounded hover:bg-gray-500">Cancelar</button>
-        <button type="submit" class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700">Adicionar</button>
-      </div>
-    </form>
-  </div>
-
-  <!-- Seção de Edição de Evidência (Inicialmente oculta) -->
-  <div id="editEvidenceSection" class="bg-white p-6 rounded-lg shadow-md mt-6 hidden">
-    <h3 class="text-xl font-semibold text-blue-900 mb-4">Editar Evidência</h3>
-    <form id="editEvidenceForm" class="space-y-4">
-        <!-- Campo oculto para armazenar o ID da evidência sendo editada -->
-        <input type="hidden" id="editingEvidenceId">
-
-        <div>
+          <div>
             <label for="editEvidenceType" class="block text-blue-900 font-medium">Tipo de Evidência</label>
             <!-- Tornar o tipo de evidência editável é opcional, pode remover se preferir que não mude -->
             <select id="editEvidenceType" class="w-full p-2 border border-gray-300 rounded" required>
-                <option value="text_description">Descrição de Texto</option>
-                <option value="image">Imagem</option>
-                <option value="odontogram">Odontograma</option>
-                <option value="other">Outro</option>
+              <option value="text_description">Descrição de Texto</option>
+              <option value="image">Imagem</option>
+              <option value="odontogram">Odontograma</option>
+              <option value="other">Outro</option>
             </select>
-        </div>
+          </div>
 
-        <div>
+          <div>
             <label for="editEvidenceTitle" class="block text-blue-900 font-medium">Título</label>
             <input type="text" id="editEvidenceTitle" class="w-full p-2 border border-gray-300 rounded" required>
-        </div>
+          </div>
 
-        <div>
+          <div>
             <label for="editEvidenceDescription" class="block text-blue-900 font-medium">Descrição</label>
-            <textarea id="editEvidenceDescription" rows="3" class="w-full p-2 border border-gray-300 rounded"></textarea>
-        </div>
+            <textarea id="editEvidenceDescription" rows="3"
+              class="w-full p-2 border border-gray-300 rounded"></textarea>
+          </div>
 
-        <!-- Campo de dados em texto para edição -->
-        <div id="editTextDataInputEdit">
+          <!-- Campo de dados em texto para edição -->
+          <div id="editTextDataInputEdit">
             <label for="editEvidenceData" class="block text-blue-900 font-medium">Dados (Texto)</label>
             <textarea id="editEvidenceData" rows="3" class="w-full p-2 border border-gray-300 rounded"></textarea>
-        </div>
+          </div>
 
-        <!-- Campo de upload de imagem para edição -->
-        <div id="imageDataInputEdit" class="hidden">
+          <!-- Campo de upload de imagem para edição -->
+          <div id="imageDataInputEdit" class="hidden">
             <label for="editEvidenceImage" class="block text-blue-900 font-medium">Nova Imagem (Upload)</label>
-            <input type="file" id="editEvidenceImage" accept="image/*" class="w-full p-2 border border-gray-300 rounded">
+            <input type="file" id="editEvidenceImage" accept="image/*"
+              class="w-full p-2 border border-gray-300 rounded">
 
             <!-- Preview da imagem existente/nova (opcional) -->
             <img id="editImagePreview" class="mt-2 max-w-xs rounded shadow hidden" />
-             <p class="text-sm text-gray-600 mt-1">Envie um novo arquivo para substituir a imagem atual.</p>
-        </div>
+            <p class="text-sm text-gray-600 mt-1">Envie um novo arquivo para substituir a imagem atual.</p>
+          </div>
 
 
-        <div>
+          <div>
             <label for="editEvidenceCategory" class="block text-blue-900 font-medium">Categoria</label>
             <select id="editEvidenceCategory" class="w-full p-2 border border-gray-300 rounded">
-                <option value="">Selecionar (opcional)</option>
-                <option value="achados_periciais">Achados Periciais</option>
-                <option value="dados_ante_mortem">Dados Ante-mortem</option>
-                <option value="dados_post_mortem">Dados Post-mortem</option>
-                <option value="outros">Outros</option>
+              <option value="">Selecionar (opcional)</option>
+              <option value="achados_periciais">Achados Periciais</option>
+              <option value="dados_ante_mortem">Dados Ante-mortem</option>
+              <option value="dados_post_mortem">Dados Post-mortem</option>
+              <option value="outros">Outros</option>
             </select>
-        </div>
+          </div>
 
-        <div class="flex justify-end space-x-2">
+          <div class="flex justify-end space-x-2">
             <button type="button" id="cancelEditEvidenceForm"
-                class="px-4 py-2 bg-gray-400 text-white rounded hover:bg-gray-500">Cancelar</button>
-            <button type="submit"
-                class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">Salvar Alterações</button>
+              class="px-4 py-2 bg-gray-400 text-white rounded hover:bg-gray-500">Cancelar</button>
+            <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">Salvar
+              Alterações</button>
+          </div>
+        </form>
+      </div>
+
+
+      <!-- Seção de Edição do Caso (oculta por padrão) -->
+      <div id="editCaseSection" class="bg-white p-6 rounded-lg shadow-md mt-6 hidden">
+        <h3 class="text-xl font-semibold text-blue-900 mb-4">Editar Caso</h3>
+        <form id="editCaseForm" class="space-y-4">
+          <div>
+            <label for="editNameCase" class="block text-blue-900 font-medium">Nome do Caso</label>
+            <input type="text" id="editNameCase" class="w-full p-2 border border-gray-300 rounded" required>
+          </div>
+          <div>
+            <label for="editDescription" class="block text-blue-900 font-medium">Descrição</label>
+            <textarea id="editDescription" rows="3" class="w-full p-2 border border-gray-300 rounded"
+              required></textarea>
+          </div>
+          <div>
+            <label for="editStatus" class="block text-blue-900 font-medium">Status</label>
+            <select id="editStatus" class="w-full p-2 border border-gray-300 rounded" required>
+              <option value="em andamento">Em Andamento</option>
+              <option value="finalizado">Finalizado</option>
+              <option value="arquivado">Arquivado</option>
+            </select>
+          </div>
+          <div>
+            <label for="editLocation" class="block text-blue-900 font-medium">Localização</label>
+            <input type="text" id="editLocation" class="w-full p-2 border border-gray-300 rounded" required>
+          </div>
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label for="editDateCase" class="block text-blue-900 font-medium">Data</label>
+              <input type="date" id="editDateCase" class="w-full p-2 border border-gray-300 rounded">
+            </div>
+            <div>
+              <label for="editHourCase" class="block text-blue-900 font-medium">Hora</label>
+              <input type="time" id="editHourCase" class="w-full p-2 border border-gray-300 rounded">
+            </div>
+          </div>
+          <div>
+            <label for="editCategory" class="block text-blue-900 font-medium">Categoria</label>
+            <select id="editCategory" class="w-full p-2 border border-gray-300 rounded" required>
+              <option value="acidente">Acidente</option>
+              <option value="identificação de vítima">Identificação de Vítima</option>
+              <option value="exame criminal">Exame Criminal</option>
+              <option value="outros">Outros</option>
+            </select>
+          </div>
+          <div class="flex justify-end space-x-2">
+            <button type="button" id="cancelEditCase"
+              class="px-4 py-2 bg-gray-400 text-white rounded hover:bg-gray-500">Cancelar</button>
+            <button type="submit" class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700">Salvar</button>
+          </div>
+        </form>
+      </div>
+      <!-- Seção de Análise com IA (Experimental) -->
+      <div class="bg-white p-6 rounded-lg shadow-md mt-6">
+        <h3 class="text-xl font-semibold text-blue-900 mb-4">Análise com IA (Experimental)</h3>
+        <p class="text-sm text-gray-600 mb-4">Use IA para auxiliar na análise das evidências textuais. Os resultados são
+          sugestões e DEVEM ser verificados por um perito.</p>
+
+        <div class="mb-4">
+          <label for="aiActionSelect" class="block text-blue-900 font-medium mb-1">Tipo de Análise:</label>
+          <select id="aiActionSelect"
+            class="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <option value="">Selecione uma ação...</option>
+            <option value="summarize">Resumir Evidências Textuais</option>
+            <!-- <option value="compare">Comparar Duas Evidências</option>  <-- Desabilitado inicialmente para simplicidade -->
+            <option value="hypothesize">Gerar Hipóteses Iniciais</option>
+            <option value="check_inconsistencies">Verificar Inconsistências Potenciais</option>
+          </select>
         </div>
-    </form>
-  </div>
 
-
-  <!-- Seção de Edição do Caso (oculta por padrão) -->
-  <div id="editCaseSection" class="bg-white p-6 rounded-lg shadow-md mt-6 hidden">
-    <h3 class="text-xl font-semibold text-blue-900 mb-4">Editar Caso</h3>
-    <form id="editCaseForm" class="space-y-4">
-      <div>
-        <label for="editNameCase" class="block text-blue-900 font-medium">Nome do Caso</label>
-        <input type="text" id="editNameCase" class="w-full p-2 border border-gray-300 rounded" required>
-      </div>
-      <div>
-        <label for="editDescription" class="block text-blue-900 font-medium">Descrição</label>
-        <textarea id="editDescription" rows="3" class="w-full p-2 border border-gray-300 rounded" required></textarea>
-      </div>
-      <div>
-        <label for="editStatus" class="block text-blue-900 font-medium">Status</label>
-        <select id="editStatus" class="w-full p-2 border border-gray-300 rounded" required>
-          <option value="em andamento">Em Andamento</option>
-          <option value="finalizado">Finalizado</option>
-          <option value="arquivado">Arquivado</option>
-        </select>
-      </div>
-      <div>
-        <label for="editLocation" class="block text-blue-900 font-medium">Localização</label>
-        <input type="text" id="editLocation" class="w-full p-2 border border-gray-300 rounded" required>
-      </div>
-      <div class="grid grid-cols-2 gap-4">
-        <div>
-          <label for="editDateCase" class="block text-blue-900 font-medium">Data</label>
-          <input type="date" id="editDateCase" class="w-full p-2 border border-gray-300 rounded">
-        </div>
-        <div>
-          <label for="editHourCase" class="block text-blue-900 font-medium">Hora</label>
-          <input type="time" id="editHourCase" class="w-full p-2 border border-gray-300 rounded">
-        </div>
-      </div>
-      <div>
-        <label for="editCategory" class="block text-blue-900 font-medium">Categoria</label>
-        <select id="editCategory" class="w-full p-2 border border-gray-300 rounded" required>
-          <option value="acidente">Acidente</option>
-          <option value="identificação de vítima">Identificação de Vítima</option>
-          <option value="exame criminal">Exame Criminal</option>
-          <option value="outros">Outros</option>
-        </select>
-      </div>
-      <div class="flex justify-end space-x-2">
-        <button type="button" id="cancelEditCase"
-          class="px-4 py-2 bg-gray-400 text-white rounded hover:bg-gray-500">Cancelar</button>
-        <button type="submit" class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700">Salvar</button>
-      </div>
-    </form>
-  </div>
-  <!-- Seção de Análise com IA (Experimental) -->
-  <div class="bg-white p-6 rounded-lg shadow-md mt-6">
-    <h3 class="text-xl font-semibold text-blue-900 mb-4">Análise com IA (Experimental)</h3>
-    <p class="text-sm text-gray-600 mb-4">Use IA para auxiliar na análise das evidências textuais. Os resultados são
-      sugestões e DEVEM ser verificados por um perito.</p>
-
-    <div class="mb-4">
-      <label for="aiActionSelect" class="block text-blue-900 font-medium mb-1">Tipo de Análise:</label>
-      <select id="aiActionSelect"
-        class="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
-        <option value="">Selecione uma ação...</option>
-        <option value="summarize">Resumir Evidências Textuais</option>
-        <!-- <option value="compare">Comparar Duas Evidências</option>  <-- Desabilitado inicialmente para simplicidade -->
-        <option value="hypothesize">Gerar Hipóteses Iniciais</option>
-        <option value="check_inconsistencies">Verificar Inconsistências Potenciais</option>
-      </select>
-    </div>
-
-    <!-- Opcional: Área para selecionar evidências (para comparar ou limitar análise) -->
-    <!-- <div id="aiEvidenceSelection" class="mb-4 hidden">
+        <!-- Opcional: Área para selecionar evidências (para comparar ou limitar análise) -->
+        <!-- <div id="aiEvidenceSelection" class="mb-4 hidden">
    <p>Selecione as evidências a serem usadas:</p>
    Checkboxes aqui...
 </div> -->
 
-    <button id="analyzeWithAIButton"
-      class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded transition duration-200 disabled:opacity-50">
-      Analisar com IA
-    </button>
+        <button id="analyzeWithAIButton"
+          class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded transition duration-200 disabled:opacity-50">
+          Analisar com IA
+        </button>
 
-    <!-- Área de Resultado e Carregamento -->
-    <div id="aiResultArea" class="mt-4 p-4 border border-gray-200 rounded bg-gray-50 min-h-[100px]">
-      <p id="aiLoadingIndicator" class="text-center text-gray-500 hidden">Analisando... <svg
-          class="animate-spin h-5 w-5 text-indigo-600 inline-block" xmlns="http://www.w3.org/2000/svg" fill="none"
-          viewBox="0 0 24 24">
-          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-          <path class="opacity-75" fill="currentColor"
-            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
-          </path>
-        </svg></p>
-      <pre id="aiResponseOutput" class="whitespace-pre-wrap text-sm text-gray-800"></pre>
+        <!-- Área de Resultado e Carregamento -->
+        <div id="aiResultArea" class="mt-4 p-4 border border-gray-200 rounded bg-gray-50 min-h-[100px]">
+          <p id="aiLoadingIndicator" class="text-center text-gray-500 hidden">Analisando... <svg
+              class="animate-spin h-5 w-5 text-indigo-600 inline-block" xmlns="http://www.w3.org/2000/svg" fill="none"
+              viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor"
+                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+              </path>
+            </svg></p>
+          <pre id="aiResponseOutput" class="whitespace-pre-wrap text-sm text-gray-800"></pre>
+        </div>
+      </div>
     </div>
   </div>
-</div>
-</div>
-<script src="https://cdn.jsdelivr.net/npm/flowbite@1.4.0/dist/flowbite.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/flowbite@1.4.0/dist/flowbite.min.js"></script>
   <script src="./js/pericia.js"></script>
 </body>

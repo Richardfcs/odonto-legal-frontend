@@ -667,45 +667,63 @@ document.getElementById("editEvidenceImage").addEventListener("change", function
 // tudo pronto: carrega de cara
 loadCaseData();
 
-document.getElementById("exportReportBtn").addEventListener("click", async () => {
-  const reportContent = prompt("Digite o conteúdo do laudo para o PDF:");
-  if (!reportContent) {
-    alert("Conteúdo do laudo não pode ser vazio.");
-    return;
-  }
+const exportReportBtn = document.getElementById("exportReportBtn");
+if (exportReportBtn) {
+    exportReportBtn.addEventListener("click", async () => {
+      const reportContent = prompt("Digite o conteúdo do laudo para o PDF:");
+      if (reportContent === null) return; // Sai se cancelou
+      if (!reportContent) { alert("Conteúdo do laudo não pode ser vazio."); return; }
 
-  const token = localStorage.getItem("token"); // Certifique-se que o token é acessível aqui (scoped corretamente)
-  const caseId = params.get("id"); // Certifique-se que caseId é acessível aqui
+      const token = localStorage.getItem("token");
+      const caseId = params.get("id");
+      exportReportBtn.disabled = true; // Desabilita durante o processo
 
-  try {
-    const response = await fetch(`${API_URL}/api/report`, { // Rota POST para gerar laudo
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${token}`
-      },
-      body: JSON.stringify({ caseId: caseId, content: reportContent })
+      try {
+        const response = await fetch(`${API_URL}/api/report`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
+          body: JSON.stringify({ caseId: caseId, content: reportContent })
+        });
+        const result = await response.json();
+        if (!response.ok) {
+          const errorMessage = result.error || result.message || "Erro desconhecido ao gerar laudo.";
+          throw new Error(errorMessage);
+        }
+
+        alert(result.message || "Laudo gerado com sucesso!");
+
+        // Abre o PDF em nova aba (pode ser bloqueado por pop-up blocker)
+        if (result.pdfUrl) {
+          const pdfWindow = window.open(result.pdfUrl, '_blank');
+           if (!pdfWindow || pdfWindow.closed || typeof pdfWindow.closed == 'undefined') {
+                // Se window.open falhar (bloqueado), oferece o link para clique manual
+                const reportDownloadArea = document.getElementById("reportDownloadArea");
+                if(reportDownloadArea){
+                     reportDownloadArea.innerHTML = `<p class="text-sm text-orange-600 mb-2">O navegador bloqueou a abertura automática do PDF. Clique no link abaixo:</p>`;
+                      const caseNameForFile = document.getElementById("caseName")?.textContent?.replace(/[^a-zA-Z0-9]/g, '_') || 'caso';
+                      const filename = `Laudo_${caseNameForFile}_${result.reportId?.slice(-6) || Date.now()}.pdf`;
+                      const downloadLink = document.createElement('a');
+                      downloadLink.href = result.pdfUrl;
+                      downloadLink.textContent = 'Abrir/Baixar Laudo Gerado';
+                      downloadLink.target = '_blank';
+                      downloadLink.download = filename; // Sugere download
+                      downloadLink.className = 'inline-block px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition duration-200 text-sm';
+                      reportDownloadArea.appendChild(downloadLink);
+                } else {
+                    alert("Não foi possível abrir o PDF automaticamente. Verifique o bloqueador de pop-ups.\nURL: " + result.pdfUrl);
+                }
+            }
+        } else {
+          alert("A URL do PDF não foi recebida do servidor.");
+        }
+
+      } catch (error) {
+        console.error("Erro ao exportar laudo:", error);
+        alert("Não foi possível gerar o laudo: " + error.message);
+        const reportDownloadArea = document.getElementById("reportDownloadArea");
+        if(reportDownloadArea) reportDownloadArea.innerHTML = `<p class="text-sm text-red-600">Falha ao gerar o laudo.</p>`;
+      } finally {
+          exportReportBtn.disabled = false; // Reabilita o botão
+      }
     });
-
-    const result = await response.json(); // Espera o JSON de resposta
-
-    if (!response.ok) {
-      // Trata erros do backend (incluindo validações 400, não encontrado 404, auth 401/403, server error 500)
-      const errorMessage = result.error || result.message || "Erro desconhecido ao gerar laudo.";
-      throw new Error(errorMessage);
-    }
-
-    alert(result.message || "Laudo gerado com sucesso!"); // Mensagem de sucesso
-
-    // Abre o PDF gerado em uma nova aba usando a URL retornada
-    if (result.pdfUrl) {
-      window.open(result.pdfUrl, '_blank');
-    } else {
-      alert("A URL do PDF não foi recebida do servidor.");
-    }
-
-  } catch (error) {
-    console.error("Erro ao exportar laudo:", error);
-    alert("Não foi possível gerar o laudo: " + error.message); // Exibe o erro para o usuário
-  }
-});
+}
