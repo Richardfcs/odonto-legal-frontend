@@ -695,11 +695,9 @@ if (exportReportBtn) {
         // Abre o PDF em nova aba (pode ser bloqueado por pop-up blocker)
         if (result.pdfUrl) {
           const pdfWindow = window.open(result.pdfUrl, '_blank');
-           if (!pdfWindow || pdfWindow.closed || typeof pdfWindow.closed == 'undefined') {
-                // Se window.open falhar (bloqueado), oferece o link para clique manual
                 const reportDownloadArea = document.getElementById("reportDownloadArea");
                 if(reportDownloadArea){
-                     reportDownloadArea.innerHTML = `<p class="text-sm text-orange-600 mb-2">O navegador bloqueou a abertura automática do PDF. Clique no link abaixo:</p>`;
+                     reportDownloadArea.innerHTML = `<p class="text-sm text-orange-600 mb-2">O navegador bloqueou a abertura automática do PDF? Clique no link abaixo:</p>`;
                       const caseNameForFile = document.getElementById("caseName")?.textContent?.replace(/[^a-zA-Z0-9]/g, '_') || 'caso';
                       const filename = `Laudo_${caseNameForFile}_${result.reportId?.slice(-6) || Date.now()}.pdf`;
                       const downloadLink = document.createElement('a');
@@ -712,7 +710,6 @@ if (exportReportBtn) {
                 } else {
                     alert("Não foi possível abrir o PDF automaticamente. Verifique o bloqueador de pop-ups.\nURL: " + result.pdfUrl);
                 }
-            }
         } else {
           alert("A URL do PDF não foi recebida do servidor.");
         }
