@@ -4,6 +4,6 @@ Nosso trabalho para o Projeto PI, tem como missão fazer o frontend para a aplic
 
 ## link do projeto:
 
-*Github* `https://richardfcs.github.io/odonto-legal-frontend/`
+*GithubPages* https://richardfcs.github.io/odonto-legal-frontend/
 
-*Netlify* `https://odontolegal.netlify.app/`
+*Netlify* https://odontolegal.netlify.app/
