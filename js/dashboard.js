@@ -62,10 +62,21 @@ async function loadDashboardData(dashboardId) {
 
 // Implementações específicas de cada dashboard
 async function loadMainData(period) {
+    const token = localStorage.getItem('token');
     try {
         const [mainRes, timelineRes] = await Promise.all([
-            fetch(`${API_BASE}/main-stats?period=${period}`),
-            fetch(`${API_BASE}/cases-timeline?period=${period}`)
+            fetch(`${API_BASE}/main-stats?period=${period}`, {
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                }
+            }),
+            fetch(`${API_BASE}/cases-timeline?period=${period}`, {
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                }
+            })
         ]);
 
         if (!mainRes.ok || !timelineRes.ok) {
@@ -112,8 +123,13 @@ async function loadCaseData() {
             params.append('period', period);
         }
 
-
-        const res = await fetch(`${API_BASE}/case-stats?${params}`);
+        const token = localStorage.getItem('token');
+        const res = await fetch(`${API_BASE}/case-stats?${params}`, {
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            }
+        });
         if (!res.ok) throw new Error('Erro ao carregar dados');
 
         const { stats, total } = await res.json();
@@ -241,8 +257,13 @@ async function loadUserData() {
         if (role !== 'all') params.append('role', role);
         if (period !== 'all') params.append('period', period);
 
-
-        const res = await fetch(`${API_BASE}/users-stats?${params}`);
+        const token = localStorage.getItem('token');
+        const res = await fetch(`${API_BASE}/users-stats?${params}`, {
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            }
+        });
         if (!res.ok) throw new Error('Erro ao carregar dados de usuários');
 
         const { total, roles } = await res.json();
@@ -313,7 +334,13 @@ async function loadLocationData() {
         const params = new URLSearchParams();
         if (period !== 'all') params.append('period', period);
 
-        const res = await fetch(`${API_BASE}/location-stats?${params}`);
+        const token = localStorage.getItem('token');
+        const res = await fetch(`${API_BASE}/location-stats?${params}`, {
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            }
+        });
         if (!res.ok) throw new Error('Erro ao carregar dados geográficos');
 
         const { locations, uniqueCount, topLocation } = await res.json();
@@ -378,7 +405,13 @@ async function loadActivityData() {
         const limit = document.getElementById('activityLimit').value;
         const params = new URLSearchParams({ limit });
 
-        const res = await fetch(`${API_BASE}/recent-activity?${params}`);
+        const token = localStorage.getItem('token');
+        const res = await fetch(`${API_BASE}/recent-activity?${params}`, {
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            }
+        });
         if (!res.ok) throw new Error('Erro ao carregar atividades');
 
         const { cases, evidences, reports } = await res.json();
@@ -437,7 +470,7 @@ async function handleExport(type) {
         const params = new URLSearchParams();
         for (const key in filters) {
             if (filters[key] && filters[key] !== 'all') { // Só adiciona se tiver valor e não for 'all'
-                 params.append(key, filters[key]);
+                params.append(key, filters[key]);
             }
         }
 
@@ -506,7 +539,7 @@ async function handleExport(type) {
                 // (exceto tab, newline, CR que são raros em nomes de arquivo mas poderiam ser mantidos se necessário)
                 // Esta regex remove todos os caracteres de controle U+0000–U+001F e U+007F.
                 filename = filename.replace(/[\u0000-\u001F\u007F]/g, '');
-                
+
                 // c. Opcional: Normalizar para formulário NFC (útil para caracteres acentuados compostos)
                 // Isso pode ajudar se houver problemas com caracteres Unicode.
                 if (filename.normalize) { // Verifica se o método normalize está disponível (browsers modernos)

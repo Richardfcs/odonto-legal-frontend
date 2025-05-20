@@ -372,6 +372,49 @@
           </div>
         </form>
       </div>
+
+      <!-- Seção de Equipe do Caso -->
+      <div id="teamManagementSection" class="bg-white p-6 rounded-lg shadow-md mb-6">
+        <h3 class="text-xl font-semibold text-blue-900 mb-4">Equipe do Caso</h3>
+
+        <!-- Lista de Membros da Equipe -->
+        <div class="mb-4">
+          <h4 class="text-lg font-medium text-gray-800 mb-2">Membros Atuais:</h4>
+          <ul id="teamMembersList" class="list-disc list-inside pl-5 space-y-1 text-gray-700">
+            <!-- Membros da equipe serão inseridos dinamicamente aqui -->
+            <li>Carregando equipe...</li>
+          </ul>
+          <p id="noTeamMembers" class="text-gray-500 hidden">Nenhum membro adicional na equipe.</p>
+        </div>
+
+        <!-- Formulário para Adicionar Membro (inicialmente oculto se não for ADM/Responsável) -->
+        <div id="addTeamMemberFormContainer" class="mt-6 border-t pt-6 hidden">
+          <h4 class="text-lg font-medium text-gray-800 mb-3">Adicionar Membro à Equipe</h4>
+          <form id="addTeamMemberForm" class="space-y-4">
+            <div>
+              <label for="userSearchInput" class="block text-sm font-medium text-gray-700">Buscar Usuário
+                (Perito/Assistente) por Nome ou CRO:</label>
+              <div class="flex mt-1">
+                <input type="text" id="userSearchInput" placeholder="Digite nome ou CRO"
+                  class="flex-grow p-2 border border-gray-300 rounded-l-md focus:ring-blue-500 focus:border-blue-500">
+                <button type="button" id="searchUserBtn"
+                  class="px-4 py-2 bg-blue-600 text-white rounded-r-md hover:bg-blue-700">Buscar</button>
+              </div>
+            </div>
+            <div id="userSearchResults" class="mt-2 space-y-2 max-h-48 overflow-y-auto">
+              <!-- Resultados da busca de usuários aparecerão aqui -->
+            </div>
+            <input type="hidden" id="selectedUserIdToAdd">
+            <p id="selectedUserDisplay" class="text-sm text-gray-600 mt-1"></p>
+
+            <button type="submit" id="submitAddTeamMemberBtn" disabled
+              class="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded disabled:opacity-50">
+              Adicionar Usuário Selecionado à Equipe
+            </button>
+          </form>
+        </div>
+      </div>
+
       <!-- Seção de Análise com IA (Experimental) -->
       <div class="bg-white p-6 rounded-lg shadow-md mt-6">
         <h3 class="text-xl font-semibold text-blue-900 mb-4">Análise com IA (Experimental)</h3>
@@ -416,6 +459,8 @@
       </div>
     </div>
   </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/jwt-decode@3.1.2/build/jwt-decode.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/flowbite@1.4.0/dist/flowbite.min.js"></script>
   <script src="./js/pericia.js"></script>
 </body>

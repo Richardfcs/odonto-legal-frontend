@@ -1,3 +1,4 @@
+let currentCaseData = null;
 const API_URL = 'https://odonto-legal-backend.onrender.com';
 
 const params = new URLSearchParams(window.location.search);
@@ -32,6 +33,20 @@ const imageDataInputEdit = document.getElementById("imageDataInputEdit"); // Edi
 const editEvidenceImageInput = document.getElementById("editEvidenceImage"); // File input da imagem no form de edição
 const editImagePreview = document.getElementById("editImagePreview"); // Img para preview no form de edição
 const editEvidenceCategorySelect = document.getElementById("editEvidenceCategory"); // Select de categoria no form de edição
+
+// --- Lógica de team do caso ---
+const teamManagementSection = document.getElementById("teamManagementSection");
+const teamMembersList = document.getElementById("teamMembersList");
+const noTeamMembers = document.getElementById("noTeamMembers");
+const addTeamMemberFormContainer = document.getElementById("addTeamMemberFormContainer");
+const addTeamMemberForm = document.getElementById("addTeamMemberForm");
+const userSearchInput = document.getElementById("userSearchInput");
+const searchUserBtn = document.getElementById("searchUserBtn");
+const userSearchResults = document.getElementById("userSearchResults");
+const selectedUserIdToAddInput = document.getElementById("selectedUserIdToAdd");
+const selectedUserDisplay = document.getElementById("selectedUserDisplay");
+const submitAddTeamMemberBtn = document.getElementById("submitAddTeamMemberBtn");
+
 
 // --- Lógica para Análise com IA ---
 const aiActionSelect = document.getElementById('aiActionSelect');
@@ -124,46 +139,95 @@ if (!token) {
 
 // preenche a tela e o formulário de edição do Caso
 async function loadCaseData() {
-  // ... (sua função loadCaseData existente, sem mudanças) ...
-    try {
-      const res = await fetch(`${API_URL}/api/case/${caseId}`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      if (!res.ok) {
-           const errorData = await res.json().catch(() => ({ message: "Erro desconhecido ao buscar dados do caso." }));
-           throw new Error(errorData.message || "Erro ao buscar dados do caso.");
+  try {
+    const res = await fetch(`${API_URL}/api/case/${caseId}`, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+
+    if (!res.ok) {
+      let errorMsg = "Erro ao buscar dados do caso.";
+      try {
+        // Tenta obter uma mensagem de erro mais específica do corpo da resposta
+        const errorData = await res.json();
+        errorMsg = errorData.message || errorData.error || errorMsg;
+      } catch (e) {
+        // Se .json() falhar (ex: resposta não é JSON), usa o statusText ou a mensagem padrão
+        errorMsg = res.statusText || errorMsg;
       }
-      const caso = await res.json();
-
-      // Exibição dos dados do caso
-      document.getElementById("caseName").textContent = caso.nameCase;
-      document.getElementById("caseDescription").textContent = caso.Description;
-      document.getElementById("caseStatus").textContent = caso.status;
-      document.getElementById("caseLocation").textContent = caso.location;
-      document.getElementById("caseCategory").textContent = caso.category;
-      if (caso.dateCase)
-        document.getElementById("caseDate").textContent = new Date(caso.dateCase)
-          .toLocaleDateString("pt-BR");
-      if (caso.hourCase)
-        document.getElementById("caseHour").textContent = caso.hourCase;
-
-      // Após carregar os dados do caso, carregamos as evidências
-      loadEvidences(caseId); // Chama a função para carregar evidências
-
-      // Pré-preenchimento do formulário de edição do Caso
-      document.getElementById("editNameCase").value    = caso.nameCase;
-      document.getElementById("editDescription").value = caso.Description;
-      document.getElementById("editStatus").value      = caso.status;
-      document.getElementById("editLocation").value    = caso.location;
-      document.getElementById("editDateCase").value    = caso.dateCase?.slice(0,10) || "";
-      document.getElementById("editHourCase").value    = caso.hourCase || "";
-      document.getElementById("editCategory").value    = caso.category;
-
-
-    } catch (err) {
-      console.error("Erro ao carregar dados do caso:", err);
-      alert("Erro ao carregar dados do caso: " + err.message);
+      throw new Error(errorMsg);
     }
+
+    // 1. Obter os dados do caso da resposta e armazenar em uma variável local
+    const casoDataFromAPI = await res.json();
+
+    // 2. Verificação crucial: garantir que recebemos um objeto válido
+    if (!casoDataFromAPI || typeof casoDataFromAPI !== 'object') {
+      console.error("Resposta do backend não é um objeto de caso válido:", casoDataFromAPI);
+      throw new Error("Dados do caso recebidos do servidor são inválidos ou nulos.");
+    }
+
+    // 3. Atribuir os dados recebidos à variável global/módulo currentCaseData
+    //    Isso torna os dados do caso acessíveis a outras funções que podem precisar deles.
+    currentCaseData = casoDataFromAPI;
+
+    // 4. Exibição dos dados do caso na UI, usando a variável local `casoDataFromAPI`
+    //    Adicionando fallbacks para campos que podem ser nulos/undefined para evitar erros ou "undefined" na tela.
+    document.getElementById("caseName").textContent = casoDataFromAPI.nameCase || "Nome não informado";
+    document.getElementById("caseDescription").textContent = casoDataFromAPI.Description || "Descrição não informada";
+    document.getElementById("caseStatus").textContent = casoDataFromAPI.status || "Status não informado";
+    document.getElementById("caseLocation").textContent = casoDataFromAPI.location || "Local não informado";
+    document.getElementById("caseCategory").textContent = casoDataFromAPI.category || "Categoria não informada";
+
+    if (casoDataFromAPI.dateCase) {
+      document.getElementById("caseDate").textContent = new Date(casoDataFromAPI.dateCase)
+        .toLocaleDateString("pt-BR", { timeZone: 'UTC' }); // Adicionado timeZone para consistência
+    } else {
+      document.getElementById("caseDate").textContent = "Data não informada";
+    }
+
+    if (casoDataFromAPI.hourCase) {
+      document.getElementById("caseHour").textContent = casoDataFromAPI.hourCase;
+    } else {
+      document.getElementById("caseHour").textContent = "Hora não informada";
+    }
+
+    // 5. Pré-preenchimento do formulário de edição do Caso, usando `casoDataFromAPI`
+    document.getElementById("editNameCase").value = casoDataFromAPI.nameCase || "";
+    document.getElementById("editDescription").value = casoDataFromAPI.Description || "";
+    document.getElementById("editStatus").value = casoDataFromAPI.status || "em andamento"; // Pode definir um padrão
+    document.getElementById("editLocation").value = casoDataFromAPI.location || "";
+    // Para input date, o formato precisa ser YYYY-MM-DD
+    document.getElementById("editDateCase").value = casoDataFromAPI.dateCase ? new Date(casoDataFromAPI.dateCase).toISOString().slice(0, 10) : "";
+    document.getElementById("editHourCase").value = casoDataFromAPI.hourCase || "";
+    document.getElementById("editCategory").value = casoDataFromAPI.category || "outros"; // Pode definir um padrão
+
+    // 6. Chamar outras funções que dependem dos dados do caso
+    //    Agora passamos explicitamente as partes relevantes de `casoDataFromAPI`
+    loadEvidences(caseId); // Esta função geralmente só precisa do caseId
+
+    // Estas funções precisam dos dados da equipe e do perito responsável
+    displayTeamMembers(casoDataFromAPI.team, casoDataFromAPI.responsibleExpert);
+
+    // checkTeamManagementPermissions agora usará `currentCaseData` (que foi atualizado)
+    // ou pode ser modificada para receber `casoDataFromAPI.responsibleExpert` e a role do usuário logado.
+    checkTeamManagementPermissions();
+
+  } catch (err) {
+    console.error("Erro ao carregar dados do caso:", err);
+    alert("Erro ao carregar dados do caso: " + err.message);
+    currentCaseData = null; // Limpa a variável global em caso de erro
+
+    // Opcional: Limpar os campos da UI ou mostrar mensagens de erro mais visíveis neles
+    document.getElementById("caseName").textContent = "Erro ao carregar dados";
+    document.getElementById("caseDescription").textContent = "-";
+    // ... (limpar outros campos ou exibir mensagens de erro neles)
+    if (document.getElementById("teamMembersList")) {
+      document.getElementById("teamMembersList").innerHTML = '<li>Falha ao carregar equipe.</li>';
+    }
+    if (document.getElementById("addTeamMemberFormContainer")) {
+      document.getElementById("addTeamMemberFormContainer").classList.add('hidden');
+    }
+  }
 }
 
 // Função para carregar e exibir as evidências (MODIFICADA)
@@ -453,15 +517,15 @@ document.getElementById("editCaseForm").addEventListener("submit", async e => {
       });
       const data = await res.json();
       if (!res.ok) {
-           const errorData = await res.json().catch(() => ({ message: "Erro desconhecido ao atualizar caso." }));
-           throw new Error(errorData.message || data.error || data.message);
+           const errorData = data || { message: "Erro desconhecido ao excluir caso." };
+        throw new Error(errorData.error || errorData.message);
       }
       alert("Caso atualizado com sucesso!");
       editCaseSection.classList.add("hidden"); // Usa a variável definida acima
       await loadCaseData(); // Recarrega os dados do caso e evidências
     } catch (err) {
       console.error(err);
-      alert("Erro: " + err.message);
+      alert(err.message);
     }
 });
 
@@ -512,7 +576,6 @@ addEvidenceForm.addEventListener("submit", async (e) => {
    }
 
    const evidencePayload = {
-     caseId, // <-- usamos o valor já obtido da URL no topo
      evidenceType,
      title,
      description,
@@ -523,7 +586,7 @@ addEvidenceForm.addEventListener("submit", async (e) => {
    const token = localStorage.getItem("token"); // Certifique-se que o token é acessível aqui
 
    try {
-     const response = await fetch(`${API_URL}/api/evidence`, {
+     const response = await fetch(`${API_URL}/api/evidence/${caseId}`, {
        method: "POST",
        headers: {
          "Content-Type": "application/json",
@@ -723,4 +786,234 @@ if (exportReportBtn) {
           exportReportBtn.disabled = false; // Reabilita o botão
       }
     });
+}
+
+// Função para exibir os membros da equipe
+function displayTeamMembers(teamArray, responsibleExpert) {
+  teamMembersList.innerHTML = ''; // Limpa a lista atual
+
+  // Adiciona o perito responsável primeiro (se existir)
+  if (responsibleExpert) {
+    const liResponsible = document.createElement('li');
+    liResponsible.innerHTML = `
+            ${responsibleExpert.name || 'Nome não disponível'} 
+            (<span class="italic">${responsibleExpert.role || 'perito'}</span>) - 
+            <span class="font-semibold text-blue-700">Perito Responsável</span>
+        `;
+    teamMembersList.appendChild(liResponsible);
+  }
+
+  if (teamArray && teamArray.length > 0) {
+    noTeamMembers.classList.add('hidden');
+    teamArray.forEach(member => {
+      // Não listar o perito responsável novamente se ele estiver no array 'team' (pouco provável, mas seguro)
+      if (responsibleExpert && member._id === responsibleExpert._id) {
+        return;
+      }
+      const li = document.createElement('li');
+      li.className = 'flex justify-between items-center py-1';
+      li.innerHTML = `
+                <span>
+                    ${member.name || 'Nome não disponível'} 
+                    (<span class="italic">${member.role || 'Função não definida'}</span>)
+                </span>
+                <button class="remove-teammate-btn text-red-500 hover:text-red-700 text-xs px-2 py-1 border border-red-300 rounded hover:bg-red-50" data-user-id="${member._id}" title="Remover da Equipe">
+                    Remover
+                </button>
+            `;
+      // Adiciona evento ao botão de remover APENAS se o usuário logado tiver permissão
+      const removeBtn = li.querySelector('.remove-teammate-btn');
+      if (canManageTeam()) { // Você precisará definir essa função
+        removeBtn.addEventListener('click', () => handleRemoveTeamMember(member._id));
+      } else {
+        removeBtn.style.display = 'none'; // Oculta o botão se não tiver permissão
+      }
+      teamMembersList.appendChild(li);
+    });
+  } else if (!responsibleExpert || teamArray.length === 0) { // Se não há responsável e a equipe está vazia
+    teamMembersList.innerHTML = ''; // Limpa "Carregando..."
+    noTeamMembers.classList.remove('hidden');
+  } else if (teamArray.length === 0) {
+    const liEmpty = document.createElement('li');
+    liEmpty.textContent = 'Nenhum membro adicional na equipe.';
+    liEmpty.className = 'text-gray-500 italic';
+    teamMembersList.appendChild(liEmpty);
+  }
+}
+
+// Função para verificar se o usuário logado pode gerenciar a equipe
+function canManageTeam() {
+  if (!currentCaseData || !token) return false;
+  const decodedToken = jwt_decode(token); // Você precisará da biblioteca jwt-decode
+  const loggedInUserId = decodedToken.id;
+  const loggedInUserRole = decodedToken.role;
+
+  if (loggedInUserRole === 'admin') return true;
+  if (currentCaseData.responsibleExpert && currentCaseData.responsibleExpert._id === loggedInUserId) return true;
+  return false;
+}
+
+// Função para mostrar/ocultar o formulário de gerenciamento da equipe
+function checkTeamManagementPermissions() {
+  if (canManageTeam()) {
+    addTeamMemberFormContainer.classList.remove('hidden');
+  } else {
+    addTeamMemberFormContainer.classList.add('hidden');
+    // Oculta também os botões de remover individuais se já foram renderizados
+    document.querySelectorAll('.remove-teammate-btn').forEach(btn => btn.style.display = 'none');
+  }
+}
+
+// Event listener para buscar usuários
+searchUserBtn.addEventListener("click", async () => {
+    const searchTerm = userSearchInput.value.trim();
+    if (searchTerm.length < 3) {
+        alert("Digite pelo menos 3 caracteres para buscar.");
+        return;
+    }
+    userSearchResults.innerHTML = '<p class="text-sm text-gray-500">Buscando...</p>';
+    selectedUserIdToAddInput.value = "";
+    selectedUserDisplay.textContent = "";
+    submitAddTeamMemberBtn.disabled = true;
+
+    try {
+        const response = await fetch(`${API_URL}/api/user/search?name=${encodeURIComponent(searchTerm)}`, {
+            headers: { "Authorization": `Bearer ${token}` }
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => ({}));
+            throw new Error(errorData.error || errorData.message || "Falha ao buscar usuários.");
+        }
+
+        const result = await response.json();
+        const users = Array.isArray(result) ? result : result.users;
+
+        userSearchResults.innerHTML = '';
+
+        if (!users || users.length === 0) {
+            userSearchResults.innerHTML = '<p class="text-sm text-gray-500">Nenhum usuário encontrado.</p>';
+            return;
+        }
+
+        let eligibleUsersFound = 0;
+
+        users.forEach(userInLoop => { // Renomeei para userInLoop para evitar confusão de escopo
+            const isEligibleRole = userInLoop.role === 'perito' || userInLoop.role === 'assistente';
+            const isNotResponsible = !currentCaseData.responsibleExpert || userInLoop._id !== currentCaseData.responsibleExpert._id;
+            const isNotInTeam = !currentCaseData.team || !Array.isArray(currentCaseData.team) || !currentCaseData.team.some(tm => tm && tm._id === userInLoop._id);
+
+            if (isEligibleRole && isNotResponsible && isNotInTeam) {
+                eligibleUsersFound++;
+                const userDiv = document.createElement('div');
+                userDiv.className = 'p-2 border rounded hover:bg-gray-100 cursor-pointer user-search-item';
+                userDiv.textContent = `${userInLoop.name} (${userInLoop.role}) - CRO: ${userInLoop.cro || 'N/A'}`;
+                
+                // Armazena os dados no dataset do elemento userDiv
+                userDiv.dataset.userId = userInLoop._id;
+                userDiv.dataset.userName = userInLoop.name;
+
+                userDiv.addEventListener('click', function() { // Usar function() para que 'this' se refira ao userDiv
+                    // 'this' aqui se refere ao userDiv que foi clicado
+
+                    // Remove a classe 'selected' de qualquer outro item
+                    document.querySelectorAll('.user-search-item').forEach(div => {
+                        div.classList.remove('bg-blue-100', 'border-blue-400', 'font-semibold');
+                    });
+                    // Adiciona a classe 'selected' ao item clicado (this)
+                    this.classList.add('bg-blue-100', 'border-blue-400', 'font-semibold');
+
+                    // ----- Acessar os dados do dataset de 'this' (o userDiv clicado) -----
+                    selectedUserIdToAddInput.value = this.dataset.userId; // CORREÇÃO AQUI
+                    selectedUserDisplay.textContent = `Adicionar: ${this.dataset.userName}`; // CORREÇÃO AQUI
+                    submitAddTeamMemberBtn.disabled = false;
+                    
+                    console.log("Usuário selecionado ID:", selectedUserIdToAddInput.value);
+                    console.log("Usuário selecionado Nome:", this.dataset.userName); // Para depuração
+                });
+                userSearchResults.appendChild(userDiv);
+            }
+        });
+
+        if (eligibleUsersFound === 0) {
+             userSearchResults.innerHTML = '<p class="text-sm text-gray-500">Nenhum usuário elegível encontrado.</p>';
+        }
+
+    } catch (error) {
+        console.error("Erro ao buscar usuários:", error);
+        userSearchResults.innerHTML = `<p class="text-sm text-red-500">Erro ao buscar: ${error.message}</p>`;
+        submitAddTeamMemberBtn.disabled = true;
+    }
+});
+// Event listener para adicionar membro à equipe
+addTeamMemberForm.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const userId = selectedUserIdToAddInput.value;
+  if (!userId) {
+    alert("Nenhum usuário selecionado para adicionar.");
+    return;
+  }
+
+  submitAddTeamMemberBtn.disabled = true; // Desabilita durante a requisição
+
+  try {
+    const response = await fetch(`${API_URL}/api/case/${caseId}/team/${userId}`, {
+      method: "POST",
+      headers: { "Authorization": `Bearer ${token}` }
+    });
+
+    const result = await response.json();
+
+    if (!response.ok) {
+      throw new Error(result.message || result.error || "Erro ao adicionar membro à equipe.");
+    }
+
+    alert(result.message || "Usuário adicionado à equipe com sucesso!");
+    currentCaseData = result.case; // Atualiza os dados do caso com a nova equipe
+    displayTeamMembers(currentCaseData.team, currentCaseData.responsibleExpert); // Re-renderiza a lista da equipe
+    checkTeamManagementPermissions(); // Reavalia permissões
+
+    // Limpa o formulário de adição
+    userSearchInput.value = "";
+    userSearchResults.innerHTML = "";
+    selectedUserIdToAddInput.value = "";
+    selectedUserDisplay.textContent = "";
+
+  } catch (error) {
+    console.error("Erro ao adicionar membro:", error);
+    alert("Erro: " + error.message);
+  } finally {
+    if (selectedUserIdToAddInput.value) { // Só reabilita se ainda houver seleção válida
+      submitAddTeamMemberBtn.disabled = false;
+    } else {
+      submitAddTeamMemberBtn.disabled = true;
+    }
+  }
+});
+
+// Função para remover membro da equipe
+async function handleRemoveTeamMember(userId) {
+  if (!confirm("Tem certeza que deseja remover este membro da equipe?")) return;
+
+  try {
+    const response = await fetch(`${API_URL}/api/case/${caseId}/team/${userId}`, {
+      method: "DELETE",
+      headers: { "Authorization": `Bearer ${token}` }
+    });
+
+    const result = await response.json();
+
+    if (!response.ok) {
+      throw new Error(result.message || result.error || "Erro ao remover membro da equipe.");
+    }
+
+    alert(result.message || "Membro removido da equipe com sucesso!");
+    currentCaseData = result.case; // Atualiza os dados do caso
+    displayTeamMembers(currentCaseData.team, currentCaseData.responsibleExpert);
+    checkTeamManagementPermissions();
+
+  } catch (error) {
+    console.error("Erro ao remover membro:", error);
+    alert("Erro: " + error.message);
+  }
 }
