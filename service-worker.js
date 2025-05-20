@@ -13,6 +13,14 @@ const urlsToCache = [
   '/js/gerenciar_func.js', // Script de gerenciar funcionários
   '/main/home.html',
   '/components/home.html', // Home do Admin
+  '/components/dashboard.html',
+  '/components/cadastro.html',
+  '/components/createCase.html',
+  '/components/gerenciar_func.html',
+  '/components/gerenciar_perms1.html',
+  '/components/logs.html',
+  '/components/perfil.html',
+  '/components/pericia.html',
   '/main/pericia.html', // Estrutura da página de perícia
   '/main/consultaCase.html',
   '/main/cases.html',
