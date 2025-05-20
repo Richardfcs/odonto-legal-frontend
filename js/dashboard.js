@@ -1,5 +1,5 @@
 let charts = {};
-const API_BASE = 'http://localhost:3000/api/dashboard';
+const API_BASE = 'https://odonto-legal-backend.onrender.com/api/dashboard';
 
 // Controle das abas
 function showDashboard(dashboardId, event) {
