@@ -176,6 +176,11 @@
             class="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded">
             Adicionar Evidência
           </button>
+          <!-- Botão Exportar Evidências selecionadas -->
+          <button id="generateSelectedEvidencesReportBtn"
+            class="mt-4 bg-purple-500 hover:bg-purple-600 text-white font-bold py-2 px-4 rounded disabled:opacity-50">
+            Gerar Laudo para Evidências Selecionadas
+          </button>
           <!-- Botão Exportar Laudo -->
           <button id="exportReportBtn"
             class="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded">
@@ -432,12 +437,6 @@
             <option value="check_inconsistencies">Verificar Inconsistências Potenciais</option>
           </select>
         </div>
-
-        <!-- Opcional: Área para selecionar evidências (para comparar ou limitar análise) -->
-        <!-- <div id="aiEvidenceSelection" class="mb-4 hidden">
-   <p>Selecione as evidências a serem usadas:</p>
-   Checkboxes aqui...
-</div> -->
 
         <button id="analyzeWithAIButton"
           class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded transition duration-200 disabled:opacity-50">

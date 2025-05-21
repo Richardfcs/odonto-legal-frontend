@@ -122,7 +122,8 @@
               perfil</a>
           </li>
           <li>
-            <a href="dashboard.html" class="block py-2 px-3 md:p-0 text-gray-900 rounded-sm hover:bg-gray-100 md:hover:bg-transparent md:hover:text-blue-700 dark:text-white md:dark:hover:text-blue-500 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent dark:border-gray-700">Dashboard</a>
+            <a href="dashboard.html"
+              class="block py-2 px-3 md:p-0 text-gray-900 rounded-sm hover:bg-gray-100 md:hover:bg-transparent md:hover:text-blue-700 dark:text-white md:dark:hover:text-blue-500 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent dark:border-gray-700">Dashboard</a>
           </li>
           <li>
             <a href="logs.html"
@@ -183,6 +184,11 @@
           <button id="addEvidenceBtn"
             class="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded">
             Adicionar Evidência
+          </button>
+          <!-- Botão Exportar Evidências selecionadas -->
+          <button id="generateSelectedEvidencesReportBtn"
+            class="mt-4 bg-purple-500 hover:bg-purple-600 text-white font-bold py-2 px-4 rounded disabled:opacity-50">
+            Gerar Laudo para Evidências Selecionadas
           </button>
           <!-- Botão Exportar Laudo -->
           <button id="exportReportBtn"
@@ -399,7 +405,8 @@
           <h4 class="text-lg font-medium text-gray-800 mb-3">Adicionar Membro à Equipe</h4>
           <form id="addTeamMemberForm" class="space-y-4">
             <div>
-              <label for="userSearchInput" class="block text-sm font-medium text-gray-700">Buscar Usuário (Perito/Assistente) por Nome ou CRO:</label>
+              <label for="userSearchInput" class="block text-sm font-medium text-gray-700">Buscar Usuário
+                (Perito/Assistente) por Nome ou CRO:</label>
               <div class="flex mt-1">
                 <input type="text" id="userSearchInput" placeholder="Digite nome ou CRO"
                   class="flex-grow p-2 border border-gray-300 rounded-l-md focus:ring-blue-500 focus:border-blue-500">
@@ -438,12 +445,6 @@
             <option value="check_inconsistencies">Verificar Inconsistências Potenciais</option>
           </select>
         </div>
-
-        <!-- Opcional: Área para selecionar evidências (para comparar ou limitar análise) -->
-        <!-- <div id="aiEvidenceSelection" class="mb-4 hidden">
-       <p>Selecione as evidências a serem usadas:</p>
-       Checkboxes aqui...
-  </div> -->
 
         <button id="analyzeWithAIButton"
           class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded transition duration-200 disabled:opacity-50">

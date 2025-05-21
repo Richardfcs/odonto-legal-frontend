@@ -279,7 +279,7 @@ async function loadEvidences(caseId) {
                               <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 011-1h4a1 1 0 110 2H8a1 1 0 01-1-1zm.071 4.243a1 1 0 011.415 0L10 13.586l1.515-1.516a1 1 0 011.415 1.414L11.414 15l1.516 1.515a1 1 0 01-1.414 1.415L10 16.414l-1.515 1.516a1 1 0 01-1.415-1.414L8.586 15l-1.516-1.515a1 1 0 010-1.414z" clip-rule="evenodd" />
                           </svg>
                       </button>
-                  </div>
+                      <input type="checkbox" class="evidence-select-checkbox mt-1" data-evidence-id="${e._id}" id="checkbox-ev-${e._id}">
               `;
 
         // Adiciona event listeners aos botões DEPOIS que o card é criado
@@ -1014,4 +1014,96 @@ async function handleRemoveTeamMember(userId) {
     console.error("Erro ao remover membro:", error);
     alert("Erro: " + error.message);
   }
+}
+
+const generateSelectedEvidencesReportBtn = document.getElementById('generateSelectedEvidencesReportBtn');
+
+if (generateSelectedEvidencesReportBtn) {
+    generateSelectedEvidencesReportBtn.disabled = true; // Começa desabilitado
+
+    // Habilitar/desabilitar o botão baseado na seleção de checkboxes
+    document.getElementById('evidencesContainer').addEventListener('change', (event) => {
+        if (event.target.classList.contains('evidence-select-checkbox')) {
+            const selectedCheckboxes = document.querySelectorAll('.evidence-select-checkbox:checked');
+            generateSelectedEvidencesReportBtn.disabled = selectedCheckboxes.length === 0;
+        }
+    });
+
+    generateSelectedEvidencesReportBtn.addEventListener('click', async () => {
+        const selectedCheckboxes = document.querySelectorAll('.evidence-select-checkbox:checked');
+        if (selectedCheckboxes.length === 0) {
+            alert("Selecione pelo menos uma evidência para gerar o laudo.");
+            return;
+        }
+
+        const evidenceIds = Array.from(selectedCheckboxes).map(cb => cb.dataset.evidenceId);
+        const reportContent = prompt("Digite o conteúdo do laudo para as evidências selecionadas:");
+
+        if (reportContent === null) return; // Cancelou
+        if (!reportContent) {
+            alert("Conteúdo do laudo não pode ser vazio.");
+            return;
+        }
+
+        generateSelectedEvidencesReportBtn.disabled = true;
+        // Opcional: Mudar texto do botão para "Gerando..."
+
+        try {
+            const token = localStorage.getItem("token");
+            // Usar a nova rota do backend
+            const response = await fetch(`${API_URL}/api/report/evidence`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    caseId: caseId, // caseId global da página
+                    evidenceIds: evidenceIds,
+                    content: reportContent
+                })
+            });
+
+            const result = await response.json();
+            if (!response.ok) {
+                throw new Error(result.error || result.message || "Erro ao gerar laudo de evidências.");
+            }
+
+            alert(result.message || "Laudo de evidências gerado com sucesso!");
+            // Lógica para exibir/baixar o PDF (similar ao que você já tem)
+            if (result.pdfUrl) {
+                // ... seu código para abrir/mostrar link de download ...
+                // Exemplo:
+                const reportDownloadArea = document.getElementById("reportDownloadArea"); // Reutilize ou crie nova área
+                if (reportDownloadArea) {
+                     // Limpar área anterior se houver
+                    reportDownloadArea.innerHTML = `<p class="text-sm text-orange-600 mb-2">Clique no link abaixo para o laudo das evidências:</p>`;
+                    const caseNameForFile = document.getElementById("caseName")?.textContent?.replace(/[^a-zA-Z0-9]/g, '_') || 'caso';
+                    const filename = `Laudo_Evidencias_${caseNameForFile}_${result.reportId?.slice(-6) || Date.now()}.pdf`;
+                    const downloadLink = document.createElement('a');
+                    downloadLink.href = result.pdfUrl;
+                    downloadLink.textContent = 'Abrir/Baixar Laudo de Evidências';
+                    downloadLink.target = '_blank';
+                    downloadLink.download = filename;
+                    downloadLink.className = 'inline-block px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition duration-200 text-sm';
+                    reportDownloadArea.appendChild(downloadLink);
+                }
+            }
+            // Desmarcar checkboxes e desabilitar botão
+            selectedCheckboxes.forEach(cb => cb.checked = false);
+            generateSelectedEvidencesReportBtn.disabled = true;
+
+        } catch (error) {
+            console.error("Erro ao gerar laudo de evidências:", error);
+            alert("Não foi possível gerar o laudo: " + error.message);
+        } 
+        // finally {
+        //     // Reabilitar botão apenas se ainda houver checkboxes selecionados (pouco provável aqui, já que desmarcamos)
+        //     // ou apenas reabilitar se o usuário puder tentar novamente.
+        //     // Por simplicidade, vamos deixar que o evento 'change' nos checkboxes reabilite se necessário.
+        //     // generateSelectedEvidencesReportBtn.disabled = document.querySelectorAll('.evidence-select-checkbox:checked').length === 0;
+        //     // ou
+        //     // generateSelectedEvidencesReportBtn.textContent = "Gerar Laudo para Evidências Selecionadas";
+        // }
+    });
 }

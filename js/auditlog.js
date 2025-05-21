@@ -197,7 +197,6 @@ async function fetchAndDisplayLogs(page = 1) {
     }
 }
 
-
 // --- Inicialização e Event Listeners ---
 
 document.addEventListener('DOMContentLoaded', () => {
