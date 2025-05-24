@@ -1,6 +1,10 @@
 let charts = {};
 const API_BASE = 'https://odonto-legal-backend.onrender.com/api/dashboard';
 
+let victimChartInstance = null;
+let victimsTimelineChartInstance = null; // Para o gráfico de timeline de vítimas
+let currentVictimView = 'identificationStatus'; // Vista padrão para o gráfico principal de vítimas
+
 // Controle das abas
 function showDashboard(dashboardId, event) {
     // Remove todas as classes ativas
@@ -23,6 +27,9 @@ function showDashboard(dashboardId, event) {
             activeButton.classList.add('active');
         }
     }
+    if (dashboardId === 'victims') {
+        populateVictimViewToggle();
+    }
 
     loadDashboardData(dashboardId);
 }
@@ -33,6 +40,7 @@ async function loadDashboardData(dashboardId) {
     let periodFilterId;
     if (dashboardId === 'main') periodFilterId = 'mainFilter';
     else if (dashboardId === 'cases') periodFilterId = 'caseTimeFilter';
+    else if (dashboardId === 'victims') periodFilterId = 'victimTimeFilter';
     else if (dashboardId === 'users') periodFilterId = 'userTimeFilter';
     else if (dashboardId === 'locations') periodFilterId = 'locationTimeFilter';
     // 'activity' não usa filtro de período da mesma forma
@@ -47,6 +55,9 @@ async function loadDashboardData(dashboardId) {
         case 'cases':
             // 'period' já está sendo pego dentro de loadCaseData
             await loadCaseData();
+            break;
+        case 'victims': // Adicionado
+            await loadVictimData(); // Nova função a ser criada
             break;
         case 'users':
             await loadUserData();
@@ -93,6 +104,7 @@ async function loadMainData(period) {
         }
 
         document.getElementById('mainTotalCases').textContent = mainData.totals.cases || 0;
+        document.getElementById('mainTotalVictims').textContent = mainData.totals.victims || 0;
         document.getElementById('mainTotalUsers').textContent = mainData.totals.users || 0;
         document.getElementById('totalEvidences').textContent = mainData.totals.evidences || 0;
 
@@ -105,6 +117,7 @@ async function loadMainData(period) {
         console.error('Erro ao carregar dados:', error);
         alert('Erro ao carregar dados. Tente novamente mais tarde.');
         document.getElementById('mainTotalCases').textContent = 0;
+        document.getElementById('mainTotalVictims').textContent = 0;
         document.getElementById('mainTotalUsers').textContent = 0; // Corrigido aqui
         document.getElementById('totalEvidences').textContent = 0;
     }
@@ -211,7 +224,6 @@ const caseTimeFilterElement = document.getElementById('caseTimeFilter');
 if (caseTimeFilterElement) {
     caseTimeFilterElement.addEventListener('change', loadCaseData);
 }
-
 
 function updateChart(canvasId, type, { labels, data }, datasetLabel = 'Quantidade') { // Adicionando label do dataset
     const ctx = document.getElementById(canvasId);
@@ -325,7 +337,6 @@ if (userTimeFilterElement) {
     userTimeFilterElement.addEventListener('change', loadUserData);
 }
 
-
 let locationChartInstance = null;
 
 async function loadLocationData() {
@@ -399,7 +410,6 @@ if (locationTimeFilterElement) {
     locationTimeFilterElement.addEventListener('change', loadLocationData);
 }
 
-
 async function loadActivityData() {
     try {
         const limit = document.getElementById('activityLimit').value;
@@ -414,11 +424,12 @@ async function loadActivityData() {
         });
         if (!res.ok) throw new Error('Erro ao carregar atividades');
 
-        const { cases, evidences, reports } = await res.json();
+        const { cases, evidences, reports, victims } = await res.json();
 
         updateActivityList('recentCases', cases || [], 'nameCase', 'title');
         updateActivityList('recentEvidences', evidences || [], 'title', 'description'); // Usando description como fallback
         updateActivityList('recentReports', reports || [], 'caseId', 'reportNumber'); // Usando reportNumber como fallback
+        updateActivityList('recentVictims', victims || [], 'victimCode', 'name');
 
     } catch (error) {
         console.error('Erro:', error);
@@ -452,7 +463,6 @@ if (activityLimitElement) {
     activityLimitElement.addEventListener('change', loadActivityData);
 }
 
-
 async function handleExport(type) {
     try {
         const filters = {};
@@ -464,7 +474,17 @@ async function handleExport(type) {
         } else if (type === 'users') {
             filters.period = document.getElementById('userTimeFilter')?.value || 'all';
             filters.role = document.getElementById('userRoleFilter')?.value || 'all';
-        }
+        } else if (type === 'victims') { // Adicionado
+            filters.period = document.getElementById('victimTimeFilter')?.value || 'all';
+            // Adicionar filtros específicos de vítima que você deseja para exportação
+            // Ex: filters.identificationStatus = document.getElementById('victimStatusFilter')?.value || 'all';
+            // Por agora, vamos usar apenas o período.
+            const activeVictimToggle = document.querySelector('#victimViewToggle .toggle-btn.active');
+            if (activeVictimToggle) {
+                // Este é o 'groupBy' para o gráfico, não necessariamente um filtro de exportação direto
+                // filters.groupBy = activeVictimToggle.dataset.type;
+            }
+        };
         // Adicionar mais tipos e seus filtros aqui se necessário
 
         const params = new URLSearchParams();
@@ -579,6 +599,347 @@ async function handleExport(type) {
     }
 }
 
+const victimGroupByOptions = [
+    { type: 'identificationStatus', label: 'Identificação', chartType: 'pie', endpoint: 'victim-demographics-stats' },
+    { type: 'gender', label: 'Gênero', chartType: 'pie', endpoint: 'victim-demographics-stats' },
+    { type: 'ethnicityRace', label: 'Etnia/Raça', chartType: 'bar', endpoint: 'victim-demographics-stats' },
+    { type: 'ageDistribution', label: 'Faixa Etária', chartType: 'bar', endpoint: 'victim-age-stats' }, // Endpoint específico para idade
+    { type: 'mannerOfDeath', label: 'Circunstância da Morte', chartType: 'bar', endpoint: 'victim-demographics-stats' },
+    { type: 'discoveryLocation.type', label: 'Local Descoberta', chartType: 'bar', endpoint: 'victim-demographics-stats' },
+    { type: 'victimsTimeline', label: 'Timeline', chartType: 'line', endpoint: 'victims-timeline' }
+    // Adicione mais opções conforme os campos do seu modelo Victim e os endpoints do backend
+];
+
+// NOVA FUNÇÃO para carregar dados do gráfico principal de vítimas
+// Função para carregar dados do gráfico principal de vítimas
+async function loadVictimData() {
+    const selectedOption = victimGroupByOptions.find(opt => opt.type === currentVictimView);
+
+    if (!selectedOption) {
+        console.error("Opção de visualização de vítima não encontrada:", currentVictimView);
+        // Limpar gráfico e mostrar mensagem de erro na UI se a opção for inválida
+        const ctx = document.getElementById('victimChart');
+        if (ctx && victimChartInstance) {
+            victimChartInstance.destroy();
+            victimChartInstance = null;
+            const context = ctx.getContext('2d');
+            context.clearRect(0, 0, ctx.width, ctx.height);
+            context.textAlign = 'center';
+            context.fillText('Opção de gráfico inválida.', ctx.width / 2, ctx.height / 2);
+        }
+        const totalElement = document.getElementById('totalVictimsInPeriod');
+        if (totalElement) totalElement.textContent = 'Erro';
+        return;
+    }
+
+    const endpointName = selectedOption.endpoint;
+    const chartType = selectedOption.chartType;
+    const datasetLabel = selectedOption.label; // Usar para o título do gráfico
+    const periodElement = document.getElementById('victimTimeFilter');
+    const period = periodElement ? periodElement.value : 'all';
+
+    const params = new URLSearchParams();
+    // Apenas 'victim-demographics-stats' usa 'groupBy' explicitamente no backend.
+    // 'victim-age-stats' e 'victims-timeline' têm endpoints dedicados que já sabem como agregar.
+    if (endpointName === 'victim-demographics-stats') {
+        params.append('groupBy', currentVictimView);
+    }
+    if (period !== 'all') {
+        params.append('period', period);
+    }
+
+    const token = localStorage.getItem('token');
+    if (!token) {
+        console.error("Token de autenticação não encontrado.");
+        alert("Sessão expirada ou inválida. Por favor, faça login novamente.");
+        // Idealmente, redirecionar para a página de login
+        return;
+    }
+
+    try {
+        const res = await fetch(`${API_BASE}/${endpointName}?${params}`, {
+             headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            }
+        });
+
+        if (!res.ok) {
+            const errorData = await res.json().catch(() => ({})); // Tenta pegar erro do JSON
+            throw new Error(errorData.error || errorData.message || `Erro ${res.status} ao carregar estatísticas de vítimas (${datasetLabel})`);
+        }
+
+        const resultData = await res.json();
+        console.log(`Dados recebidos para ${datasetLabel}:`, resultData); // Log para depuração
+
+        const totalElement = document.getElementById('totalVictimsInPeriod');
+
+        // A estrutura de 'resultData' varia:
+        // Para timeline, é um array de { _id: 'data', count: N }
+        // Para demographics/age, é um objeto { stats: [...], total: N }
+        if (currentVictimView === 'victimsTimeline') {
+            updateVictimChart(resultData || [], chartType, datasetLabel); // resultData é o array da timeline
+            if (totalElement) {
+                // Calcula o total da timeline se necessário, ou mostra '-'
+                const timelineTotal = (resultData || []).reduce((sum, item) => sum + item.count, 0);
+                totalElement.textContent = timelineTotal > 0 ? timelineTotal : "-";
+            }
+        } else {
+            const { stats, total } = resultData;
+            if (totalElement) totalElement.textContent = total || 0;
+            updateVictimChart(stats || [], chartType, datasetLabel);
+        }
+
+    } catch (error) {
+        console.error(`Erro ao carregar dados de vítimas (${datasetLabel}):`, error);
+        alert(`Erro ao carregar dados de vítimas (${datasetLabel}): ${error.message}`);
+        
+        const totalElement = document.getElementById('totalVictimsInPeriod');
+        if (totalElement) totalElement.textContent = 0;
+        
+        // Limpar gráfico em caso de erro
+        const ctx = document.getElementById('victimChart');
+        if (ctx) {
+            if (victimChartInstance) {
+                victimChartInstance.destroy();
+                victimChartInstance = null;
+            }
+            const context = ctx.getContext('2d');
+            context.clearRect(0, 0, ctx.width, ctx.height);
+            context.textAlign = 'center';
+            context.fillStyle = '#cc0000'; // Cor para mensagem de erro
+            context.fillText(`Erro ao carregar gráfico (${datasetLabel}).`, ctx.width / 2, ctx.height / 2);
+        }
+    }
+}
+
+// NOVA FUNÇÃO para atualizar o gráfico principal de vítimas
+function updateVictimChart(data, chartType, datasetLabel) {
+    const ctx = document.getElementById('victimChart');
+    if (!ctx) return;
+
+    if (victimChartInstance) {
+        victimChartInstance.destroy();
+    }
+    let chartDataConfig;
+    let chartOptionsConfig;
+
+    if (chartType === 'line') { // Configuração para gráfico de linha (timeline)
+        chartDataConfig = {
+            labels: data.map(item => item._id || item.date), // _id vem da agregação da timeline
+            datasets: [{
+                label: datasetLabel,
+                data: data.map(item => item.count),
+                backgroundColor: 'rgba(239, 68, 68, 0.2)',
+                borderColor: '#EF4444',
+                tension: 0.1,
+                fill: true
+            }]
+        };
+        chartOptionsConfig = {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { position: 'top' }, title: { display: true, text: datasetLabel } },
+            scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } }, x: { grid: { display: false } } }
+        };
+    } else { // Configuração para pie/bar
+        chartDataConfig = {
+            labels: data.map(item => item.name || 'Não Especificado'),
+            datasets: [{
+                label: datasetLabel,
+                data: data.map(item => item.count),
+                backgroundColor: chartType === 'bar'
+                    ? '#3B82F6'
+                    : ['#10B981', '#3B82F6', '#F59E0B', '#EF4444', '#8B5CF6', '#6366F1', '#EC4899', '#F97316'],
+                borderWidth: chartType === 'bar' ? 0 : 1,
+                borderRadius: chartType === 'bar' ? 8 : 0,
+            }]
+        };
+        chartOptionsConfig = {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { position: 'bottom', display: chartType !== 'bar' },
+                title: { display: true, text: `Distribuição por ${datasetLabel}` }
+            },
+            scales: (chartType === 'bar') ? {
+                y: { beginAtZero: true },
+                x: { grid: { display: false }, ticks: { autoSkip: true, maxRotation: 45 } }
+            } : {}
+        };
+    }
+
+    victimChartInstance = new Chart(ctx, {
+        type: chartType,
+        data: chartDataConfig,
+        options: chartOptionsConfig
+    });
+}
+
+// NOVA FUNÇÃO para carregar dados da timeline de vítimas
+async function loadVictimsTimelineData() {
+    const period = document.getElementById('victimTimeFilter').value; // Usa o mesmo filtro de período
+    const params = new URLSearchParams();
+    if (period !== 'all') {
+        params.append('period', period);
+    }
+
+    const token = localStorage.getItem('token');
+    try {
+        const res = await fetch(`${API_BASE}/victims-timeline?${params}`, {
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            }
+        });
+        if (!res.ok) throw new Error('Erro ao carregar timeline de vítimas');
+
+        const timelineData = await res.json();
+        updateVictimsTimelineChart(timelineData || []);
+
+    } catch (error) {
+        console.error('Erro ao carregar timeline de vítimas:', error);
+        // Não mostrar alert para este gráfico secundário, apenas logar ou mostrar msg no gráfico
+        if (victimsTimelineChartInstance) {
+            victimsTimelineChartInstance.destroy();
+            victimsTimelineChartInstance = null;
+        }
+        const ctx = document.getElementById('victimsTimelineChart');
+        if (ctx) {
+            const context = ctx.getContext('2d');
+            context.clearRect(0, 0, ctx.width, ctx.height);
+            context.textAlign = 'center';
+            context.fillText('Erro ao carregar timeline.', ctx.width / 2, ctx.height / 2);
+        }
+    }
+}
+
+// NOVA FUNÇÃO para atualizar o gráfico de timeline de vítimas
+function updateVictimsTimelineChart(timelineData) {
+    const ctx = document.getElementById('victimsTimelineChart');
+    if (!ctx) return;
+
+    if (victimsTimelineChartInstance) {
+        victimsTimelineChartInstance.destroy();
+    }
+
+    victimsTimelineChartInstance = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: timelineData.map(item => item._id || item.date), // _id vem da agregação
+            datasets: [{
+                label: 'Vítimas Registradas (por Data de Descoberta)',
+                data: timelineData.map(item => item.count),
+                backgroundColor: 'rgba(239, 68, 68, 0.2)', // Cor vermelha suave
+                borderColor: '#EF4444', // Cor vermelha
+                tension: 0.1,
+                fill: true
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'top',
+                }
+            },
+            scales: {
+                y: { beginAtZero: true, ticks: { stepSize: 1 } }, // Forçar ticks inteiros
+                x: { grid: { display: false } }
+            }
+        }
+    });
+}
+
+function updateVictimAgeChart(ageData) {
+    const ctx = document.getElementById('victimAgeChart');
+    if (!ctx) return;
+
+    if (victimAgeChartInstance) {
+        victimAgeChartInstance.destroy();
+    }
+
+    victimAgeChartInstance = new Chart(ctx, {
+        type: 'bar', // Ou 'pie' se preferir
+        data: {
+            labels: ageData.map(item => item.name),
+            datasets: [{
+                label: 'Distribuição Etária de Vítimas',
+                data: ageData.map(item => item.count),
+                backgroundColor: [ // Cores diferentes para cada faixa
+                    '#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#EC4899', '#6366F1'
+                ],
+                borderRadius: 8
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } }, // Pode ocultar se o título do gráfico for suficiente
+            scales: {
+                y: { beginAtZero: true, ticks: { stepSize: 1 } },
+                x: { grid: { display: false } }
+            }
+        }
+    });
+}
+
+// Função para popular os botões de toggle do dashboard de vítimas
+function populateVictimViewToggle() {
+    const toggleContainer = document.getElementById('victimViewToggle');
+    if (!toggleContainer) return;
+
+    toggleContainer.innerHTML = ''; // Limpa botões existentes
+
+    victimGroupByOptions.forEach((option, index) => {
+        const button = document.createElement('button');
+        button.className = 'toggle-btn';
+        if (index === 0) { // Ativa o primeiro botão por padrão
+            button.classList.add('active');
+            currentVictimView = option.type; // Define a view padrão
+        }
+        button.dataset.type = option.type;
+        button.dataset.chartType = option.chartType; // Armazena o tipo de gráfico preferido
+        button.dataset.endpoint = option.endpoint;   // Armazena o endpoint a ser chamado
+        button.textContent = option.label;
+
+        button.addEventListener('click', function () {
+            if (this.classList.contains('active')) return;
+            document.querySelectorAll('#victimViewToggle .toggle-btn').forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+            currentVictimView = this.dataset.type;
+            loadVictimData(); // Recarrega os dados do gráfico principal de vítimas
+        });
+        toggleContainer.appendChild(button);
+    });
+}
+
+// Event Listeners para o Dashboard de Vítimas
+document.querySelectorAll('#victimViewToggle .toggle-btn').forEach(btn => {
+    btn.addEventListener('click', function () {
+        if (this.classList.contains('active')) return;
+
+        document.querySelectorAll('#victimViewToggle .toggle-btn').forEach(b => b.classList.remove('active'));
+        this.classList.add('active');
+        currentVictimView = this.dataset.type; // Atualiza o tipo de agrupamento
+        loadVictimData(); // Recarrega os dados com o novo agrupamento
+    });
+});
+
+// Adicionar event listener para o filtro de tempo do dashboard de vítimas
+const victimTimeFilterElement = document.getElementById('victimTimeFilter');
+if (victimTimeFilterElement) {
+    victimTimeFilterElement.addEventListener('change', () => {
+        loadVictimData(); // Recarrega o gráfico principal // Recarrega a timeline
+    });
+}
+
+// const victimDateFieldElement = document.getElementById('victimDateField'); // Para filtro de campo de data futuro
+// if (victimDateFieldElement) {
+//     victimDateFieldElement.addEventListener('change', loadVictimData);
+// }
+
 // Inicialização
 document.addEventListener('DOMContentLoaded', () => {
     // Event listeners para filtros globais de cada dashboard (que não foram configurados acima)
@@ -590,3 +951,49 @@ document.addEventListener('DOMContentLoaded', () => {
 
     showDashboard('main', null); // Passa null para o evento na inicialização
 });
+
+// Função auxiliar para configurar os filtros de período customizados
+function setupCustomDateFilters() {
+    const timeFilterSelects = document.querySelectorAll('.time-filter-select');
+
+    timeFilterSelects.forEach(selectElement => {
+        const customControlsId = selectElement.dataset.customControls; // ex: 'caseCustomDateControls'
+        const customControlsElement = document.getElementById(customControlsId);
+        
+        if (!customControlsElement) return;
+
+        const startDateInput = customControlsElement.querySelector('.date-input[id$="StartDate"]'); // ex: #caseStartDate
+        const endDateInput = customControlsElement.querySelector('.date-input[id$="EndDate"]');   // ex: #caseEndDate
+        const applyButton = customControlsElement.querySelector('.apply-custom-date-btn');     // ex: #applyCaseCustomDate
+
+        if (!startDateInput || !endDateInput || !applyButton) return;
+
+        selectElement.addEventListener('change', function() {
+            if (this.value === 'custom') {
+                customControlsElement.classList.remove('hidden');
+            } else {
+                customControlsElement.classList.add('hidden');
+                // Se uma opção pré-definida for selecionada, recarrega os dados do dashboard associado
+                const dashboardId = this.id.replace('TimeFilter', '').replace('Filter', ''); // main, case, user, etc.
+                loadDashboardData(dashboardId);
+            }
+        });
+
+        applyButton.addEventListener('click', function() {
+            const startDate = startDateInput.value;
+            const endDate = endDateInput.value;
+
+            if (!startDate || !endDate) {
+                alert("Por favor, selecione as datas de início e fim.");
+                return;
+            }
+            if (new Date(startDate) > new Date(endDate)) {
+                alert("A data de início não pode ser posterior à data de fim.");
+                return;
+            }
+            // Recarrega os dados do dashboard associado com o período customizado
+            const dashboardId = selectElement.id.replace('TimeFilter', '').replace('Filter', '');
+            loadDashboardData(dashboardId);
+        });
+    });
+}

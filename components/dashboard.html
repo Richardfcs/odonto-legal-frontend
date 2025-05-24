@@ -138,6 +138,7 @@
         <div class="nav-tabs">
             <button class="nav-button active" onclick="showDashboard('main', event)">Geral</button>
             <button class="nav-button" onclick="showDashboard('cases', event)">Casos</button>
+            <button class="nav-button" onclick="showDashboard('victims', event)">Vítimas</button>
             <button class="nav-button" onclick="showDashboard('users', event)">Usuários</button>
             <button class="nav-button" onclick="showDashboard('locations', event)">Locais</button>
             <button class="nav-button" onclick="showDashboard('activity', event)">Atividades</button>
@@ -162,6 +163,10 @@
                 <div class="stat-card">
                     <div class="stat-label">Casos</div>
                     <div class="stat-value" id="mainTotalCases">0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Vítimas</div>
+                    <div class="stat-value" id="mainTotalVictims">0</div>
                 </div>
                 <div class="stat-card">
                     <div class="stat-label">Usuários</div>
@@ -211,6 +216,49 @@
             <div class="chart-container" style="position: relative;">
                 <canvas id="caseChart"></canvas>
             </div>
+        </div>
+
+        <!-- Dashboard de Vítimas -->
+        <div id="victimsDashboard" class="dashboard-section">
+            <div class="header">
+                <div class="export-container">
+                    <button class="export-btn" onclick="handleExport('victims')">
+                        Exportar Vítimas
+                    </button>
+                </div>
+                <h1>Estatísticas de Vítimas</h1>
+                <div class="filters-container">
+                    <div class="view-toggle" id="victimViewToggle">
+                        <!-- Botões de toggle serão adicionados pelo JS -->
+                        <!-- Exemplo:
+                        <button class="toggle-btn active" data-type="identificationStatus" data-chart-type="pie">Identificação</button>
+                        <button class="toggle-btn" data-type="gender" data-chart-type="pie">Gênero</button>
+                        <button class="toggle-btn" data-type="ethnicityRace" data-chart-type="bar">Etnia/Raça</button>
+                        <button class="toggle-btn" data-type="ageDistribution" data-chart-type="bar">Faixa Etária</button>
+                         -->
+                    </div>
+                    <select id="victimTimeFilter">
+                        <option value="all">Todo Período</option>
+                        <option value="last-week">Últ. Semana</option>
+                        <option value="last-month">Últ. Mês</option>
+                        <option value="last-year">Últ. Ano</option>
+                        <!-- Adicionar opção para data de descoberta vs data de criação no sistema? -->
+                    </select>
+                </div>
+            </div>
+
+            <div class="stats-container">
+                <div class="stat-card">
+                    <div class="stat-label">Total de Vítimas (no período)</div>
+                    <div class="stat-value" id="totalVictimsInPeriod">0</div>
+                </div>
+                <!-- Adicionar mais cards de estatísticas rápidas para vítimas se desejar -->
+            </div>
+
+            <div class="chart-container" style="position: relative;">
+                <canvas id="victimChart"></canvas>
+            </div>
+            
         </div>
 
         <!-- Dashboard de Usuários -->
@@ -303,6 +351,10 @@
                 <div class="activity-column">
                     <h3>Laudos Recentes</h3>
                     <ul class="activity-list" id="recentReports"></ul>
+                </div>
+                <div class="activity-column">
+                    <h3>Vítimas Recentes</h3>
+                    <ul class="activity-list" id="recentVictims"></ul>
                 </div>
             </div>
         </div>

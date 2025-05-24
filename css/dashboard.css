@@ -194,6 +194,8 @@ button.secondary {
     background: #e2e8f0;
     padding: 0.5rem;
     border-radius: 8px;
+    flex-wrap: wrap;
+    justify-content: flex-start;
 }
 
 .toggle-btn {
@@ -204,6 +206,9 @@ button.secondary {
     color: #64748b;
     cursor: pointer;
     transition: all 0.3s;
+    flex-grow: 1;
+    flex-basis: auto;
+    text-align: center;
 }
 
 .toggle-btn.active {
@@ -306,3 +311,64 @@ button.secondary {
     height: 18px;
     filter: brightness(0) invert(1);
 } */
+
+/* Adicione ao seu CSS */
+.custom-date-controls {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem; /* Espaçamento entre elementos */
+    margin-top: 0.5rem; /* Espaçamento do select acima */
+    padding: 0.5rem;
+    background-color: #f9fafb; /* Um fundo suave */
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
+}
+
+.custom-date-controls.hidden {
+    display: none;
+}
+
+.custom-date-controls label {
+    font-size: 0.9rem;
+    color: #4b5563;
+}
+
+.custom-date-controls .date-input {
+    padding: 0.4rem 0.6rem;
+    border: 1px solid #d1d5db;
+    border-radius: 4px;
+    font-size: 0.9rem;
+}
+
+.custom-date-controls .apply-custom-date-btn {
+    padding: 0.4rem 1rem;
+    font-size: 0.85rem;
+    background-color: var(--secondary-color); /* Ou outra cor para diferenciar */
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+.custom-date-controls .apply-custom-date-btn:hover {
+    opacity: 0.9;
+}
+
+/* Para garantir que os filtros e os controles de data fiquem bem alinhados */
+.filters-container {
+    display: flex;
+    flex-wrap: wrap; /* Permite que os itens quebrem para a próxima linha */
+    align-items: center; /* Alinha itens verticalmente */
+    gap: 1rem; /* Espaço entre os grupos de filtro (ex: entre view-toggle e select) */
+    margin-bottom: 1rem;
+}
+
+.filters-container > * { /* Estilo para os filhos diretos do filters-container */
+    flex-shrink: 0; /* Impede que os itens encolham demais */
+}
+
+.filters-container select {
+    /* width: auto;  Permite que o select tenha sua largura baseada no conteúdo e padding */
+    min-width: 180px; /* Uma largura mínima para boa aparência */
+    /* flex-grow: 1;  Opcional: se você quer que eles preencham o espaço */
+    /* padding: 0.8rem; (já definido globalmente) */
+}
