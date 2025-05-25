@@ -100,7 +100,7 @@ document.addEventListener('DOMContentLoaded', () => {
         createdBy: document.getElementById('itemCreatedBy'),
         lastUpdatedBy: document.getElementById('itemLastUpdatedBy')
     };
-    
+
     // Referências para as seções inteiras
     const sections = {
         identificacao: document.getElementById('sectionIdentificacao'),
@@ -155,7 +155,7 @@ document.addEventListener('DOMContentLoaded', () => {
             console.warn(`Elemento com chave '${elementKey}' não encontrado no DOM.`);
         }
     }
-    
+
     // Função para popular listas (ul)
     function populateList(elementKey, itemsArray) {
         const ulElement = elements[elementKey];
@@ -164,16 +164,16 @@ document.addEventListener('DOMContentLoaded', () => {
             ulElement.innerHTML = ''; // Limpa
             if (itemsArray && Array.isArray(itemsArray) && itemsArray.length > 0) {
                 itemsArray.forEach(item => {
-                    if(item && typeof item === 'string' && item.trim() !== ''){
+                    if (item && typeof item === 'string' && item.trim() !== '') {
                         const li = document.createElement('li');
                         li.textContent = item;
                         ulElement.appendChild(li);
                     }
                 });
                 if (ulElement.children.length > 0 && container) {
-                     container.classList.remove('hidden');
+                    container.classList.remove('hidden');
                 } else if (container) {
-                     container.classList.add('hidden');
+                    container.classList.add('hidden');
                 }
             } else if (container) {
                 container.classList.add('hidden');
@@ -214,7 +214,7 @@ document.addEventListener('DOMContentLoaded', () => {
             console.log("Dados da Vítima Carregados:", currentVictimData);
 
             if (!currentVictimData) {
-                 throw new Error("Dados da vítima retornados são nulos ou inválidos.");
+                throw new Error("Dados da vítima retornados são nulos ou inválidos.");
             }
 
             const role = localStorage.getItem("role");
@@ -228,7 +228,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     caseLink.textContent = currentVictimData.case.nameCase || `Caso ID: ${currentVictimData.case._id}`;
                     caseLink.href = `../components/pericia.html?id=${currentVictimData.case._id}`;
                 }
-                 else if (caseIdFromURL && role === "admin") { // Fallback para o caseId da URL se não vier populado
+                else if (caseIdFromURL && role === "admin") { // Fallback para o caseId da URL se não vier populado
                     caseLink.textContent = currentVictimData.case.nameCase || `Caso ID: ${currentVictimData.case._id}`;
                     caseLink.href = `../components/pericia.html?id=${caseIdFromURL}`;
                 }
@@ -247,10 +247,10 @@ document.addEventListener('DOMContentLoaded', () => {
             populateField('identificationStatus', currentVictimData.identificationStatus);
             populateField('name', currentVictimData.name);
             populateField('ageAtDeath', currentVictimData.ageAtDeath, (val) => val ? `${val} anos` : 'N/A');
-            populateField('estimatedAgeRange', currentVictimData.estimatedAgeRange, (val) => 
-                (val && val.min != null && val.max != null) ? `${val.min}-${val.max} anos` : 
-                (val && val.min != null) ? `A partir de ${val.min} anos` :
-                (val && val.max != null) ? `Até ${val.max} anos` : 'N/A'
+            populateField('estimatedAgeRange', currentVictimData.estimatedAgeRange, (val) =>
+                (val && val.min != null && val.max != null) ? `${val.min}-${val.max} anos` :
+                    (val && val.min != null) ? `A partir de ${val.min} anos` :
+                        (val && val.max != null) ? `Até ${val.max} anos` : 'N/A'
             );
             populateField('gender', currentVictimData.gender);
             populateField('ethnicityRace', currentVictimData.ethnicityRace);
@@ -261,7 +261,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const hasContact = currentVictimData.contact && (currentVictimData.contact.telephone || currentVictimData.contact.email);
             const hasAddress = currentVictimData.lastKnownAddress && Object.values(currentVictimData.lastKnownAddress).some(v => v);
             if (hasContact || hasAddress) {
-                if(sections.contatoEndereco) sections.contatoEndereco.classList.remove('hidden');
+                if (sections.contatoEndereco) sections.contatoEndereco.classList.remove('hidden');
                 populateField('contactTelephone', currentVictimData.contact?.telephone);
                 populateField('contactEmail', currentVictimData.contact?.email);
                 populateField('addressStreet', currentVictimData.lastKnownAddress?.street);
@@ -273,7 +273,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 populateField('addressZipCode', currentVictimData.lastKnownAddress?.zipCode);
                 populateField('addressCountry', currentVictimData.lastKnownAddress?.country);
             } else {
-                 if(sections.contatoEndereco) sections.contatoEndereco.classList.add('hidden');
+                if (sections.contatoEndereco) sections.contatoEndereco.classList.add('hidden');
             }
 
 
@@ -285,7 +285,7 @@ document.addEventListener('DOMContentLoaded', () => {
             populateField('discoveryLocationDescription', currentVictimData.discoveryLocation?.description);
             populateField('discoveryLocationMunicipality', currentVictimData.discoveryLocation?.municipality);
             populateField('discoveryLocationState', currentVictimData.discoveryLocation?.state);
-            populateField('discoveryLocationCoordinates', currentVictimData.discoveryLocation?.coordinates?.coordinates, (coords) => 
+            populateField('discoveryLocationCoordinates', currentVictimData.discoveryLocation?.coordinates?.coordinates, (coords) =>
                 coords && coords.length === 2 ? `Lon: ${coords[0]}, Lat: ${coords[1]}` : 'N/A'
             );
             populateField('mannerOfDeath', currentVictimData.mannerOfDeath);
@@ -299,7 +299,7 @@ document.addEventListener('DOMContentLoaded', () => {
             populateField('postMortemMinHours', currentVictimData.postMortemIntervalEstimate?.minHours);
             populateField('postMortemMaxHours', currentVictimData.postMortemIntervalEstimate?.maxHours);
             populateField('postMortemEstimationMethod', currentVictimData.postMortemIntervalEstimate?.estimationMethod);
-            
+
             populateField('toxicologyPerformed', currentVictimData.toxicologyScreening?.performed, (val) => val ? 'Sim' : (val === false ? 'Não' : 'N/A'));
             populateField('toxicologyResultsSummary', currentVictimData.toxicologyScreening?.resultsSummary);
             // toxicologyScreening.substancesDetected precisaria de uma lista
@@ -311,7 +311,7 @@ document.addEventListener('DOMContentLoaded', () => {
             populateField('fingerprintCollected', currentVictimData.fingerprintAnalysis?.collected, (val) => val ? 'Sim' : (val === false ? 'Não' : 'N/A'));
             populateField('fingerprintQuality', currentVictimData.fingerprintAnalysis?.quality);
             populateField('fingerprintComparisonResult', currentVictimData.fingerprintAnalysis?.comparisonResult);
-            
+
             // Fotos
             if (elements.photosUrls && currentVictimData.photosUrls && currentVictimData.photosUrls.length > 0) {
                 elements.photosUrls.innerHTML = ''; // Limpa
@@ -322,15 +322,15 @@ document.addEventListener('DOMContentLoaded', () => {
                         img.alt = "Foto da Vítima";
                         img.className = "w-32 h-32 object-cover rounded mr-2 mb-2 inline-block"; // Exemplo de estilo
                         elements.photosUrls.appendChild(img);
-                         // Ou links:
+                        // Ou links:
                         // const link = document.createElement('a');
                         // link.href = url; link.textContent = url; link.target = "_blank";
                         // link.className = "block text-blue-600 hover:underline";
                         // elements.photosUrls.appendChild(link);
                     }
                 });
-                 if (itemContainers.photosUrls && elements.photosUrls.children.length > 0) itemContainers.photosUrls.classList.remove('hidden');
-                 else if (itemContainers.photosUrls) itemContainers.photosUrls.classList.add('hidden');
+                if (itemContainers.photosUrls && elements.photosUrls.children.length > 0) itemContainers.photosUrls.classList.remove('hidden');
+                else if (itemContainers.photosUrls) itemContainers.photosUrls.classList.add('hidden');
             } else if (itemContainers.photosUrls) {
                 itemContainers.photosUrls.classList.add('hidden');
             }
@@ -349,9 +349,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (sectionElement) {
                     // Verifica se a seção tem algum .detail-item que não está hidden OU algum .detail-value-list com filhos
                     const hasVisibleItems = Array.from(sectionElement.querySelectorAll('.detail-item'))
-                                               .some(item => !item.classList.contains('hidden'));
+                        .some(item => !item.classList.contains('hidden'));
                     const hasListItems = Array.from(sectionElement.querySelectorAll('.detail-value-list'))
-                                              .some(ul => ul.children.length > 0);
+                        .some(ul => ul.children.length > 0);
                     if (hasVisibleItems || hasListItems) {
                         sectionElement.classList.remove('hidden');
                     } else {
@@ -393,7 +393,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     // Navega para a página de edição, passando o ID da vítima e o ID do caso
                     window.location.href = `editar-vitima.html?id=${victimId}&caseId=${caseIdFromURL}`;
                 } else if (victimId && currentVictimData && currentVictimData.case) {
-                     // Fallback se caseIdFromURL não estiver disponível mas currentVictimData.case sim
+                    // Fallback se caseIdFromURL não estiver disponível mas currentVictimData.case sim
                     window.location.href = `editar-vitima.html?id=${victimId}&caseId=${currentVictimData.case._id}`;
                 }
                 else {
@@ -414,8 +414,12 @@ document.addEventListener('DOMContentLoaded', () => {
                         const result = await response.json();
                         if (response.ok) {
                             alert(result.message || "Vítima excluída com sucesso.");
-                            // Redirecionar para a página do caso ou lista de vítimas
-                            window.location.href = `pericia.html?id=${caseIdFromURL || currentVictimData.case?._id}`;
+                            if (role === 'admin') {
+                                window.location.href = `../components/pericia.html?id=${caseIdFromUrl}`;
+                            } else {
+                                // Redirecionar para a página de detalhes do caso ou da vítima
+                                window.location.href = `pericia.html?id=${caseIdFromUrl || currentVictimData.case?._id}`; // Volta para detalhes do caso
+                            }
                         } else {
                             throw new Error(result.error || result.message || "Erro ao excluir vítima.");
                         }

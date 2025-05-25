@@ -190,11 +190,16 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
 
                 const result = await response.json();
+                const role = localStorage.getItem("role");
 
                 if (response.ok) {
                     alert(result.message || "Vítima cadastrada com sucesso!");
-                    // Redirecionar para a página de detalhes do caso ou da vítima
-                    window.location.href = `pericia.html?id=${caseIdFromUrl}`; // Volta para detalhes do caso
+                    if (role === 'admin') {
+                        window.location.href = `../components/pericia.html?id=${caseIdFromUrl}`;
+                    } else {
+                        // Redirecionar para a página de detalhes do caso ou da vítima
+                        window.location.href = `pericia.html?id=${caseIdFromUrl}`; // Volta para detalhes do caso
+                    }
                 } else {
                     throw new Error(result.error || result.details || "Erro desconhecido ao cadastrar vítima.");
                 }
