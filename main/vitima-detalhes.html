@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OdontoForense - Detalhes da Vítima</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .detail-section { margin-bottom: 1.5rem; padding-bottom: 1.5rem; border-bottom: 1px solid #e5e7eb; }
+        .detail-section:last-child { border-bottom: none; }
+        .detail-title { font-size: 1.25rem; font-weight: 600; color: #1e40af; margin-bottom: 1rem; } /* text-xl font-semibold text-blue-800 */
+        .detail-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem; }
+        .detail-item { margin-bottom: 0.75rem; }
+        .detail-label { font-weight: 500; color: #374151; display: block; } /* font-medium text-gray-700 */
+        .detail-value { color: #1f2937; margin-left: 0.5rem; display: inline-block; word-break: break-word; } /* text-gray-900 */
+        .detail-value-list { list-style: disc; margin-left: 1.5rem; padding-left: 0.5rem; }
+        .detail-value-list li { margin-bottom: 0.25rem; }
+        .action-buttons { margin-top: 2rem; display: flex; flex-wrap: wrap; gap: 0.75rem; justify-content: center; }
+        .action-buttons button { padding: 0.6rem 1.2rem; border-radius: 0.375rem; font-weight: 600; transition: background-color 0.2s; }
+    </style>
+</head>
+<body class="bg-gray-100 py-8 px-4">
+    <div class="container mx-auto max-w-4xl bg-white p-6 sm:p-8 rounded-lg shadow-xl">
+        <header class="mb-6 text-center">
+            <h1 class="text-3xl font-bold text-blue-900">Detalhes da Vítima</h1>
+            <p class="text-gray-600">Caso Associado: <a id="caseLink" href="#" class="text-blue-600 hover:underline">Carregando...</a></p>
+        </header>
+
+        <div id="victimDetailsContainer">
+            <!-- Dados da Vítima serão preenchidos aqui pelo JS -->
+            <p id="loadingMessage" class="text-center text-gray-500">Carregando dados da vítima...</p>
+
+            <!-- SEÇÃO: IDENTIFICAÇÃO FUNDAMENTAL -->
+            <div id="sectionIdentificacao" class="detail-section hidden">
+                <h2 class="detail-title">Identificação Fundamental</h2>
+                <div class="detail-grid">
+                    <div class="detail-item"><span class="detail-label">Código da Vítima:</span><span id="victimCode" class="detail-value"></span></div>
+                    <div class="detail-item"><span class="detail-label">Status de Identificação:</span><span id="identificationStatus" class="detail-value"></span></div>
+                    <div class="detail-item" id="itemName"><span class="detail-label">Nome:</span><span id="name" class="detail-value"></span></div>
+                </div>
+            </div>
+
+            <!-- SEÇÃO: DADOS DEMOGRÁFICOS -->
+            <div id="sectionDemograficos" class="detail-section hidden">
+                <h2 class="detail-title">Dados Demográficos</h2>
+                <div class="detail-grid">
+                    <div class="detail-item" id="itemAgeAtDeath"><span class="detail-label">Idade no Óbito:</span><span id="ageAtDeath" class="detail-value"></span></div>
+                    <div class="detail-item" id="itemEstimatedAgeRange"><span class="detail-label">Faixa Etária Estimada:</span><span id="estimatedAgeRange" class="detail-value"></span></div>
+                    <div class="detail-item"><span class="detail-label">Gênero (Biológico/Reg.):</span><span id="gender" class="detail-value"></span></div>
+                    <div class="detail-item"><span class="detail-label">Etnia/Raça:</span><span id="ethnicityRace" class="detail-value"></span></div>
+                    <div class="detail-item" id="itemStatureCm"><span class="detail-label">Estatura (cm):</span><span id="statureCm" class="detail-value"></span></div>
+                    <div class="detail-item"><span class="detail-label">Categoria IMC:</span><span id="bodyMassIndexCategory" class="detail-value"></span></div>
+                </div>
+            </div>
+            
+            <!-- SEÇÃO: CONTATO E ENDEREÇO -->
+            <div id="sectionContatoEndereco" class="detail-section hidden">
+                <h2 class="detail-title">Contato e Último Endereço Conhecido</h2>
+                <h3 class="text-lg font-medium text-gray-800 mb-2 mt-4">Contato</h3>
+                <div class="detail-grid">
+                    <div class="detail-item" id="itemContactTelephone"><span class="detail-label">Telefone:</span><span id="contactTelephone" class="detail-value"></span></div>
+                    <div class="detail-item" id="itemContactEmail"><span class="detail-label">Email:</span><span id="contactEmail" class="detail-value"></span></div>
+                </div>
+                <h3 class="text-lg font-medium text-gray-800 mb-2 mt-4">Endereço</h3>
+                <div class="detail-grid">
+                    <div class="detail-item" id="itemAddressStreet"><span class="detail-label">Logradouro:</span><span id="addressStreet" class="detail-value"></span></div>
+                    <div class="detail-item" id="itemAddressNumber"><span class="detail-label">Número:</span><span id="addressNumber" class="detail-value"></span></div>
+                    <div class="detail-item" id="itemAddressComplement"><span class="detail-label">Complemento:</span><span id="addressComplement" class="detail-value"></span></div>
+                    <div class="detail-item" id="itemAddressNeighborhood"><span class="detail-label">Bairro:</span><span id="addressNeighborhood" class="detail-value"></span></div>
+                    <div class="detail-item" id="itemAddressCity"><span class="detail-label">Cidade:</span><span id="addressCity" class="detail-value"></span></div>
+                    <div class="detail-item" id="itemAddressState"><span class="detail-label">Estado:</span><span id="addressState" class="detail-value"></span></div>
+                    <div class="detail-item" id="itemAddressZipCode"><span class="detail-label">CEP:</span><span id="addressZipCode" class="detail-value"></span></div>
+                    <div class="detail-item" id="itemAddressCountry"><span class="detail-label">País:</span><span id="addressCountry" class="detail-value"></span></div>
+                </div>
+            </div>
+
+            <!-- SEÇÃO: CONTEXTO DA DESCOBERTA / MORTE -->
+            <div id="sectionContexto" class="detail-section hidden">
+                <h2 class="detail-title">Contexto da Descoberta e Morte</h2>
+                <div class="detail-grid">
+                    <div class="detail-item" id="itemDateOfDeath"><span class="detail-label">Data do Óbito:</span><span id="dateOfDeath" class="detail-value"></span></div>
+                    <div class="detail-item" id="itemTimeOfDeath"><span class="detail-label">Hora do Óbito:</span><span id="timeOfDeath" class="detail-value"></span></div>
+                    <div class="detail-item" id="itemDateOfDiscovery"><span class="detail-label">Data da Descoberta:</span><span id="dateOfDiscovery" class="detail-value"></span></div>
+                    <div class="detail-item"><span class="detail-label">Período (Descoberta):</span><span id="timeOfDayDiscovery" class="detail-value"></span></div>
+                    <div class="detail-item"><span class="detail-label">Tipo de Local (Descoberta):</span><span id="discoveryLocationType" class="detail-value"></span></div>
+                    <div class="detail-item" id="itemDiscoveryLocationDesc"><span class="detail-label">Descrição Local (Descoberta):</span><span id="discoveryLocationDescription" class="detail-value"></span></div>
+                    <div class="detail-item" id="itemDiscoveryLocationMun"><span class="detail-label">Município (Descoberta):</span><span id="discoveryLocationMunicipality" class="detail-value"></span></div>
+                    <div class="detail-item" id="itemDiscoveryLocationState"><span class="detail-label">Estado (Descoberta):</span><span id="discoveryLocationState" class="detail-value"></span></div>
+                    <div class="detail-item" id="itemDiscoveryLocationCoords"><span class="detail-label">Coordenadas (Descoberta):</span><span id="discoveryLocationCoordinates" class="detail-value"></span></div>
+                    <div class="detail-item"><span class="detail-label">Circunstância da Morte:</span><span id="mannerOfDeath" class="detail-value"></span></div>
+                    <div class="detail-item"><span class="detail-label">Causa Primária da Morte:</span><span id="causeOfDeathPrimary" class="detail-value"></span></div>
+                </div>
+            </div>
+
+            <!-- SEÇÃO: DADOS ODONTOLEGAIS E IDENTIFICAÇÃO FÍSICA -->
+            <div id="sectionOdontolegal" class="detail-section hidden">
+                <h2 class="detail-title">Dados Odontolegais e Identificação Física</h2>
+                <div class="detail-grid">
+                    <div class="detail-item"><span class="detail-label">Status Reg. Dental Ante-Mortem:</span><span id="dentalRecordStatus" class="detail-value"></span></div>
+                    <div class="detail-item" id="itemDentalRecordSource"><span class="detail-label">Fonte Reg. Dental:</span><span id="dentalRecordSource" class="detail-value"></span></div>
+                </div>
+                <div class="detail-item mt-4" id="itemOtherDistinctivePhysicalFeatures">
+                    <span class="detail-label">Outras Características Físicas Distintivas:</span>
+                    <ul id="otherDistinctivePhysicalFeatures" class="detail-value detail-value-list"></ul>
+                </div>
+                <div class="detail-item mt-2" id="itemSkeletalFeatures">
+                    <span class="detail-label">Características Esqueléticas Notáveis:</span>
+                    <ul id="skeletalFeatures" class="detail-value detail-value-list"></ul>
+                </div>
+            </div>
+
+            <!-- SEÇÃO: DADOS FORENSES ADICIONAIS -->
+            <div id="sectionForenses" class="detail-section hidden">
+                <h2 class="detail-title">Dados Forenses Adicionais</h2>
+                <h3 class="text-lg font-medium text-gray-800 mb-2 mt-4">Intervalo Post-Mortem (IPM)</h3>
+                <div class="detail-grid">
+                    <div class="detail-item" id="itemPostMortemMin"><span class="detail-label">Mín. Horas:</span><span id="postMortemMinHours" class="detail-value"></span></div>
+                    <div class="detail-item" id="itemPostMortemMax"><span class="detail-label">Máx. Horas:</span><span id="postMortemMaxHours" class="detail-value"></span></div>
+                    <div class="detail-item" id="itemPostMortemMethod"><span class="detail-label">Método Estimação IPM:</span><span id="postMortemEstimationMethod" class="detail-value"></span></div>
+                </div>
+                <h3 class="text-lg font-medium text-gray-800 mb-2 mt-4">Análise Toxicológica</h3>
+                <div class="detail-grid">
+                    <div class="detail-item"><span class="detail-label">Triagem Realizada:</span><span id="toxicologyPerformed" class="detail-value"></span></div>
+                    <div class="detail-item" id="itemToxicologySummary"><span class="detail-label">Sumário Resultados:</span><span id="toxicologyResultsSummary" class="detail-value"></span></div>
+                    <!-- Substâncias detectadas podem ser uma lista aqui -->
+                </div>
+                <h3 class="text-lg font-medium text-gray-800 mb-2 mt-4">Análise de DNA</h3>
+                <div class="detail-grid">
+                    <div class="detail-item"><span class="detail-label">Amostra Coletada:</span><span id="dnaSampleCollected" class="detail-value"></span></div>
+                    <div class="detail-item"><span class="detail-label">Perfil Obtido:</span><span id="dnaProfileObtained" class="detail-value"></span></div>
+                    <div class="detail-item" id="itemDnaComparison"><span class="detail-label">Resultado Comparação DNA:</span><span id="dnaComparisonResult" class="detail-value"></span></div>
+                </div>
+                <h3 class="text-lg font-medium text-gray-800 mb-2 mt-4">Análise de Impressões Digitais</h3>
+                <div class="detail-grid">
+                    <div class="detail-item"><span class="detail-label">Coletadas:</span><span id="fingerprintCollected" class="detail-value"></span></div>
+                    <div class="detail-item" id="itemFingerprintQuality"><span class="detail-label">Qualidade:</span><span id="fingerprintQuality" class="detail-value"></span></div>
+                    <div class="detail-item" id="itemFingerprintComparison"><span class="detail-label">Resultado Comparação Digitais:</span><span id="fingerprintComparisonResult" class="detail-value"></span></div>
+                </div>
+            </div>
+
+            <!-- SEÇÃO: METADADOS E OUTROS -->
+            <div id="sectionMetadados" class="detail-section hidden">
+                <h2 class="detail-title">Metadados e Outros</h2>
+                <div class="detail-item" id="itemPhotosUrls">
+                    <span class="detail-label">Fotos (URLs):</span>
+                    <div id="photosUrls" class="detail-value"></div> <!-- Exibir como links ou imagens pequenas -->
+                </div>
+                <div class="detail-item" id="itemAdditionalNotes">
+                    <span class="detail-label">Notas Adicionais:</span>
+                    <p id="additionalNotes" class="detail-value whitespace-pre-wrap bg-gray-50 p-2 rounded"></p>
+                </div>
+                <div class="detail-grid mt-4">
+                    <div class="detail-item" id="itemCreatedBy"><span class="detail-label">Registrado Por:</span><span id="createdBy" class="detail-value"></span></div>
+                    <div class="detail-item"><span class="detail-label">Data de Registro:</span><span id="createdAt" class="detail-value"></span></div>
+                    <div class="detail-item" id="itemLastUpdatedBy"><span class="detail-label">Última Atualização Por:</span><span id="lastUpdatedBy" class="detail-value"></span></div>
+                    <div class="detail-item"><span class="detail-label">Data da Última Atualização:</span><span id="updatedAt" class="detail-value"></span></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Botões de Ação -->
+        <div id="victimActionButtons" class="action-buttons hidden">
+            <button id="editVictimBtn" class="bg-yellow-500 hover:bg-yellow-600 text-white">Editar Vítima</button>
+            <button id="deleteVictimBtn" class="bg-red-600 hover:bg-red-700 text-white">Deletar Vítima</button>
+            <button id="manageOdontogramBtn" class="bg-green-500 hover:bg-green-600 text-white">Odontograma</button>
+        </div>
+    </div>
+
+    <script src="./js/vitimaDetalhes.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flowbite@1.4.0/dist/flowbite.min.js"></script>
+</body>
+</html>

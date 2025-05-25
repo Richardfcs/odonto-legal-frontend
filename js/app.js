@@ -1,92 +1,87 @@
 const API_URL = 'https://odonto-legal-backend.onrender.com';
 
 document.addEventListener('DOMContentLoaded', () => {
-  // Seleciona o formulário e os campos de input
-  const loginForm = document.querySelector('#loginForm'); // Verifique se o ID do FORMULÁRIO é este
+  const loginForm = document.querySelector('#loginForm');
   const emailInput = document.querySelector('#email');
-  const passwordInput = document.querySelector('#senha'); // Usando o ID 'senha' do HTML
+  const passwordInput = document.querySelector('#senha');
+  // Seleciona o botão de submit
+  const submitButton = loginForm ? loginForm.querySelector('button[type="submit"]') : null;
 
-  // Verifica se os elementos essenciais foram encontrados. Se não, loga um erro e sai.
-  if (!loginForm || !emailInput || !passwordInput) {
-    console.error("Erro fatal: Elementos do formulário de login não encontrados no DOM. Verifique os IDs no HTML.");
-    // Opcional: desabilitar o botão de submit ou mostrar uma mensagem de erro na tela
-    const submitButton = loginForm ? loginForm.querySelector('button[type="submit"]') : null;
-    if(submitButton) submitButton.disabled = true;
+  if (!loginForm || !emailInput || !passwordInput || !submitButton) { // Adicionado submitButton à verificação
+    console.error("Erro fatal: Elementos do formulário de login (ou botão) não encontrados. Verifique IDs/estrutura HTML.");
+    if (submitButton) submitButton.disabled = true; // Desabilita se o form não estiver completo
     return;
   }
 
-  // Adiciona um event listener para o evento de submit do formulário
   loginForm.addEventListener('submit', async (event) => {
-    event.preventDefault(); // Previne o comportamento padrão do formulário (recarregar a página)
+    event.preventDefault();
 
-    // Obtém os valores dos campos de e-mail e senha, removendo espaços em branco no início/fim
     const email = emailInput.value.trim();
     const password = passwordInput.value.trim();
 
-    // Validação básica no frontend: verifica se os campos não estão vazios
     if (email === '' || password === '') {
       alert('Por favor, preencha ambos os campos: E-mail e Senha.');
-      return; // Para a execução se a validação falhar
+      return;
     }
 
-    // Prepara o corpo da requisição no formato JSON
     const data = {
       email: email,
       password: password
     };
 
-    try {
-      // Exibe uma mensagem de "Carregando..." ou similar (opcional)
-      // Ex: submitButton.textContent = 'Entrando...'; submitButton.disabled = true;
+    // ---> DESABILITAR BOTÃO E MOSTRAR FEEDBACK DE CARREGAMENTO <---
+    submitButton.disabled = true;
+    submitButton.textContent = 'Entrando...'; // Altera o texto do botão
 
-      // Envia a requisição POST para o endpoint de login no backend
+    try {
       const response = await fetch(`${API_URL}/api/user/login`, {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json' // Indica que o corpo é JSON
+          'Content-Type': 'application/json'
         },
-        body: JSON.stringify(data) // Converte o objeto JavaScript para uma string JSON
+        body: JSON.stringify(data)
       });
 
-      // Processa a resposta do backend como JSON
       const result = await response.json();
 
-      // Verifica se a resposta HTTP indica sucesso (status 2xx)
       if (response.ok) {
-        alert(result.msg || 'Login bem-sucedido!'); // Exibe a mensagem de sucesso do backend
-
-        // Salva o token JWT recebido no localStorage para uso posterior
+        alert(result.msg || 'Login bem-sucedido!');
         localStorage.setItem('token', result.token);
-        console.log(result.role)
+        localStorage.setItem('role', result.role); // Corrigido para "Role do usuário:"
 
-        // *** Lógica de redirecionamento baseada na role do usuário (CORRIGIDA) ***
-        // Verifica a 'role' retornada pelo backend
+        // Lógica de redirecionamento baseada na role
         if (result.role === 'admin') {
-          // Redireciona para a home do administrador
           window.location.href = 'components/home.html';
         } else if (result.role === 'perito' || result.role === 'assistente') {
-          // Redireciona para a home de peritos/assistentes (sua main/home.html)
           window.location.href = 'main/home.html';
         } else {
-          // Trata roles inesperadas
           console.warn('Role de usuário desconhecida recebida:', result.role);
           alert('Sua role de usuário é desconhecida. Redirecionando para a página principal padrão.');
-          window.location.href = '../index.html'; // Redireciona para uma página padrão segura
+          window.location.href = '../index.html'; // Redireciona para uma página padrão
         }
+        // Não reabilitamos o botão aqui porque a página será redirecionada
 
       } else {
-        // Se a resposta HTTP não for sucesso (ex: 404, 422), exibe a mensagem de erro do backend
-        alert(result.msg || `Erro desconhecido (Status: ${response.status})`);
-         // Opcional: Reativar o botão de submit e remover texto "carregando"
-         // submitButton.textContent = 'Entrar'; submitButton.disabled = false;
+        // Se a resposta HTTP não for sucesso
+        if (response.status === 401 || response.status === 403) {
+          alert("Sessão expirada ou não autorizada. Faça login novamente.");
+          localStorage.removeItem('token');
+          localStorage.removeItem('role')
+          window.location.href = '../index.html';
+          return; // Sai da função após redirecionar
+        }
+        alert(result.msg || `Erro no login (Status: ${response.status}). Verifique suas credenciais.`);
+        // ---> REABILITAR BOTÃO EM CASO DE ERRO DE LOGIN <---
+        submitButton.disabled = false;
+        submitButton.textContent = 'Entrar';
       }
 
     } catch (error) {
-      // Captura e lida com erros que ocorreram durante a requisição (ex: erro de rede, servidor offline)
       console.error('Erro ao fazer login:', error);
-      alert('Ocorreu um erro de conexão ou no servidor ao tentar efetuar o login. Por favor, tente novamente.');
-       // Opcional: Reativar o botão de submit e remover texto "carregando"
-       // submitButton.textContent = 'Entrar'; submitButton.disabled = false;
+      alert('Ocorreu um erro de conexão ou no servidor. Por favor, tente novamente.');
+      // ---> REABILITAR BOTÃO EM CASO DE ERRO DE REDE/SERVIDOR <---
+      submitButton.disabled = false;
+      submitButton.textContent = 'Entrar';
     }
   });
 });

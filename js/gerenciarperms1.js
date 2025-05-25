@@ -42,6 +42,12 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
       });
       if (!response.ok) {
+        if (response.status === 401 || response.status === 403) {
+        alert("Sessão expirada ou não autorizada. Faça login novamente.");
+        localStorage.removeItem('token');
+        window.location.href = '../index.html'; // Redireciona para login
+        return;
+      }
         throw new Error('Erro ao obter os dados do usuário.');
       }
       const user = await response.json();

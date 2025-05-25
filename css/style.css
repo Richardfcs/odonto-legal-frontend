@@ -303,3 +303,11 @@ input[type="file"] {
   margin-top: 40px; /* ou use padding conforme quiser */
 }
 
+.victim-card {
+    /* Estilos básicos já aplicados pelo Tailwind */
+    transition: box-shadow 0.3s ease-in-out, transform 0.3s ease-in-out;
+}
+.victim-card:hover {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    transform: translateY(-2px);
+}

@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OdontoForense - Editar Vítima</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .form-section-title {
+            margin-top: 1.5rem;
+            margin-bottom: 0.75rem;
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: #1e3a8a;
+            border-bottom: 1px solid #e5e7eb;
+            padding-bottom: 0.5rem;
+        }
+
+        .form-subsection-title {
+            margin-top: 1rem;
+            margin-bottom: 0.5rem;
+            font-size: 1rem;
+            font-weight: 500;
+            color: #1d4ed8;
+        }
+
+        input:disabled,
+        select:disabled,
+        textarea:disabled {
+            background-color: #f3f4f6;
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(255, 255, 255, 0.7);
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .loading-overlay.hidden {
+            display: none;
+        }
+
+        /* Adicionar um spinner simples */
+        .spinner {
+            border: 4px solid rgba(0, 0, 0, .1);
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border-left-color: #1e40af;
+            animation: spin 1s ease infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+    </style>
+</head>
+
+<body class="bg-gray-100 py-8">
+
+    <!-- Overlay de Carregamento -->
+    <div id="loadingOverlay" class="loading-overlay">
+        <div class="spinner"></div>
+        <p class="ml-3 text-gray-700">Carregando dados da vítima...</p>
+    </div>
+
+    <div class="bg-white p-8 rounded-lg shadow-md w-full max-w-3xl mx-auto">
+        <div class="flex justify-between items-center mb-6">
+            <h1 class="text-2xl font-bold text-blue-900">Editar Vítima</h1>
+            <a href="#" id="backToCaseLink" class="text-sm text-blue-600 hover:underline">← Voltar para o Caso</a>
+        </div>
+
+
+        <form id="editVictimForm" class="space-y-4 hidden"> <!-- Formulário oculto até os dados carregarem -->
+            <!-- Input oculto para o caseId, pode ser útil para navegação ou se o backend precisar -->
+            <input type="hidden" id="caseId" name="caseId">
+            <!-- Input oculto para o victimId, não é enviado no corpo do PUT, mas usado na URL -->
+            <input type="hidden" id="victimId" name="victimId">
+
+            <!-- SEÇÃO: IDENTIFICAÇÃO FUNDAMENTAL -->
+            <h2 class="form-section-title">Identificação Fundamental</h2>
+            <div>
+                <label for="victimCode" class="block text-blue-900 font-medium">Código da Vítima</label>
+                <input type="text" id="victimCode" name="victimCode" readonly disabled
+                    class="w-full p-2 border border-gray-300 rounded bg-gray-100">
+                <p class="text-xs text-gray-500 mt-1">O código da vítima não pode ser alterado.</p>
+            </div>
+            <div>
+                <label for="identificationStatus" class="block text-blue-900 font-medium">Status de Identificação <span
+                        class="text-red-500">*</span></label>
+                <select id="identificationStatus" name="identificationStatus" required
+                    class="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <option value="nao_identificada">Não Identificada</option>
+                    <option value="em_processo_de_identificacao">Em Processo de Identificação</option>
+                    <option value="parcialmente_identificada">Parcialmente Identificada</option>
+                    <option value="identificada">Identificada</option>
+                </select>
+            </div>
+            <div id="nameFieldContainer">
+                <label for="name" class="block text-blue-900 font-medium">Nome da Vítima</label>
+                <input type="text" id="name" name="name" placeholder="Nome completo (se status permitir)"
+                    class="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+
+            <!-- SEÇÃO: DADOS DEMOGRÁFICOS -->
+            <h2 class="form-section-title">Dados Demográficos</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label for="ageAtDeath" class="block text-blue-900 font-medium">Idade no Óbito (Anos)</label>
+                    <input type="number" id="ageAtDeath" name="ageAtDeath" placeholder="Ex: 30" min="0"
+                        class="w-full p-2 border border-gray-300 rounded">
+                </div>
+                <div>
+                    <label class="block text-blue-900 font-medium">Faixa Etária Estimada</label>
+                    <div class="grid grid-cols-2 gap-2">
+                        <input type="number" id="estimatedAgeMin" name="estimatedAgeMin" placeholder="Mín." min="0"
+                            class="w-full p-2 border border-gray-300 rounded">
+                        <input type="number" id="estimatedAgeMax" name="estimatedAgeMax" placeholder="Máx." min="0"
+                            class="w-full p-2 border border-gray-300 rounded">
+                    </div>
+                </div>
+                <div>
+                    <label for="gender" class="block text-blue-900 font-medium">Gênero (Sexo Biológico/Reg.)</label>
+                    <select id="gender" name="gender" class="w-full p-2 border border-gray-300 rounded">
+                        <option value="desconhecido">Desconhecido</option>
+                        <option value="masculino">Masculino</option>
+                        <option value="feminino">Feminino</option>
+                        <option value="intersexo">Intersexo</option>
+                        <option value="indeterminado">Indeterminado</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="ethnicityRace" class="block text-blue-900 font-medium">Etnia/Raça</label>
+                    <select id="ethnicityRace" name="ethnicityRace" class="w-full p-2 border border-gray-300 rounded">
+                        <option value="desconhecida">Desconhecida</option>
+                        <option value="branca">Branca</option>
+                        <option value="preta">Preta</option>
+                        <option value="parda">Parda</option>
+                        <option value="amarela">Amarela</option>
+                        <option value="indigena">Indígena</option>
+                        <option value="nao_declarada">Não Declarada</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="statureCm" class="block text-blue-900 font-medium">Estatura (cm)</label>
+                    <input type="number" id="statureCm" name="statureCm" placeholder="Ex: 170" min="0"
+                        class="w-full p-2 border border-gray-300 rounded">
+                </div>
+                <div>
+                    <label for="bodyMassIndexCategory" class="block text-blue-900 font-medium">Categoria IMC</label>
+                    <select id="bodyMassIndexCategory" name="bodyMassIndexCategory"
+                        class="w-full p-2 border border-gray-300 rounded">
+                        <option value="desconhecido">Desconhecido</option>
+                        <option value="baixo_peso">Baixo Peso</option>
+                        <option value="eutrofico">Eutrófico</option>
+                        <option value="sobrepeso">Sobrepeso</option>
+                        <option value="obesidade_grau_I">Obesidade Grau I</option>
+                        <option value="obesidade_grau_II">Obesidade Grau II</option>
+                        <option value="obesidade_grau_III">Obesidade Grau III</option>
+                        <option value="indeterminado">Indeterminado</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- SEÇÃO: DADOS DE CONTATO (se identificada) -->
+            <div id="contactAddressSection" class="hidden">
+                <h2 class="form-section-title">Contato e Último Endereço Conhecido</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label for="contactTelephone" class="block text-blue-900 font-medium">Telefone</label>
+                        <input type="tel" id="contactTelephone" name="contactTelephone"
+                            class="w-full p-2 border border-gray-300 rounded">
+                    </div>
+                    <div>
+                        <label for="contactEmail" class="block text-blue-900 font-medium">Email</label>
+                        <input type="email" id="contactEmail" name="contactEmail"
+                            class="w-full p-2 border border-gray-300 rounded">
+                    </div>
+                </div>
+                <h3 class="form-subsection-title mt-4">Endereço</h3>
+                <div>
+                    <label for="addressStreet" class="block text-blue-900 font-medium">Logradouro</label>
+                    <input type="text" id="addressStreet" name="addressStreet"
+                        class="w-full p-2 border border-gray-300 rounded">
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-2">
+                    <div> <label for="addressNumber" class="block text-blue-900 font-medium">Número</label> <input
+                            type="text" id="addressNumber" name="addressNumber"
+                            class="w-full p-2 border border-gray-300 rounded"> </div>
+                    <div> <label for="addressComplement" class="block text-blue-900 font-medium">Complemento</label>
+                        <input type="text" id="addressComplement" name="addressComplement"
+                            class="w-full p-2 border border-gray-300 rounded">
+                    </div>
+                    <div> <label for="addressNeighborhood" class="block text-blue-900 font-medium">Bairro</label> <input
+                            type="text" id="addressNeighborhood" name="addressNeighborhood"
+                            class="w-full p-2 border border-gray-300 rounded"> </div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-2">
+                    <div> <label for="addressCity" class="block text-blue-900 font-medium">Cidade</label> <input
+                            type="text" id="addressCity" name="addressCity"
+                            class="w-full p-2 border border-gray-300 rounded"> </div>
+                    <div> <label for="addressState" class="block text-blue-900 font-medium">Estado (UF)</label> <input
+                            type="text" id="addressState" name="addressState" maxlength="2"
+                            class="w-full p-2 border border-gray-300 rounded"> </div>
+                    <div> <label for="addressZipCode" class="block text-blue-900 font-medium">CEP</label> <input
+                            type="text" id="addressZipCode" name="addressZipCode"
+                            class="w-full p-2 border border-gray-300 rounded"> </div>
+                </div>
+            </div>
+
+            <!-- SEÇÃO: CONTEXTO DA DESCOBERTA / MORTE -->
+            <h2 class="form-section-title">Contexto da Descoberta e Morte</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div> <label for="dateOfDeath" class="block text-blue-900 font-medium">Data do Óbito</label> <input
+                        type="date" id="dateOfDeath" name="dateOfDeath"
+                        class="w-full p-2 border border-gray-300 rounded"> </div>
+                <div> <label for="timeOfDeath" class="block text-blue-900 font-medium">Hora do Óbito</label> <input
+                        type="time" id="timeOfDeath" name="timeOfDeath"
+                        class="w-full p-2 border border-gray-300 rounded"> </div>
+                <div> <label for="dateOfDiscovery" class="block text-blue-900 font-medium">Data da Descoberta</label>
+                    <input type="date" id="dateOfDiscovery" name="dateOfDiscovery"
+                        class="w-full p-2 border border-gray-300 rounded">
+                </div>
+                <div> <label for="timeOfDayDiscovery" class="block text-blue-900 font-medium">Período
+                        (Descoberta)</label> <select id="timeOfDayDiscovery" name="timeOfDayDiscovery"
+                        class="w-full p-2 border border-gray-300 rounded">
+                        <option value="desconhecido">Desconhecido</option>
+                        <option value="madrugada (0h-6h)">Madrugada (0h-6h)</option>
+                        <option value="manha (6h-12h)">Manhã (6h-12h)</option>
+                        <option value="tarde (12h-18h)">Tarde (12h-18h)</option>
+                        <option value="noite (18h-0h)">Noite (18h-0h)</option>
+                    </select> </div>
+            </div>
+            <h3 class="form-subsection-title">Local da Descoberta</h3>
+            <div> <label for="discoveryLocationType" class="block text-blue-900 font-medium">Tipo de Local</label>
+                <select id="discoveryLocationType" name="discoveryLocationType"
+                    class="w-full p-2 border border-gray-300 rounded">
+                    <option value="desconhecido">Desconhecido</option>
+                    <option value="residencia">Residência</option>
+                    <option value="via_publica">Via Pública</option>
+                    <option value="area_comercial">Área Comercial</option>
+                    <option value="area_industrial">Área Industrial</option>
+                    <option value="area_rural">Área Rural</option>
+                    <option value="mata_floresta">Mata/Floresta</option>
+                    <option value="corpo_dagua">Corpo d'Água</option>
+                    <option value="veiculo">Veículo</option>
+                    <option value="outro">Outro</option>
+                </select>
+            </div>
+            <div> <label for="discoveryLocationDescription" class="block text-blue-900 font-medium">Descrição Detalhada
+                    do Local</label> <input type="text" id="discoveryLocationDescription"
+                    name="discoveryLocationDescription" class="w-full p-2 border border-gray-300 rounded"> </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div> <label for="discoveryLocationMunicipality"
+                        class="block text-blue-900 font-medium">Município</label> <input type="text"
+                        id="discoveryLocationMunicipality" name="discoveryLocationMunicipality"
+                        class="w-full p-2 border border-gray-300 rounded"> </div>
+                <div> <label for="discoveryLocationState" class="block text-blue-900 font-medium">Estado (UF)</label>
+                    <input type="text" id="discoveryLocationState" name="discoveryLocationState" maxlength="2"
+                        class="w-full p-2 border border-gray-300 rounded">
+                </div>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div> <label for="mannerOfDeath" class="block text-blue-900 font-medium">Circunstância da Morte</label>
+                    <select id="mannerOfDeath" name="mannerOfDeath" class="w-full p-2 border border-gray-300 rounded">
+                        <option value="pendente_de_investigacao">Pendente</option>
+                        <option value="homicidio">Homicídio</option>
+                        <option value="suicidio">Suicídio</option>
+                        <option value="acidente">Acidente</option>
+                        <option value="natural">Natural</option>
+                        <option value="indeterminada_legalmente">Indeterminada</option>
+                    </select>
+                </div>
+                <div> <label for="causeOfDeathPrimary" class="block text-blue-900 font-medium">Causa Primária da
+                        Morte</label> <select id="causeOfDeathPrimary" name="causeOfDeathPrimary"
+                        class="w-full p-2 border border-gray-300 rounded">
+                        <option value="indeterminada_medicamente">Indeterminada</option>
+                        <option value="trauma_contuso">Trauma Contuso</option>
+                        <option value="ferimento_arma_branca">Arma Branca</option>
+                        <option value="ferimento_arma_fogo">Arma de Fogo</option>
+                        <option value="asfixia">Asfixia</option>
+                        <option value="intoxicacao">Intoxicação</option>
+                        <option value="queimadura">Queimadura</option>
+                        <option value="afogamento">Afogamento</option>
+                        <option value="causa_natural_especifica">Natural Específica</option>
+                    </select> </div>
+            </div>
+
+            <!-- SEÇÃO: DADOS ODONTOLEGAIS E IDENTIFICAÇÃO FÍSICA -->
+            <h2 class="form-section-title">Dados Odontolegais e Identificação Física</h2>
+            <div> <label for="dentalRecordStatus" class="block text-blue-900 font-medium">Status Reg. Dental
+                    Ante-Mortem</label> <select id="dentalRecordStatus" name="dentalRecordStatus"
+                    class="w-full p-2 border border-gray-300 rounded">
+                    <option value="desconhecido">Desconhecido</option>
+                    <option value="disponivel_e_utilizado">Disponível e Utilizado</option>
+                    <option value="disponivel_mas_inconclusivo">Disponível mas Inconclusivo</option>
+                    <option value="disponivel_nao_utilizado">Disponível não Utilizado</option>
+                    <option value="nao_disponivel">Não Disponível</option>
+                    <option value="busca_em_andamento">Busca em Andamento</option>
+                </select> </div>
+            <div> <label for="dentalRecordSource" class="block text-blue-900 font-medium">Fonte Reg. Dental</label>
+                <input type="text" id="dentalRecordSource" name="dentalRecordSource"
+                    class="w-full p-2 border border-gray-300 rounded">
+            </div>
+            <div> <label for="otherDistinctivePhysicalFeatures" class="block text-blue-900 font-medium">Características
+                    Físicas Distintivas (separar por vírgula)</label> <textarea id="otherDistinctivePhysicalFeatures"
+                    name="otherDistinctivePhysicalFeatures" rows="2"
+                    class="w-full p-2 border border-gray-300 rounded"></textarea> </div>
+            <div> <label for="skeletalFeatures" class="block text-blue-900 font-medium">Características Esqueléticas
+                    (separar por vírgula)</label> <textarea id="skeletalFeatures" name="skeletalFeatures" rows="2"
+                    class="w-full p-2 border border-gray-300 rounded"></textarea> </div>
+
+            <!-- SEÇÃO: DADOS FORENSES ADICIONAIS -->
+            <h2 class="form-section-title">Dados Forenses Adicionais</h2>
+            <h3 class="form-subsection-title">Intervalo Post-Mortem (IPM)</h3>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div> <label for="postMortemMinHours" class="block text-blue-900 font-medium">Mín. Horas</label> <input
+                        type="number" id="postMortemMinHours" name="postMortemMinHours" min="0"
+                        class="w-full p-2 border border-gray-300 rounded"> </div>
+                <div> <label for="postMortemMaxHours" class="block text-blue-900 font-medium">Máx. Horas</label> <input
+                        type="number" id="postMortemMaxHours" name="postMortemMaxHours" min="0"
+                        class="w-full p-2 border border-gray-300 rounded"> </div>
+                <div> <label for="postMortemEstimationMethod" class="block text-blue-900 font-medium">Método Estimação
+                        IPM</label> <input type="text" id="postMortemEstimationMethod" name="postMortemEstimationMethod"
+                        class="w-full p-2 border border-gray-300 rounded"> </div>
+            </div>
+            <h3 class="form-subsection-title">Análise Toxicológica</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div> <label for="toxicologyPerformed" class="block text-blue-900 font-medium">Realizada?</label>
+                    <select id="toxicologyPerformed" name="toxicologyPerformed"
+                        class="w-full p-2 border border-gray-300 rounded">
+                        <option value="false">Não</option>
+                        <option value="true">Sim</option>
+                    </select>
+                </div>
+                <div> <label for="toxicologyResultsSummary" class="block text-blue-900 font-medium">Sumário
+                        Resultados</label> <input type="text" id="toxicologyResultsSummary"
+                        name="toxicologyResultsSummary" class="w-full p-2 border border-gray-300 rounded"> </div>
+            </div>
+            <h3 class="form-subsection-title">Análise de DNA</h3>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div> <label for="dnaSampleCollected" class="block text-blue-900 font-medium">Amostra Coletada?</label>
+                    <select id="dnaSampleCollected" name="dnaSampleCollected"
+                        class="w-full p-2 border border-gray-300 rounded">
+                        <option value="false">Não</option>
+                        <option value="true">Sim</option>
+                    </select>
+                </div>
+                <div> <label for="dnaProfileObtained" class="block text-blue-900 font-medium">Perfil Obtido?</label>
+                    <select id="dnaProfileObtained" name="dnaProfileObtained"
+                        class="w-full p-2 border border-gray-300 rounded">
+                        <option value="false">Não</option>
+                        <option value="true">Sim</option>
+                    </select>
+                </div>
+                <div> <label for="dnaComparisonResult" class="block text-blue-900 font-medium">Resultado
+                        Comparação</label> <input type="text" id="dnaComparisonResult" name="dnaComparisonResult"
+                        class="w-full p-2 border border-gray-300 rounded"> </div>
+            </div>
+            <h3 class="form-subsection-title">Análise de Impressões Digitais</h3>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div> <label for="fingerprintCollected" class="block text-blue-900 font-medium">Coletadas?</label>
+                    <select id="fingerprintCollected" name="fingerprintCollected"
+                        class="w-full p-2 border border-gray-300 rounded">
+                        <option value="false">Não</option>
+                        <option value="true">Sim</option>
+                    </select>
+                </div>
+                <div> <label for="fingerprintQuality" class="block text-blue-900 font-medium">Qualidade</label> <select
+                        id="fingerprintQuality" name="fingerprintQuality"
+                        class="w-full p-2 border border-gray-300 rounded">
+                        <option value="">N/A</option>
+                        <option value="boa">Boa</option>
+                        <option value="regular">Regular</option>
+                        <option value="ruim">Ruim</option>
+                        <option value="inviavel">Inviável</option>
+                    </select> </div>
+                <div> <label for="fingerprintComparisonResult" class="block text-blue-900 font-medium">Resultado
+                        Comparação</label> <input type="text" id="fingerprintComparisonResult"
+                        name="fingerprintComparisonResult" class="w-full p-2 border border-gray-300 rounded"> </div>
+            </div>
+
+            <!-- SEÇÃO: METADADOS -->
+            <h2 class="form-section-title">Metadados</h2>
+            <div> <label for="photosUrls" class="block text-blue-900 font-medium">URLs de Fotos (separar por
+                    vírgula)</label> <textarea id="photosUrls" name="photosUrls" rows="2"
+                    class="w-full p-2 border border-gray-300 rounded"></textarea> </div>
+            <div> <label for="additionalNotes" class="block text-blue-900 font-medium">Notas Adicionais</label>
+                <textarea id="additionalNotes" name="additionalNotes" rows="3"
+                    class="w-full p-2 border border-gray-300 rounded"></textarea>
+            </div>
+
+            <div class="mt-8 flex justify-end space-x-3">
+                <button type="button" id="cancelEditVictimBtn"
+                    class="px-6 py-2 bg-gray-500 hover:bg-gray-600 text-white font-semibold rounded-md">
+                    Cancelar
+                </button>
+                <button type="submit"
+                    class="px-6 py-2 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-md">
+                    Salvar Alterações
+                </button>
+            </div>
+        </form>
+        <p id="errorMessage" class="mt-4 text-red-600 text-center"></p>
+    </div>
+
+    <script src="./js/editarVitima.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flowbite@1.4.0/dist/flowbite.min.js"></script>
+</body>
+
+</html>

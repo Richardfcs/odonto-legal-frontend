@@ -143,7 +143,14 @@ async function loadCaseData() {
                 'Authorization': `Bearer ${token}`
             }
         });
-        if (!res.ok) throw new Error('Erro ao carregar dados');
+        if (!res.ok) {
+            if (response.status === 401 || response.status === 403) {
+                alert("Sessão expirada ou não autorizada. Faça login novamente.");
+                localStorage.removeItem('token');
+                window.location.href = '../index.html'; // Redireciona para login
+                return;
+            } throw new Error('Erro ao carregar dados');
+        };
 
         const { stats, total } = await res.json();
 
@@ -658,7 +665,7 @@ async function loadVictimData() {
 
     try {
         const res = await fetch(`${API_BASE}/${endpointName}?${params}`, {
-             headers: {
+            headers: {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${token}`
             }
@@ -693,10 +700,10 @@ async function loadVictimData() {
     } catch (error) {
         console.error(`Erro ao carregar dados de vítimas (${datasetLabel}):`, error);
         alert(`Erro ao carregar dados de vítimas (${datasetLabel}): ${error.message}`);
-        
+
         const totalElement = document.getElementById('totalVictimsInPeriod');
         if (totalElement) totalElement.textContent = 0;
-        
+
         // Limpar gráfico em caso de erro
         const ctx = document.getElementById('victimChart');
         if (ctx) {
@@ -959,7 +966,7 @@ function setupCustomDateFilters() {
     timeFilterSelects.forEach(selectElement => {
         const customControlsId = selectElement.dataset.customControls; // ex: 'caseCustomDateControls'
         const customControlsElement = document.getElementById(customControlsId);
-        
+
         if (!customControlsElement) return;
 
         const startDateInput = customControlsElement.querySelector('.date-input[id$="StartDate"]'); // ex: #caseStartDate
@@ -968,7 +975,7 @@ function setupCustomDateFilters() {
 
         if (!startDateInput || !endDateInput || !applyButton) return;
 
-        selectElement.addEventListener('change', function() {
+        selectElement.addEventListener('change', function () {
             if (this.value === 'custom') {
                 customControlsElement.classList.remove('hidden');
             } else {
@@ -979,7 +986,7 @@ function setupCustomDateFilters() {
             }
         });
 
-        applyButton.addEventListener('click', function() {
+        applyButton.addEventListener('click', function () {
             const startDate = startDateInput.value;
             const endDate = endDateInput.value;
 

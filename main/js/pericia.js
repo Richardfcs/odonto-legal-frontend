@@ -56,75 +56,80 @@ const aiLoadingIndicator = document.getElementById('aiLoadingIndicator');
 const aiResponseOutput = document.getElementById('aiResponseOutput');
 // const aiEvidenceSelection = document.getElementById('aiEvidenceSelection'); // Para seleção futura
 
+// Novas referências para a seção de vítimas
+const victimsContainer = document.getElementById("victimsContainer");
+const noVictimsMessage = document.getElementById("noVictimsMessage");
+const navigateAddVictimBtn = document.getElementById("navigateAddVictimBtn");
+
 // Habilita/desabilita o botão de análise baseado na seleção
 if (aiActionSelect && analyzeWithAIButton) {
-    aiActionSelect.addEventListener('change', () => {
-        analyzeWithAIButton.disabled = !aiActionSelect.value;
-        // Opcional: Mostrar/ocultar seleção de evidências se a ação for 'compare'
-        // if (aiActionSelect.value === 'compare') {
-        //     aiEvidenceSelection.classList.remove('hidden');
-        // } else {
-        //     aiEvidenceSelection.classList.add('hidden');
-        // }
-    });
-    analyzeWithAIButton.disabled = true; // Começa desabilitado
+  aiActionSelect.addEventListener('change', () => {
+    analyzeWithAIButton.disabled = !aiActionSelect.value;
+    // Opcional: Mostrar/ocultar seleção de evidências se a ação for 'compare'
+    // if (aiActionSelect.value === 'compare') {
+    //     aiEvidenceSelection.classList.remove('hidden');
+    // } else {
+    //     aiEvidenceSelection.classList.add('hidden');
+    // }
+  });
+  analyzeWithAIButton.disabled = true; // Começa desabilitado
 }
 
 // Event listener para o botão "Analisar com IA"
 if (analyzeWithAIButton && aiActionSelect && aiLoadingIndicator && aiResponseOutput) {
-    analyzeWithAIButton.addEventListener('click', async () => {
-        const selectedAction = aiActionSelect.value;
-        if (!selectedAction) {
-            alert("Por favor, selecione um tipo de análise.");
-            return;
-        }
+  analyzeWithAIButton.addEventListener('click', async () => {
+    const selectedAction = aiActionSelect.value;
+    if (!selectedAction) {
+      alert("Por favor, selecione um tipo de análise.");
+      return;
+    }
 
-        // Limpa resultados anteriores e mostra carregando
-        aiResponseOutput.textContent = '';
-        aiLoadingIndicator.classList.remove('hidden');
-        analyzeWithAIButton.disabled = true;
-        aiActionSelect.disabled = true;
+    // Limpa resultados anteriores e mostra carregando
+    aiResponseOutput.textContent = '';
+    aiLoadingIndicator.classList.remove('hidden');
+    analyzeWithAIButton.disabled = true;
+    aiActionSelect.disabled = true;
 
-        // Prepara o corpo da requisição para o backend
-        const requestBody = {
-            action: selectedAction,
-            // Opcional: Adicionar evidenceIds se implementou seleção
-            // evidenceIds: getSelectedEvidenceIds() // Função para pegar IDs selecionados
-        };
+    // Prepara o corpo da requisição para o backend
+    const requestBody = {
+      action: selectedAction,
+      // Opcional: Adicionar evidenceIds se implementou seleção
+      // evidenceIds: getSelectedEvidenceIds() // Função para pegar IDs selecionados
+    };
 
-        try {
-            const token = localStorage.getItem("token"); // Garante que temos o token mais recente
-            const response = await fetch(`${API_URL}/api/case/${caseId}/analyze`, { // Chama a nova rota backend
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
-                body: JSON.stringify(requestBody)
-            });
+    try {
+      const token = localStorage.getItem("token"); // Garante que temos o token mais recente
+      const response = await fetch(`${API_URL}/api/case/${caseId}/analyze`, { // Chama a nova rota backend
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(requestBody)
+      });
 
-            const result = await response.json();
+      const result = await response.json();
 
-            if (!response.ok) {
-                throw new Error(result.error || result.message || "Erro na análise da IA.");
-            }
+      if (!response.ok) {
+        throw new Error(result.error || result.message || "Erro na análise da IA.");
+      }
 
-            // Exibe a resposta da IA
-            aiResponseOutput.textContent = result.analysis || "Nenhuma análise retornada.";
+      // Exibe a resposta da IA
+      aiResponseOutput.textContent = result.analysis || "Nenhuma análise retornada.";
 
-        } catch (error) {
-            console.error("Erro ao chamar API de análise:", error);
-            aiResponseOutput.textContent = `Erro ao realizar análise: ${error.message}`;
-            alert(`Erro ao realizar análise: ${error.message}`);
-        } finally {
-            // Esconde carregando e reabilita controles
-            aiLoadingIndicator.classList.add('hidden');
-            analyzeWithAIButton.disabled = false;
-            aiActionSelect.disabled = false;
-        }
-    });
+    } catch (error) {
+      console.error("Erro ao chamar API de análise:", error);
+      aiResponseOutput.textContent = `Erro ao realizar análise: ${error.message}`;
+      alert(`Erro ao realizar análise: ${error.message}`);
+    } finally {
+      // Esconde carregando e reabilita controles
+      aiLoadingIndicator.classList.add('hidden');
+      analyzeWithAIButton.disabled = false;
+      aiActionSelect.disabled = false;
+    }
+  });
 } else {
-     console.error("Elementos da interface de análise IA não encontrados.");
+  console.error("Elementos da interface de análise IA não encontrados.");
 }
 
 
@@ -146,6 +151,14 @@ async function loadCaseData() {
 
     if (!res.ok) {
       let errorMsg = "Erro ao buscar dados do caso.";
+
+      if (response.status === 401 || response.status === 403) {
+        alert("Sessão expirada ou não autorizada. Faça login novamente.");
+        localStorage.removeItem('token');
+        window.location.href = '../index.html'; // Redireciona para login
+        return;
+      }
+
       try {
         // Tenta obter uma mensagem de erro mais específica do corpo da resposta
         const errorData = await res.json();
@@ -203,7 +216,10 @@ async function loadCaseData() {
 
     // 6. Chamar outras funções que dependem dos dados do caso
     //    Agora passamos explicitamente as partes relevantes de `casoDataFromAPI`
-    loadEvidences(caseId); // Esta função geralmente só precisa do caseId
+    loadEvidences(caseId); // caseId é a variável global desta página
+
+    // ---> CHAMAR A FUNÇÃO PARA CARREGAR VÍTIMAS <---
+    await loadCaseVictims(caseId);
 
     // Estas funções precisam dos dados da equipe e do perito responsável
     displayTeamMembers(casoDataFromAPI.team, casoDataFromAPI.responsibleExpert);
@@ -230,37 +246,108 @@ async function loadCaseData() {
   }
 }
 
+async function loadCaseVictims(currentCaseId) {
+  if (!currentCaseId) {
+    console.error("ID do caso não fornecido para carregar vítimas.");
+    if (victimsContainer) victimsContainer.innerHTML = '<p class="text-red-500">Erro: ID do caso ausente.</p>';
+    if (noVictimsMessage) noVictimsMessage.classList.remove('hidden');
+    return;
+  }
+
+  if (!token) { // Adicionado verificação de token
+    console.error("Token de autenticação não encontrado.");
+    // Poderia mostrar uma mensagem na UI ou redirecionar para login
+    return;
+  }
+
+  try {
+    // Usa o endpoint GET /api/cases/:caseId/victims
+    const response = await fetch(`${API_URL}/api/case/${currentCaseId}/victims`, {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({})); // Tenta pegar erro do JSON
+      throw new Error(errorData.message || errorData.error || `Erro ${response.status} ao buscar vítimas do caso.`);
+    }
+
+    // O backend retorna um array de vítimas diretamente se houver,
+    // ou um objeto { message: "...", victims: [] } se não houver.
+    // Precisamos normalizar isso.
+    const result = await response.json();
+    const victimsArray = Array.isArray(result) ? result : result.victims; // Ajuste conforme a resposta do seu backend
+
+    if (victimsContainer) victimsContainer.innerHTML = ''; // Limpa o container antes de adicionar novos
+    if (noVictimsMessage) noVictimsMessage.classList.add('hidden'); // Oculta a mensagem por padrão
+
+    if (victimsArray && victimsArray.length > 0) {
+      victimsArray.forEach(victim => {
+        const victimCard = document.createElement('div');
+        victimCard.className = 'victim-card border p-4 rounded-lg shadow bg-gray-50 hover:shadow-md transition-shadow cursor-pointer';
+        victimCard.dataset.victimId = victim._id; // Armazena o ID da vítima no card
+
+        // Informações básicas da vítima a serem exibidas
+        // Adapte os campos conforme seu modelo 'Victim' e o que você quer mostrar
+        victimCard.innerHTML = `
+                    <h4 class="text-lg font-semibold text-blue-800">${victim.name || victim.victimCode || 'Vítima Desconhecida'}</h4>
+                    <p class="text-sm text-gray-600">Status: <span class="font-medium">${victim.identificationStatus || 'N/A'}</span></p>
+                    ${victim.ageAtDeath ? `<p class="text-sm text-gray-600">Idade: <span class="font-medium">${victim.ageAtDeath}</span></p>` : ''}
+                    ${victim.gender ? `<p class="text-sm text-gray-600">Gênero: <span class="font-medium">${victim.gender}</span></p>` : ''}
+                    <!-- Adicionar mais detalhes se desejar -->
+                `;
+
+        // Adiciona evento de clique para navegar para a página de detalhes da vítima
+        victimCard.addEventListener('click', () => {
+          // Futuramente, esta página será para visualização/edição/deleção da vítima e odontograma
+          window.location.href = `vitima-detalhes.html?id=${victim._id}&caseId=${currentCaseId}`;
+        });
+
+        if (victimsContainer) victimsContainer.appendChild(victimCard);
+      });
+    } else {
+      if (noVictimsMessage) noVictimsMessage.classList.remove('hidden');
+    }
+
+  } catch (error) {
+    console.error("Erro ao carregar vítimas do caso:", error);
+    if (victimsContainer) victimsContainer.innerHTML = `<p class="text-red-500">Erro ao carregar vítimas: ${error.message}</p>`;
+    if (noVictimsMessage) noVictimsMessage.classList.add('hidden'); // Garante que a mensagem de "nenhuma vítima" não apareça com o erro
+  }
+}
+
 // Função para carregar e exibir as evidências (MODIFICADA)
 async function loadEvidences(caseId) {
   try {
-      const res = await fetch(`${API_URL}/api/evidence/${caseId}`, {
-          headers: { Authorization: `Bearer ${token}` }
-      });
-      if (!res.ok) {
-          const errorData = await res.json().catch(() => ({ message: "Erro desconhecido ao buscar evidências." }));
-          throw new Error(errorData.message || "Erro ao buscar evidências do caso.");
-      }
-      const data = await res.json();
-      currentEvidences = data.evidences; // Armazena as evidências na variável global
+    const res = await fetch(`${API_URL}/api/evidence/${caseId}`, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    if (!res.ok) {
+      const errorData = await res.json().catch(() => ({ message: "Erro desconhecido ao buscar evidências." }));
+      throw new Error(errorData.message || "Erro ao buscar evidências do caso.");
+    }
+    const data = await res.json();
+    currentEvidences = data.evidences; // Armazena as evidências na variável global
 
-      const evCont = document.getElementById("evidencesContainer");
-      evCont.innerHTML = ""; // Limpa o container de evidências
+    const evCont = document.getElementById("evidencesContainer");
+    evCont.innerHTML = ""; // Limpa o container de evidências
 
-      if (currentEvidences && currentEvidences.length > 0) {
-          currentEvidences.forEach(e => {
-              const card = document.createElement("div");
-              // Use 'relative' para posicionar botões de edição/exclusão absolutamenete nos cantos
-              card.className = "border p-4 rounded-lg shadow-md bg-white space-y-2 relative"; // Adicionado 'relative'
+    if (currentEvidences && currentEvidences.length > 0) {
+      currentEvidences.forEach(e => {
+        const card = document.createElement("div");
+        // Use 'relative' para posicionar botões de edição/exclusão absolutamenete nos cantos
+        card.className = "border p-4 rounded-lg shadow-md bg-white space-y-2 relative"; // Adicionado 'relative'
 
-              let dataContent = "";
-              // Renderiza dados da evidência
-              if (e.evidenceType === "image" && e.data?.startsWith("data:image")) {
-                  dataContent = `<img src="${e.data}" alt="Evidência Imagem" class="mt-2 max-w-full rounded">`;
-              } else {
-                  dataContent = `<pre class="whitespace-pre-wrap bg-gray-100 p-2 rounded">${e.data || "—"}</pre>`;
-              }
+        let dataContent = "";
+        // Renderiza dados da evidência
+        if (e.evidenceType === "image" && e.data?.startsWith("data:image")) {
+          dataContent = `<img src="${e.data}" alt="Evidência Imagem" class="mt-2 max-w-full rounded">`;
+        } else {
+          dataContent = `<pre class="whitespace-pre-wrap bg-gray-100 p-2 rounded">${e.data || "—"}</pre>`;
+        }
 
-              card.innerHTML = `
+        card.innerHTML = `
                   <h3 class="text-lg font-semibold text-blue-900">${e.title}</h3>
                   <p><strong>Tipo:</strong> ${e.evidenceType}</p>
                   <p><strong>Descrição:</strong> ${e.description || "—"}</p>
@@ -285,117 +372,117 @@ async function loadEvidences(caseId) {
                   </div>
               `;
 
-              // Adiciona event listeners aos botões DEPOIS que o card é criado
-              const editBtn = card.querySelector('.edit-evidence-btn');
-              const deleteBtn = card.querySelector('.delete-evidence-btn');
+        // Adiciona event listeners aos botões DEPOIS que o card é criado
+        const editBtn = card.querySelector('.edit-evidence-btn');
+        const deleteBtn = card.querySelector('.delete-evidence-btn');
 
-              if (editBtn) {
-                  editBtn.addEventListener('click', () => handleEditEvidence(e._id));
-              }
-              if (deleteBtn) {
-                  deleteBtn.addEventListener('click', () => handleDeleteEvidence(e._id));
-              }
+        if (editBtn) {
+          editBtn.addEventListener('click', () => handleEditEvidence(e._id));
+        }
+        if (deleteBtn) {
+          deleteBtn.addEventListener('click', () => handleDeleteEvidence(e._id));
+        }
 
-              evCont.appendChild(card);
-          });
-      } else {
-          evCont.innerHTML = '<p class="text-gray-700">Nenhuma evidência cadastrada.</p>';
-      }
+        evCont.appendChild(card);
+      });
+    } else {
+      evCont.innerHTML = '<p class="text-gray-700">Nenhuma evidência cadastrada.</p>';
+    }
 
   } catch (err) {
-      console.error("Erro ao carregar evidências:", err);
-      alert("Erro ao carregar evidências: " + err.message);
-       // Opcional: Limpar a lista de evidências em caso de erro
-      document.getElementById("evidencesContainer").innerHTML = '<p class="text-gray-700">Erro ao carregar evidências.</p>';
-      currentEvidences = []; // Limpa o array de evidências no frontend também
+    console.error("Erro ao carregar evidências:", err);
+    alert("Erro ao carregar evidências: " + err.message);
+    // Opcional: Limpar a lista de evidências em caso de erro
+    document.getElementById("evidencesContainer").innerHTML = '<p class="text-gray-700">Erro ao carregar evidências.</p>';
+    currentEvidences = []; // Limpa o array de evidências no frontend também
   }
 }
 
 // --- Função para Excluir Evidência ---
 async function handleDeleteEvidence(evidenceId) {
-    if (!confirm("Tem certeza que deseja excluir esta evidência?")) {
-        return; // Cancela se o usuário não confirmar
+  if (!confirm("Tem certeza que deseja excluir esta evidência?")) {
+    return; // Cancela se o usuário não confirmar
+  }
+
+  const token = localStorage.getItem("token");
+  try {
+    const res = await fetch(`${API_URL}/api/evidence/${evidenceId}`, {
+      method: "DELETE",
+      headers: { Authorization: `Bearer ${token}` }
+    });
+
+    const result = await res.json();
+
+    if (!res.ok) {
+      throw new Error(result.error || result.message || "Erro ao excluir evidência.");
     }
 
-    const token = localStorage.getItem("token");
-    try {
-        const res = await fetch(`${API_URL}/api/evidence/${evidenceId}`, {
-            method: "DELETE",
-            headers: { Authorization: `Bearer ${token}` }
-        });
+    alert(result.message || "Evidência excluída com sucesso!");
+    loadEvidences(caseId); // Recarrega a lista de evidências após a exclusão
 
-        const result = await res.json();
-
-        if (!res.ok) {
-            throw new Error(result.error || result.message || "Erro ao excluir evidência.");
-        }
-
-        alert(result.message || "Evidência excluída com sucesso!");
-        loadEvidences(caseId); // Recarrega a lista de evidências após a exclusão
-
-    } catch (err) {
-        console.error("Erro ao excluir evidência:", err);
-        alert("Erro ao excluir evidência: " + err.message);
-    }
+  } catch (err) {
+    console.error("Erro ao excluir evidência:", err);
+    alert("Erro ao excluir evidência: " + err.message);
+  }
 }
 
 // --- Função para Abrir o Formulário de Edição de Evidência ---
 function handleEditEvidence(evidenceId) {
-    // Encontra a evidência nos dados atualmente carregados
-    const evidenceToEdit = currentEvidences.find(e => e._id === evidenceId);
+  // Encontra a evidência nos dados atualmente carregados
+  const evidenceToEdit = currentEvidences.find(e => e._id === evidenceId);
 
-    if (!evidenceToEdit) {
-        alert("Evidência não encontrada para edição.");
-        return;
-    }
+  if (!evidenceToEdit) {
+    alert("Evidência não encontrada para edição.");
+    return;
+  }
 
-    // Preenche o formulário de edição com os dados da evidência
-    editingEvidenceIdInput.value = evidenceToEdit._id; // Guarda o ID
-    editEvidenceTypeSelect.value = evidenceToEdit.evidenceType;
-    editEvidenceTitleInput.value = evidenceToEdit.title;
-    editEvidenceDescriptionTextarea.value = evidenceToEdit.description || "";
-    editEvidenceCategorySelect.value = evidenceToEdit.category || "";
+  // Preenche o formulário de edição com os dados da evidência
+  editingEvidenceIdInput.value = evidenceToEdit._id; // Guarda o ID
+  editEvidenceTypeSelect.value = evidenceToEdit.evidenceType;
+  editEvidenceTitleInput.value = evidenceToEdit.title;
+  editEvidenceDescriptionTextarea.value = evidenceToEdit.description || "";
+  editEvidenceCategorySelect.value = evidenceToEdit.category || "";
 
-    // Lida com o campo de dados/imagem
-    toggleEditEvidenceDataInput(evidenceToEdit.evidenceType); // Mostra/oculta o campo correto
+  // Lida com o campo de dados/imagem
+  toggleEditEvidenceDataInput(evidenceToEdit.evidenceType); // Mostra/oculta o campo correto
 
-    if (evidenceToEdit.evidenceType === "image") {
-        // Se for imagem, mostra o preview da imagem existente (se houver data)
-        if (evidenceToEdit.data && evidenceToEdit.data.startsWith("data:image")) {
-             editImagePreview.src = evidenceToEdit.data;
-             editImagePreview.classList.remove('hidden');
-        } else {
-             editImagePreview.src = '';
-             editImagePreview.classList.add('hidden');
-        }
-        editEvidenceImageInput.value = null; // Limpa o input de arquivo para que o usuário precise selecionar um novo
+  if (evidenceToEdit.evidenceType === "image") {
+    // Se for imagem, mostra o preview da imagem existente (se houver data)
+    if (evidenceToEdit.data && evidenceToEdit.data.startsWith("data:image")) {
+      editImagePreview.src = evidenceToEdit.data;
+      editImagePreview.classList.remove('hidden');
     } else {
-        // Se não for imagem, preenche o textarea de dados
-        editEvidenceDataTextarea.value = evidenceToEdit.data || "";
-         editImagePreview.src = ''; // Limpa e oculta o preview da imagem
-         editImagePreview.classList.add('hidden');
+      editImagePreview.src = '';
+      editImagePreview.classList.add('hidden');
     }
+    editEvidenceImageInput.value = null; // Limpa o input de arquivo para que o usuário precise selecionar um novo
+  } else {
+    // Se não for imagem, preenche o textarea de dados
+    editEvidenceDataTextarea.value = evidenceToEdit.data || "";
+    editImagePreview.src = ''; // Limpa e oculta o preview da imagem
+    editImagePreview.classList.add('hidden');
+  }
 
 
-    // Oculta outros formulários e mostra o de edição de evidência
-    addEvidenceSection.classList.add("hidden"); // Oculta formulário de adicionar
-    editCaseSection.classList.add("hidden"); // Oculta formulário de editar caso
-    editEvidenceSection.classList.remove("hidden"); // Mostra formulário de edição de evidência
+  // Oculta outros formulários e mostra o de edição de evidência
+  addEvidenceSection.classList.add("hidden"); // Oculta formulário de adicionar
+  editCaseSection.classList.add("hidden"); // Oculta formulário de editar caso
+  editEvidenceSection.classList.remove("hidden"); // Mostra formulário de edição de evidência
 }
 
 // --- Função para Alternar os Campos de Dados no Formulário de Edição ---
 function toggleEditEvidenceDataInput(selectedType) {
-    if (selectedType === "image") {
-        editTextDataInputEdit.classList.add("hidden");
-        imageDataInputEdit.classList.remove("hidden");
-    } else {
-        editTextDataInputEdit.classList.remove("hidden");
-        imageDataInputEdit.classList.add("hidden");
-         // Garante que o input de imagem seja limpo e o preview oculto ao mudar para não-imagem
-        editEvidenceImageInput.value = null;
-        editImagePreview.src = '';
-        editImagePreview.classList.add('hidden');
-    }
+  if (selectedType === "image") {
+    editTextDataInputEdit.classList.add("hidden");
+    imageDataInputEdit.classList.remove("hidden");
+  } else {
+    editTextDataInputEdit.classList.remove("hidden");
+    imageDataInputEdit.classList.add("hidden");
+    // Garante que o input de imagem seja limpo e o preview oculto ao mudar para não-imagem
+    editEvidenceImageInput.value = null;
+    editImagePreview.src = '';
+    editImagePreview.classList.add('hidden');
+  }
 }
 
 // --- Event Listener para o Select de Tipo de Evidência no Formulário de Edição ---
@@ -406,70 +493,70 @@ editEvidenceTypeSelect.addEventListener("change", () => {
 
 // --- Submissão do Formulário de Edição de Evidência ---
 editEvidenceForm.addEventListener("submit", async (e) => {
-    e.preventDefault();
+  e.preventDefault();
 
-    const evidenceId = editingEvidenceIdInput.value; // Obtém o ID da evidência a ser editada
-    const evidenceType = editEvidenceTypeSelect.value;
-    const title = editEvidenceTitleInput.value;
-    const description = editEvidenceDescriptionTextarea.value;
-    const category = editEvidenceCategorySelect.value || undefined;
+  const evidenceId = editingEvidenceIdInput.value; // Obtém o ID da evidência a ser editada
+  const evidenceType = editEvidenceTypeSelect.value;
+  const title = editEvidenceTitleInput.value;
+  const description = editEvidenceDescriptionTextarea.value;
+  const category = editEvidenceCategorySelect.value || undefined;
 
-    let data;
+  let data;
 
-    if (evidenceType === "image") {
-        const imageFile = editEvidenceImageInput.files[0];
-        if (imageFile) {
-            // Se uma nova imagem foi selecionada, converte para Base64
-            data = await convertImageToBase64(imageFile);
-        } else {
-            // Se o tipo é imagem, mas nenhuma nova imagem foi selecionada,
-            // tenta manter a data existente da evidência original
-            const originalEvidence = currentEvidences.find(e => e._id === evidenceId);
-            data = originalEvidence ? originalEvidence.data : null;
-             if (!data) {
-                 alert("Selecione uma nova imagem ou o tipo de evidência deve ser alterado.");
-                 return; // Impede o envio se não há data antiga e nem nova imagem
-             }
-        }
+  if (evidenceType === "image") {
+    const imageFile = editEvidenceImageInput.files[0];
+    if (imageFile) {
+      // Se uma nova imagem foi selecionada, converte para Base64
+      data = await convertImageToBase64(imageFile);
     } else {
-        // Se não for imagem, pega os dados do textarea
-        data = editEvidenceDataTextarea.value;
+      // Se o tipo é imagem, mas nenhuma nova imagem foi selecionada,
+      // tenta manter a data existente da evidência original
+      const originalEvidence = currentEvidences.find(e => e._id === evidenceId);
+      data = originalEvidence ? originalEvidence.data : null;
+      if (!data) {
+        alert("Selecione uma nova imagem ou o tipo de evidência deve ser alterado.");
+        return; // Impede o envio se não há data antiga e nem nova imagem
+      }
+    }
+  } else {
+    // Se não for imagem, pega os dados do textarea
+    data = editEvidenceDataTextarea.value;
+  }
+
+  const updatedEvidencePayload = {
+    evidenceType,
+    title,
+    description,
+    data,
+    category
+  };
+
+  const token = localStorage.getItem("token");
+  try {
+    const response = await fetch(`${API_URL}/api/evidence/${evidenceId}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`
+      },
+      body: JSON.stringify(updatedEvidencePayload)
+    });
+
+    const result = await response.json();
+
+    if (!response.ok) {
+      throw new Error(result.error || result.message || "Erro ao atualizar evidência.");
     }
 
-    const updatedEvidencePayload = {
-        evidenceType,
-        title,
-        description,
-        data,
-        category
-    };
+    alert("Evidência atualizada com sucesso!");
+    editEvidenceForm.reset(); // Limpa o formulário de edição
+    editEvidenceSection.classList.add("hidden"); // Oculta o formulário
+    loadEvidences(caseId); // Recarrega a lista de evidências
 
-    const token = localStorage.getItem("token");
-    try {
-        const response = await fetch(`${API_URL}/api/evidence/${evidenceId}`, {
-            method: "PUT",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${token}`
-            },
-            body: JSON.stringify(updatedEvidencePayload)
-        });
-
-        const result = await response.json();
-
-        if (!response.ok) {
-            throw new Error(result.error || result.message || "Erro ao atualizar evidência.");
-        }
-
-        alert("Evidência atualizada com sucesso!");
-        editEvidenceForm.reset(); // Limpa o formulário de edição
-        editEvidenceSection.classList.add("hidden"); // Oculta o formulário
-        loadEvidences(caseId); // Recarrega a lista de evidências
-
-    } catch (err) {
-        console.error("Erro ao atualizar evidência:", err);
-        alert("Erro ao atualizar evidência: " + err.message);
-    }
+  } catch (err) {
+    console.error("Erro ao atualizar evidência:", err);
+    alert("Erro ao atualizar evidência: " + err.message);
+  }
 });
 
 
@@ -483,8 +570,8 @@ cancelEditEvidenceForm.addEventListener("click", () => {
 
 
 // toggle formulário de edição do Caso
-const showBtn   = document.getElementById("showEditCaseFormButton"); // Já definido acima, mantendo por clareza
-const formSect  = document.getElementById("editCaseSection");  // Já definido acima
+const showBtn = document.getElementById("showEditCaseFormButton"); // Já definido acima, mantendo por clareza
+const formSect = document.getElementById("editCaseSection");  // Já definido acima
 const cancelBtn = document.getElementById("cancelEditCase");  // Já definido acima
 
 showBtn.addEventListener("click", () => formSect.classList.toggle("hidden"));
@@ -495,39 +582,39 @@ cancelBtn.addEventListener("click", () => formSect.classList.add("hidden"));
 document.getElementById("editCaseForm").addEventListener("submit", async e => {
   e.preventDefault();
   // ... (sua lógica de submissão de edição do Caso existente) ...
-    const updates = {
-      nameCase:    document.getElementById("editNameCase").value,
-      Description: document.getElementById("editDescription").value,
-      status:      document.getElementById("editStatus").value,
-      location:    document.getElementById("editLocation").value,
-      dateCase:    document.getElementById("editDateCase").value,
-      hourCase:    document.getElementById("editHourCase").value,
-      category:    document.getElementById("editCategory").value
-    };
+  const updates = {
+    nameCase: document.getElementById("editNameCase").value,
+    Description: document.getElementById("editDescription").value,
+    status: document.getElementById("editStatus").value,
+    location: document.getElementById("editLocation").value,
+    dateCase: document.getElementById("editDateCase").value,
+    hourCase: document.getElementById("editHourCase").value,
+    category: document.getElementById("editCategory").value
+  };
 
-    const token = localStorage.getItem("token"); // Certifique-se que o token é acessível aqui
+  const token = localStorage.getItem("token"); // Certifique-se que o token é acessível aqui
 
-    try {
-      const res = await fetch(`${API_URL}/api/case/${caseId}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`
-        },
-        body: JSON.stringify(updates)
-      });
-      const data = await res.json();
-      if (!res.ok) {
-           const errorData = data || { message: "Erro desconhecido ao excluir caso." };
-        throw new Error(errorData.error || errorData.message);
-      }
-      alert("Caso atualizado com sucesso!");
-      editCaseSection.classList.add("hidden"); // Usa a variável definida acima
-      await loadCaseData(); // Recarrega os dados do caso e evidências
-    } catch (err) {
-      console.error(err);
-      alert(err.message);
+  try {
+    const res = await fetch(`${API_URL}/api/case/${caseId}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`
+      },
+      body: JSON.stringify(updates)
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      const errorData = data || { message: "Erro desconhecido ao excluir caso." };
+      throw new Error(errorData.error || errorData.message);
     }
+    alert("Caso atualizado com sucesso!");
+    editCaseSection.classList.add("hidden"); // Usa a variável definida acima
+    await loadCaseData(); // Recarrega os dados do caso e evidências
+  } catch (err) {
+    console.error(err);
+    alert(err.message);
+  }
 });
 
 // Botão Deletar Caso
@@ -541,8 +628,8 @@ document.getElementById("deleteCaseBtn").addEventListener("click", async () => {
     });
     const j = await res.json();
     if (!res.ok) {
-        const errorData = j || { message: "Erro desconhecido ao excluir caso." };
-        throw new Error(errorData.error || errorData.message);
+      const errorData = j || { message: "Erro desconhecido ao excluir caso." };
+      throw new Error(errorData.error || errorData.message);
     }
     alert("Caso excluído com sucesso!");
     window.location.href = "home.html"; // Redireciona após exclusão
@@ -557,67 +644,67 @@ document.getElementById("deleteCaseBtn").addEventListener("click", async () => {
 addEvidenceForm.addEventListener("submit", async (e) => {
   e.preventDefault();
   // ... (sua lógica de submissão de adição de evidência existente) ...
-   // Removido o localStorage aqui
-   const evidenceType = document.getElementById("evidenceType").value;
-   const title = document.getElementById("evidenceTitle").value;
-   const description = document.getElementById("evidenceDescription").value;
-   const category = document.getElementById("evidenceCategory").value || undefined;
+  // Removido o localStorage aqui
+  const evidenceType = document.getElementById("evidenceType").value;
+  const title = document.getElementById("evidenceTitle").value;
+  const description = document.getElementById("evidenceDescription").value;
+  const category = document.getElementById("evidenceCategory").value || undefined;
 
-   let data;
+  let data;
 
-   if (evidenceType === "image") {
-     const imageFile = document.getElementById("evidenceImage").files[0];
-     if (!imageFile) {
-       alert("Selecione uma imagem.");
-       return;
-     }
-     data = await convertImageToBase64(imageFile);
-   } else {
-     data = document.getElementById("evidenceData").value;
-   }
+  if (evidenceType === "image") {
+    const imageFile = document.getElementById("evidenceImage").files[0];
+    if (!imageFile) {
+      alert("Selecione uma imagem.");
+      return;
+    }
+    data = await convertImageToBase64(imageFile);
+  } else {
+    data = document.getElementById("evidenceData").value;
+  }
 
-   const evidencePayload = {
-     evidenceType,
-     title,
-     description,
-     data,
-     category
-   };
+  const evidencePayload = {
+    evidenceType,
+    title,
+    description,
+    data,
+    category
+  };
 
-   const token = localStorage.getItem("token"); // Certifique-se que o token é acessível aqui
+  const token = localStorage.getItem("token"); // Certifique-se que o token é acessível aqui
 
-   try {
-     const response = await fetch(`${API_URL}/api/evidence/${caseId}`, {
-       method: "POST",
-       headers: {
-         "Content-Type": "application/json",
-         "Authorization": `Bearer ${token}` // Adicionei o token aqui também
-       },
-       body: JSON.stringify(evidencePayload)
-     });
+  try {
+    const response = await fetch(`${API_URL}/api/evidence/${caseId}`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}` // Adicionei o token aqui também
+      },
+      body: JSON.stringify(evidencePayload)
+    });
 
-     const result = await response.json();
+    const result = await response.json();
 
-     if (response.ok) {
-       alert("Evidência adicionada com sucesso!");
-       addEvidenceForm.reset();
-       addEvidenceSection.classList.add("hidden");
-       // Resetar visibilidade dos campos de dados para o estado padrão (texto)
-       textDataInput.classList.remove("hidden");
-       imageDataInput.classList.add("hidden");
-       document.getElementById("imagePreview").src = ''; // Limpa preview da add form
-       document.getElementById("imagePreview").classList.add('hidden');
+    if (response.ok) {
+      alert("Evidência adicionada com sucesso!");
+      addEvidenceForm.reset();
+      addEvidenceSection.classList.add("hidden");
+      // Resetar visibilidade dos campos de dados para o estado padrão (texto)
+      textDataInput.classList.remove("hidden");
+      imageDataInput.classList.add("hidden");
+      document.getElementById("imagePreview").src = ''; // Limpa preview da add form
+      document.getElementById("imagePreview").classList.add('hidden');
 
-       loadEvidences(caseId); // <-- Recarrega apenas as evidências para atualizar a lista
+      loadEvidences(caseId); // <-- Recarrega apenas as evidências para atualizar a lista
 
-     } else {
-       const errorData = result || { msg: "Erro desconhecido ao adicionar evidência." };
-       alert(errorData.msg || errorData.message);
-     }
-   } catch (err) {
-     console.error("Erro ao enviar evidência:", err);
-     alert("Erro de conexão com o servidor ou ao enviar evidência.");
-   }
+    } else {
+      const errorData = result || { msg: "Erro desconhecido ao adicionar evidência." };
+      alert(errorData.msg || errorData.message);
+    }
+  } catch (err) {
+    console.error("Erro ao enviar evidência:", err);
+    alert("Erro de conexão com o servidor ou ao enviar evidência.");
+  }
 });
 
 // Referências dos elementos para Adição (Já definidos acima)
@@ -632,7 +719,7 @@ addEvidenceForm.addEventListener("submit", async (e) => {
 // Mostra o formulário de Adição de Evidência
 addEvidenceBtn.addEventListener("click", () => {
   addEvidenceSection.classList.remove("hidden");
-   // Oculta outros formulários se estiverem abertos
+  // Oculta outros formulários se estiverem abertos
   editCaseSection.classList.add("hidden");
   editEvidenceSection.classList.add("hidden");
 });
@@ -641,7 +728,7 @@ addEvidenceBtn.addEventListener("click", () => {
 cancelAddEvidence.addEventListener("click", () => {
   addEvidenceSection.classList.add("hidden");
   addEvidenceForm.reset(); // Limpa o formulário
-   // Resetar visibilidade dos campos de dados para o estado padrão (texto)
+  // Resetar visibilidade dos campos de dados para o estado padrão (texto)
   textDataInput.classList.remove("hidden");
   imageDataInput.classList.add("hidden");
   document.getElementById("imagePreview").src = ''; // Limpa preview da add form
@@ -685,46 +772,46 @@ function convertImageToBase64(file) {
 }
 
 // Opcional: Adicionar preview ao selecionar imagem no formulário de Adição
-document.getElementById("evidenceImage").addEventListener("change", function(event) {
-    const file = event.target.files[0];
-    const preview = document.getElementById("imagePreview");
-    if (file) {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            preview.src = e.target.result;
-            preview.classList.remove('hidden');
-        }
-        reader.readAsDataURL(file);
-    } else {
-        preview.src = '';
-        preview.classList.add('hidden');
+document.getElementById("evidenceImage").addEventListener("change", function (event) {
+  const file = event.target.files[0];
+  const preview = document.getElementById("imagePreview");
+  if (file) {
+    const reader = new FileReader();
+    reader.onload = function (e) {
+      preview.src = e.target.result;
+      preview.classList.remove('hidden');
     }
+    reader.readAsDataURL(file);
+  } else {
+    preview.src = '';
+    preview.classList.add('hidden');
+  }
 });
 
 
 // Opcional: Adicionar preview ao selecionar imagem no formulário de Edição
-document.getElementById("editEvidenceImage").addEventListener("change", function(event) {
-    const file = event.target.files[0];
-    const preview = document.getElementById("editImagePreview");
-    if (file) {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            preview.src = e.target.result;
-            preview.classList.remove('hidden');
-        }
-        reader.readAsDataURL(file);
-    } else {
-        // Se o usuário limpou a seleção, mostra o preview da imagem *original* se ela existir
-         const evidenceId = editingEvidenceIdInput.value;
-         const originalEvidence = currentEvidences.find(e => e._id === evidenceId);
-         if (originalEvidence && originalEvidence.data && originalEvidence.data.startsWith("data:image")) {
-              preview.src = originalEvidence.data;
-              preview.classList.remove('hidden');
-         } else {
-              preview.src = '';
-              preview.classList.add('hidden');
-         }
+document.getElementById("editEvidenceImage").addEventListener("change", function (event) {
+  const file = event.target.files[0];
+  const preview = document.getElementById("editImagePreview");
+  if (file) {
+    const reader = new FileReader();
+    reader.onload = function (e) {
+      preview.src = e.target.result;
+      preview.classList.remove('hidden');
     }
+    reader.readAsDataURL(file);
+  } else {
+    // Se o usuário limpou a seleção, mostra o preview da imagem *original* se ela existir
+    const evidenceId = editingEvidenceIdInput.value;
+    const originalEvidence = currentEvidences.find(e => e._id === evidenceId);
+    if (originalEvidence && originalEvidence.data && originalEvidence.data.startsWith("data:image")) {
+      preview.src = originalEvidence.data;
+      preview.classList.remove('hidden');
+    } else {
+      preview.src = '';
+      preview.classList.add('hidden');
+    }
+  }
 });
 
 
@@ -733,60 +820,60 @@ loadCaseData();
 
 const exportReportBtn = document.getElementById("exportReportBtn");
 if (exportReportBtn) {
-    exportReportBtn.addEventListener("click", async () => {
-      const reportContent = prompt("Digite o conteúdo do laudo para o PDF:");
-      if (reportContent === null) return; // Sai se cancelou
-      if (!reportContent) { alert("Conteúdo do laudo não pode ser vazio."); return; }
+  exportReportBtn.addEventListener("click", async () => {
+    const reportContent = prompt("Digite o conteúdo do laudo para o PDF:");
+    if (reportContent === null) return; // Sai se cancelou
+    if (!reportContent) { alert("Conteúdo do laudo não pode ser vazio."); return; }
 
-      const token = localStorage.getItem("token");
-      const caseId = params.get("id");
-      exportReportBtn.disabled = true; // Desabilita durante o processo
+    const token = localStorage.getItem("token");
+    const caseId = params.get("id");
+    exportReportBtn.disabled = true; // Desabilita durante o processo
 
-      try {
-        const response = await fetch(`${API_URL}/api/report`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
-          body: JSON.stringify({ caseId: caseId, content: reportContent })
-        });
-        const result = await response.json();
-        if (!response.ok) {
-          const errorMessage = result.error || result.message || "Erro desconhecido ao gerar laudo.";
-          throw new Error(errorMessage);
-        }
-
-        alert(result.message || "Laudo gerado com sucesso!");
-
-        // Abre o PDF em nova aba (pode ser bloqueado por pop-up blocker)
-        if (result.pdfUrl) {
-          const pdfWindow = window.open(result.pdfUrl, '_blank');
-                const reportDownloadArea = document.getElementById("reportDownloadArea");
-                if(reportDownloadArea){
-                     reportDownloadArea.innerHTML = `<p class="text-sm text-orange-600 mb-2">O navegador bloqueou a abertura automática do PDF? Clique no link abaixo:</p>`;
-                      const caseNameForFile = document.getElementById("caseName")?.textContent?.replace(/[^a-zA-Z0-9]/g, '_') || 'caso';
-                      const filename = `Laudo_${caseNameForFile}_${result.reportId?.slice(-6) || Date.now()}.pdf`;
-                      const downloadLink = document.createElement('a');
-                      downloadLink.href = result.pdfUrl;
-                      downloadLink.textContent = 'Abrir/Baixar Laudo Gerado';
-                      downloadLink.target = '_blank';
-                      downloadLink.download = filename; // Sugere download
-                      downloadLink.className = 'inline-block px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition duration-200 text-sm';
-                      reportDownloadArea.appendChild(downloadLink);
-                } else {
-                    alert("Não foi possível abrir o PDF automaticamente. Verifique o bloqueador de pop-ups.\nURL: " + result.pdfUrl);
-                }
-        } else {
-          alert("A URL do PDF não foi recebida do servidor.");
-        }
-
-      } catch (error) {
-        console.error("Erro ao exportar laudo:", error);
-        alert("Não foi possível gerar o laudo: " + error.message);
-        const reportDownloadArea = document.getElementById("reportDownloadArea");
-        if(reportDownloadArea) reportDownloadArea.innerHTML = `<p class="text-sm text-red-600">Falha ao gerar o laudo.</p>`;
-      } finally {
-          exportReportBtn.disabled = false; // Reabilita o botão
+    try {
+      const response = await fetch(`${API_URL}/api/report`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
+        body: JSON.stringify({ caseId: caseId, content: reportContent })
+      });
+      const result = await response.json();
+      if (!response.ok) {
+        const errorMessage = result.error || result.message || "Erro desconhecido ao gerar laudo.";
+        throw new Error(errorMessage);
       }
-    });
+
+      alert(result.message || "Laudo gerado com sucesso!");
+
+      // Abre o PDF em nova aba (pode ser bloqueado por pop-up blocker)
+      if (result.pdfUrl) {
+        const pdfWindow = window.open(result.pdfUrl, '_blank');
+        const reportDownloadArea = document.getElementById("reportDownloadArea");
+        if (reportDownloadArea) {
+          reportDownloadArea.innerHTML = `<p class="text-sm text-orange-600 mb-2">O navegador bloqueou a abertura automática do PDF? Clique no link abaixo:</p>`;
+          const caseNameForFile = document.getElementById("caseName")?.textContent?.replace(/[^a-zA-Z0-9]/g, '_') || 'caso';
+          const filename = `Laudo_${caseNameForFile}_${result.reportId?.slice(-6) || Date.now()}.pdf`;
+          const downloadLink = document.createElement('a');
+          downloadLink.href = result.pdfUrl;
+          downloadLink.textContent = 'Abrir/Baixar Laudo Gerado';
+          downloadLink.target = '_blank';
+          downloadLink.download = filename; // Sugere download
+          downloadLink.className = 'inline-block px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition duration-200 text-sm';
+          reportDownloadArea.appendChild(downloadLink);
+        } else {
+          alert("Não foi possível abrir o PDF automaticamente. Verifique o bloqueador de pop-ups.\nURL: " + result.pdfUrl);
+        }
+      } else {
+        alert("A URL do PDF não foi recebida do servidor.");
+      }
+
+    } catch (error) {
+      console.error("Erro ao exportar laudo:", error);
+      alert("Não foi possível gerar o laudo: " + error.message);
+      const reportDownloadArea = document.getElementById("reportDownloadArea");
+      if (reportDownloadArea) reportDownloadArea.innerHTML = `<p class="text-sm text-red-600">Falha ao gerar o laudo.</p>`;
+    } finally {
+      exportReportBtn.disabled = false; // Reabilita o botão
+    }
+  });
 }
 
 // Função para exibir os membros da equipe
@@ -867,84 +954,84 @@ function checkTeamManagementPermissions() {
 
 // Event listener para buscar usuários
 searchUserBtn.addEventListener("click", async () => {
-    const searchTerm = userSearchInput.value.trim();
-    if (searchTerm.length < 3) {
-        alert("Digite pelo menos 3 caracteres para buscar.");
-        return;
+  const searchTerm = userSearchInput.value.trim();
+  if (searchTerm.length < 3) {
+    alert("Digite pelo menos 3 caracteres para buscar.");
+    return;
+  }
+  userSearchResults.innerHTML = '<p class="text-sm text-gray-500">Buscando...</p>';
+  selectedUserIdToAddInput.value = "";
+  selectedUserDisplay.textContent = "";
+  submitAddTeamMemberBtn.disabled = true;
+
+  try {
+    const response = await fetch(`${API_URL}/api/user/search?name=${encodeURIComponent(searchTerm)}`, {
+      headers: { "Authorization": `Bearer ${token}` }
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.error || errorData.message || "Falha ao buscar usuários.");
     }
-    userSearchResults.innerHTML = '<p class="text-sm text-gray-500">Buscando...</p>';
-    selectedUserIdToAddInput.value = "";
-    selectedUserDisplay.textContent = "";
+
+    const result = await response.json();
+    const users = Array.isArray(result) ? result : result.users;
+
+    userSearchResults.innerHTML = '';
+
+    if (!users || users.length === 0) {
+      userSearchResults.innerHTML = '<p class="text-sm text-gray-500">Nenhum usuário encontrado.</p>';
+      return;
+    }
+
+    let eligibleUsersFound = 0;
+
+    users.forEach(userInLoop => { // Renomeei para userInLoop para evitar confusão de escopo
+      const isEligibleRole = userInLoop.role === 'perito' || userInLoop.role === 'assistente';
+      const isNotResponsible = !currentCaseData.responsibleExpert || userInLoop._id !== currentCaseData.responsibleExpert._id;
+      const isNotInTeam = !currentCaseData.team || !Array.isArray(currentCaseData.team) || !currentCaseData.team.some(tm => tm && tm._id === userInLoop._id);
+
+      if (isEligibleRole && isNotResponsible && isNotInTeam) {
+        eligibleUsersFound++;
+        const userDiv = document.createElement('div');
+        userDiv.className = 'p-2 border rounded hover:bg-gray-100 cursor-pointer user-search-item';
+        userDiv.textContent = `${userInLoop.name} (${userInLoop.role}) - CRO: ${userInLoop.cro || 'N/A'}`;
+
+        // Armazena os dados no dataset do elemento userDiv
+        userDiv.dataset.userId = userInLoop._id;
+        userDiv.dataset.userName = userInLoop.name;
+
+        userDiv.addEventListener('click', function () { // Usar function() para que 'this' se refira ao userDiv
+          // 'this' aqui se refere ao userDiv que foi clicado
+
+          // Remove a classe 'selected' de qualquer outro item
+          document.querySelectorAll('.user-search-item').forEach(div => {
+            div.classList.remove('bg-blue-100', 'border-blue-400', 'font-semibold');
+          });
+          // Adiciona a classe 'selected' ao item clicado (this)
+          this.classList.add('bg-blue-100', 'border-blue-400', 'font-semibold');
+
+          // ----- Acessar os dados do dataset de 'this' (o userDiv clicado) -----
+          selectedUserIdToAddInput.value = this.dataset.userId; // CORREÇÃO AQUI
+          selectedUserDisplay.textContent = `Adicionar: ${this.dataset.userName}`; // CORREÇÃO AQUI
+          submitAddTeamMemberBtn.disabled = false;
+
+          console.log("Usuário selecionado ID:", selectedUserIdToAddInput.value);
+          console.log("Usuário selecionado Nome:", this.dataset.userName); // Para depuração
+        });
+        userSearchResults.appendChild(userDiv);
+      }
+    });
+
+    if (eligibleUsersFound === 0) {
+      userSearchResults.innerHTML = '<p class="text-sm text-gray-500">Nenhum usuário elegível encontrado.</p>';
+    }
+
+  } catch (error) {
+    console.error("Erro ao buscar usuários:", error);
+    userSearchResults.innerHTML = `<p class="text-sm text-red-500">Erro ao buscar: ${error.message}</p>`;
     submitAddTeamMemberBtn.disabled = true;
-
-    try {
-        const response = await fetch(`${API_URL}/api/user/search?name=${encodeURIComponent(searchTerm)}`, {
-            headers: { "Authorization": `Bearer ${token}` }
-        });
-
-        if (!response.ok) {
-            const errorData = await response.json().catch(() => ({}));
-            throw new Error(errorData.error || errorData.message || "Falha ao buscar usuários.");
-        }
-
-        const result = await response.json();
-        const users = Array.isArray(result) ? result : result.users;
-
-        userSearchResults.innerHTML = '';
-
-        if (!users || users.length === 0) {
-            userSearchResults.innerHTML = '<p class="text-sm text-gray-500">Nenhum usuário encontrado.</p>';
-            return;
-        }
-
-        let eligibleUsersFound = 0;
-
-        users.forEach(userInLoop => { // Renomeei para userInLoop para evitar confusão de escopo
-            const isEligibleRole = userInLoop.role === 'perito' || userInLoop.role === 'assistente';
-            const isNotResponsible = !currentCaseData.responsibleExpert || userInLoop._id !== currentCaseData.responsibleExpert._id;
-            const isNotInTeam = !currentCaseData.team || !Array.isArray(currentCaseData.team) || !currentCaseData.team.some(tm => tm && tm._id === userInLoop._id);
-
-            if (isEligibleRole && isNotResponsible && isNotInTeam) {
-                eligibleUsersFound++;
-                const userDiv = document.createElement('div');
-                userDiv.className = 'p-2 border rounded hover:bg-gray-100 cursor-pointer user-search-item';
-                userDiv.textContent = `${userInLoop.name} (${userInLoop.role}) - CRO: ${userInLoop.cro || 'N/A'}`;
-                
-                // Armazena os dados no dataset do elemento userDiv
-                userDiv.dataset.userId = userInLoop._id;
-                userDiv.dataset.userName = userInLoop.name;
-
-                userDiv.addEventListener('click', function() { // Usar function() para que 'this' se refira ao userDiv
-                    // 'this' aqui se refere ao userDiv que foi clicado
-
-                    // Remove a classe 'selected' de qualquer outro item
-                    document.querySelectorAll('.user-search-item').forEach(div => {
-                        div.classList.remove('bg-blue-100', 'border-blue-400', 'font-semibold');
-                    });
-                    // Adiciona a classe 'selected' ao item clicado (this)
-                    this.classList.add('bg-blue-100', 'border-blue-400', 'font-semibold');
-
-                    // ----- Acessar os dados do dataset de 'this' (o userDiv clicado) -----
-                    selectedUserIdToAddInput.value = this.dataset.userId; // CORREÇÃO AQUI
-                    selectedUserDisplay.textContent = `Adicionar: ${this.dataset.userName}`; // CORREÇÃO AQUI
-                    submitAddTeamMemberBtn.disabled = false;
-                    
-                    console.log("Usuário selecionado ID:", selectedUserIdToAddInput.value);
-                    console.log("Usuário selecionado Nome:", this.dataset.userName); // Para depuração
-                });
-                userSearchResults.appendChild(userDiv);
-            }
-        });
-
-        if (eligibleUsersFound === 0) {
-             userSearchResults.innerHTML = '<p class="text-sm text-gray-500">Nenhum usuário elegível encontrado.</p>';
-        }
-
-    } catch (error) {
-        console.error("Erro ao buscar usuários:", error);
-        userSearchResults.innerHTML = `<p class="text-sm text-red-500">Erro ao buscar: ${error.message}</p>`;
-        submitAddTeamMemberBtn.disabled = true;
-    }
+  }
 });
 // Event listener para adicionar membro à equipe
 addTeamMemberForm.addEventListener("submit", async (e) => {
@@ -1022,91 +1109,106 @@ async function handleRemoveTeamMember(userId) {
 const generateSelectedEvidencesReportBtn = document.getElementById('generateSelectedEvidencesReportBtn');
 
 if (generateSelectedEvidencesReportBtn) {
-    generateSelectedEvidencesReportBtn.disabled = true; // Começa desabilitado
+  generateSelectedEvidencesReportBtn.disabled = true; // Começa desabilitado
 
-    // Habilitar/desabilitar o botão baseado na seleção de checkboxes
-    document.getElementById('evidencesContainer').addEventListener('change', (event) => {
-        if (event.target.classList.contains('evidence-select-checkbox')) {
-            const selectedCheckboxes = document.querySelectorAll('.evidence-select-checkbox:checked');
-            generateSelectedEvidencesReportBtn.disabled = selectedCheckboxes.length === 0;
+  // Habilitar/desabilitar o botão baseado na seleção de checkboxes
+  document.getElementById('evidencesContainer').addEventListener('change', (event) => {
+    if (event.target.classList.contains('evidence-select-checkbox')) {
+      const selectedCheckboxes = document.querySelectorAll('.evidence-select-checkbox:checked');
+      generateSelectedEvidencesReportBtn.disabled = selectedCheckboxes.length === 0;
+    }
+  });
+
+  generateSelectedEvidencesReportBtn.addEventListener('click', async () => {
+    const selectedCheckboxes = document.querySelectorAll('.evidence-select-checkbox:checked');
+    if (selectedCheckboxes.length === 0) {
+      alert("Selecione pelo menos uma evidência para gerar o laudo.");
+      return;
+    }
+
+    const evidenceIds = Array.from(selectedCheckboxes).map(cb => cb.dataset.evidenceId);
+    const reportContent = prompt("Digite o conteúdo do laudo para as evidências selecionadas:");
+
+    if (reportContent === null) return; // Cancelou
+    if (!reportContent) {
+      alert("Conteúdo do laudo não pode ser vazio.");
+      return;
+    }
+
+    generateSelectedEvidencesReportBtn.disabled = true;
+    // Opcional: Mudar texto do botão para "Gerando..."
+
+    try {
+      const token = localStorage.getItem("token");
+      // Usar a nova rota do backend
+      const response = await fetch(`${API_URL}/api/report/evidence`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          caseId: caseId, // caseId global da página
+          evidenceIds: evidenceIds,
+          content: reportContent
+        })
+      });
+
+      const result = await response.json();
+      if (!response.ok) {
+        throw new Error(result.error || result.message || "Erro ao gerar laudo de evidências.");
+      }
+
+      alert(result.message || "Laudo de evidências gerado com sucesso!");
+      // Lógica para exibir/baixar o PDF (similar ao que você já tem)
+      if (result.pdfUrl) {
+        // ... seu código para abrir/mostrar link de download ...
+        // Exemplo:
+        const reportDownloadArea = document.getElementById("reportDownloadArea"); // Reutilize ou crie nova área
+        if (reportDownloadArea) {
+          // Limpar área anterior se houver
+          reportDownloadArea.innerHTML = `<p class="text-sm text-orange-600 mb-2">Clique no link abaixo para o laudo das evidências:</p>`;
+          const caseNameForFile = document.getElementById("caseName")?.textContent?.replace(/[^a-zA-Z0-9]/g, '_') || 'caso';
+          const filename = `Laudo_Evidencias_${caseNameForFile}_${result.reportId?.slice(-6) || Date.now()}.pdf`;
+          const downloadLink = document.createElement('a');
+          downloadLink.href = result.pdfUrl;
+          downloadLink.textContent = 'Abrir/Baixar Laudo de Evidências';
+          downloadLink.target = '_blank';
+          downloadLink.download = filename;
+          downloadLink.className = 'inline-block px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition duration-200 text-sm';
+          reportDownloadArea.appendChild(downloadLink);
         }
-    });
+      }
+      // Desmarcar checkboxes e desabilitar botão
+      selectedCheckboxes.forEach(cb => cb.checked = false);
+      generateSelectedEvidencesReportBtn.disabled = true;
 
-    generateSelectedEvidencesReportBtn.addEventListener('click', async () => {
-        const selectedCheckboxes = document.querySelectorAll('.evidence-select-checkbox:checked');
-        if (selectedCheckboxes.length === 0) {
-            alert("Selecione pelo menos uma evidência para gerar o laudo.");
-            return;
-        }
+    } catch (error) {
+      console.error("Erro ao gerar laudo de evidências:", error);
+      alert("Não foi possível gerar o laudo: " + error.message);
+    }
+    // finally {
+    //     // Reabilitar botão apenas se ainda houver checkboxes selecionados (pouco provável aqui, já que desmarcamos)
+    //     // ou apenas reabilitar se o usuário puder tentar novamente.
+    //     // Por simplicidade, vamos deixar que o evento 'change' nos checkboxes reabilite se necessário.
+    //     // generateSelectedEvidencesReportBtn.disabled = document.querySelectorAll('.evidence-select-checkbox:checked').length === 0;
+    //     // ou
+    //     // generateSelectedEvidencesReportBtn.textContent = "Gerar Laudo para Evidências Selecionadas";
+    // }
+  });
+}
 
-        const evidenceIds = Array.from(selectedCheckboxes).map(cb => cb.dataset.evidenceId);
-        const reportContent = prompt("Digite o conteúdo do laudo para as evidências selecionadas:");
-
-        if (reportContent === null) return; // Cancelou
-        if (!reportContent) {
-            alert("Conteúdo do laudo não pode ser vazio.");
-            return;
-        }
-
-        generateSelectedEvidencesReportBtn.disabled = true;
-        // Opcional: Mudar texto do botão para "Gerando..."
-
-        try {
-            const token = localStorage.getItem("token");
-            // Usar a nova rota do backend
-            const response = await fetch(`${API_URL}/api/report/evidence`, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "Authorization": `Bearer ${token}`
-                },
-                body: JSON.stringify({
-                    caseId: caseId, // caseId global da página
-                    evidenceIds: evidenceIds,
-                    content: reportContent
-                })
-            });
-
-            const result = await response.json();
-            if (!response.ok) {
-                throw new Error(result.error || result.message || "Erro ao gerar laudo de evidências.");
-            }
-
-            alert(result.message || "Laudo de evidências gerado com sucesso!");
-            // Lógica para exibir/baixar o PDF (similar ao que você já tem)
-            if (result.pdfUrl) {
-                // ... seu código para abrir/mostrar link de download ...
-                // Exemplo:
-                const reportDownloadArea = document.getElementById("reportDownloadArea"); // Reutilize ou crie nova área
-                if (reportDownloadArea) {
-                     // Limpar área anterior se houver
-                    reportDownloadArea.innerHTML = `<p class="text-sm text-orange-600 mb-2">Clique no link abaixo para o laudo das evidências:</p>`;
-                    const caseNameForFile = document.getElementById("caseName")?.textContent?.replace(/[^a-zA-Z0-9]/g, '_') || 'caso';
-                    const filename = `Laudo_Evidencias_${caseNameForFile}_${result.reportId?.slice(-6) || Date.now()}.pdf`;
-                    const downloadLink = document.createElement('a');
-                    downloadLink.href = result.pdfUrl;
-                    downloadLink.textContent = 'Abrir/Baixar Laudo de Evidências';
-                    downloadLink.target = '_blank';
-                    downloadLink.download = filename;
-                    downloadLink.className = 'inline-block px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition duration-200 text-sm';
-                    reportDownloadArea.appendChild(downloadLink);
-                }
-            }
-            // Desmarcar checkboxes e desabilitar botão
-            selectedCheckboxes.forEach(cb => cb.checked = false);
-            generateSelectedEvidencesReportBtn.disabled = true;
-
-        } catch (error) {
-            console.error("Erro ao gerar laudo de evidências:", error);
-            alert("Não foi possível gerar o laudo: " + error.message);
-        } 
-        // finally {
-        //     // Reabilitar botão apenas se ainda houver checkboxes selecionados (pouco provável aqui, já que desmarcamos)
-        //     // ou apenas reabilitar se o usuário puder tentar novamente.
-        //     // Por simplicidade, vamos deixar que o evento 'change' nos checkboxes reabilite se necessário.
-        //     // generateSelectedEvidencesReportBtn.disabled = document.querySelectorAll('.evidence-select-checkbox:checked').length === 0;
-        //     // ou
-        //     // generateSelectedEvidencesReportBtn.textContent = "Gerar Laudo para Evidências Selecionadas";
-        // }
-    });
+if (navigateAddVictimBtn) {
+  navigateAddVictimBtn.addEventListener('click', () => {
+    // Leva para a página de cadastro de vítima, passando o caseId atual na URL
+    // para que a nova vítima possa ser automaticamente associada a este caso.
+    if (caseId) { // caseId é a variável global da página de detalhes do caso
+      window.location.href = `cadastrar-vitima.html?caseId=${caseId}`;
+    } else {
+      alert("ID do caso não encontrado. Não é possível adicionar vítima.");
+      console.error("Tentativa de navegar para adicionar vítima sem caseId.");
+    }
+  });
+} else {
+  console.warn("Botão 'navigateAddVictimBtn' não encontrado no DOM.");
 }

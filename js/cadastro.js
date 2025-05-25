@@ -13,7 +13,7 @@ if (!checkPageAuthorization(allowedRoles)) {
 
   if (!token) {
     alert('Você precisa estar autenticado para acessar os casos.');
-    window.location.href = '../login.html';
+    window.location.href = '../index.html';
     return;
   }
 

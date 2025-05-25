@@ -4,8 +4,8 @@ const API_URL = 'https://odonto-legal-backend.onrender.com';
 function displayUsers(users) {
   const container = document.getElementById('usersContainer');
   if (!container) {
-      console.error('Container de usuários (#usersContainer) não encontrado no DOM.');
-      return;
+    console.error('Container de usuários (#usersContainer) não encontrado no DOM.');
+    return;
   }
   container.innerHTML = ''; // Limpa o container
 
@@ -22,8 +22,8 @@ function displayUsers(users) {
         user.role === 'admin'
           ? 'Administrador'
           : user.role === 'perito'
-          ? 'Perito'
-          : 'Assistente';
+            ? 'Perito'
+            : 'Assistente';
 
       const card = document.createElement('div');
       card.className = 'bg-white p-6 rounded-lg shadow-md min-h-[280px] w-full max-w-[250px] flex flex-col justify-between text-center';
@@ -55,12 +55,12 @@ function displayUsers(users) {
 
 // Função para adicionar o card "Novo funcionário" (MODIFICADA)
 function addNewUserCard(container) {
-    const newUserCard = document.createElement("div");
-    newUserCard.className =
-        "bg-white p-6 rounded-lg shadow-md min-h-[280px] w-full max-w-[250px] flex flex-col justify-between text-center";
+  const newUserCard = document.createElement("div");
+  newUserCard.className =
+    "bg-white p-6 rounded-lg shadow-md min-h-[280px] w-full max-w-[250px] flex flex-col justify-between text-center";
 
-    // Estrutura interna do card "Novo funcionário", replicando a do card de usuário
-    newUserCard.innerHTML = `
+  // Estrutura interna do card "Novo funcionário", replicando a do card de usuário
+  newUserCard.innerHTML = `
         <h2 class="text-xl font-semibold text-blue-900 mb-2 text-center">Novo funcionário</h2>
         <div class="flex flex-col items-center pb-10">
              <img class="w-24 h-24 mb-3 mx-auto block" src="../img/add_icon.png" alt="add_icon"/>
@@ -74,20 +74,20 @@ function addNewUserCard(container) {
           </a>
         </div>
     `;
-    container.appendChild(newUserCard);
+  container.appendChild(newUserCard);
 }
 
 
 // Função genérica para lidar com erros de requisição e exibir mensagem/card de adição
 function handleFetchError(error, defaultMessage) {
-    console.error(defaultMessage, error);
-    alert(defaultMessage + (error.message ? `: ${error.message}` : ''));
+  console.error(defaultMessage, error);
+  alert(defaultMessage + (error.message ? `: ${error.message}` : ''));
 
-    const container = document.getElementById('usersContainer');
-    if(container) {
-        container.innerHTML = '<p class="text-red-600 col-span-full text-center">Erro ao carregar funcionários.</p>';
-        addNewUserCard(container); // Adiciona o card de adição mesmo com erro
-    }
+  const container = document.getElementById('usersContainer');
+  if (container) {
+    container.innerHTML = '<p class="text-red-600 col-span-full text-center">Erro ao carregar funcionários.</p>';
+    addNewUserCard(container); // Adiciona o card de adição mesmo com erro
+  }
 }
 
 
@@ -97,68 +97,74 @@ function handleFetchError(error, defaultMessage) {
 async function loadInitialUsers() {
   const token = localStorage.getItem('token');
   if (!token) {
-      alert('Você precisa estar autenticado para acessar esta página.');
-      window.location.href = '../index.html'; // Ajuste o caminho se necessário
-      return;
+    alert('Você precisa estar autenticado para acessar esta página.');
+    window.location.href = '../index.html'; // Ajuste o caminho se necessário
+    return;
   }
   try {
-      const response = await fetch(`${API_URL}/api/user`, {
-          method: 'GET',
-          headers: {
-              'Content-Type': 'application/json',
-              'Authorization': `Bearer ${token}`
-          }
-      });
-
-      if (!response.ok) {
-         const errorData = await response.json().catch(() => ({ message: "Erro desconhecido." }));
-         throw new Error(errorData.message || "Erro ao buscar usuários iniciais.");
+    const response = await fetch(`${API_URL}/api/user`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
       }
+    });
 
-      const users = await response.json();
-      displayUsers(users); // Exibe a lista completa
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({ message: "Erro desconhecido." }));
+      if (response.status === 401 || response.status === 403) {
+        alert("Sessão expirada ou não autorizada. Faça login novamente.");
+        localStorage.removeItem('token');
+        window.location.href = '../index.html'; // Redireciona para login
+        return;
+      }
+      throw new Error(errorData.message || "Erro ao buscar usuários iniciais.");
+    }
+
+    const users = await response.json();
+    displayUsers(users); // Exibe a lista completa
 
   } catch (error) {
-      handleFetchError(error, 'Não foi possível carregar os usuários iniciais.');
+    handleFetchError(error, 'Não foi possível carregar os usuários iniciais.');
   }
 }
 
 // Realiza a busca de usuários por nome
 async function searchUsersByName() {
-    const searchTerm = document.querySelector('.search-bar').value;
+  const searchTerm = document.querySelector('.search-bar').value;
 
-    if (searchTerm.trim() === "") {
-        loadInitialUsers(); // Carrega todos os usuários se a busca estiver vazia
+  if (searchTerm.trim() === "") {
+    loadInitialUsers(); // Carrega todos os usuários se a busca estiver vazia
+    return;
+  }
+
+  const token = localStorage.getItem("token");
+
+  try {
+    const response = await fetch(`${API_URL}/api/user/fname?name=${encodeURIComponent(searchTerm)}`, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({ message: "Erro desconhecido." }));
+      if (response.status >= 400 && response.status < 500) {
+        displayUsers([]);
+        alert(errorData.message || `Nenhum funcionário encontrado com o nome "${searchTerm}".`);
         return;
+      }
+      throw new Error(errorData.message || `Erro na requisição de pesquisa: ${response.statusText}`);
     }
 
-    const token = localStorage.getItem("token");
+    const users = await response.json();
+    displayUsers(users);
 
-    try {
-        const response = await fetch(`${API_URL}/api/user/fname?name=${encodeURIComponent(searchTerm)}`, {
-            headers: { Authorization: `Bearer ${token}` }
-        });
-
-        if (!response.ok) {
-            const errorData = await response.json().catch(() => ({ message: "Erro desconhecido." }));
-            if (response.status >= 400 && response.status < 500) {
-                 displayUsers([]);
-                 alert(errorData.message || `Nenhum funcionário encontrado com o nome "${searchTerm}".`);
-                 return;
-            }
-           throw new Error(errorData.message || `Erro na requisição de pesquisa: ${response.statusText}`);
-        }
-
-        const users = await response.json();
-        displayUsers(users);
-
-        if (users.length === 0) {
-             alert(`Nenhum funcionário encontrado com o nome "${searchTerm}".`);
-        }
-
-    } catch (error) {
-        handleFetchError(error, 'Erro ao pesquisar funcionários.');
+    if (users.length === 0) {
+      alert(`Nenhum funcionário encontrado com o nome "${searchTerm}".`);
     }
+
+  } catch (error) {
+    handleFetchError(error, 'Erro ao pesquisar funcionários.');
+  }
 }
 
 
@@ -169,36 +175,36 @@ document.addEventListener('DOMContentLoaded', () => {
   // --- Passo de Verificação de Autorização ---
   const allowedRoles = ['admin']; // <-- Defina as roles permitidas para ESTA página
   if (!checkPageAuthorization(allowedRoles)) {
-      // Se a autorização falhou dentro da função, ela já redirecionou.
-      // Apenas saia do resto do script para evitar erros.
-      return;
+    // Se a autorização falhou dentro da função, ela já redirecionou.
+    // Apenas saia do resto do script para evitar erros.
+    return;
   }
   // Adiciona listener para o clique no botão da lupa
   const searchButton = document.querySelector('.search-button');
   if (searchButton) {
-      searchButton.addEventListener('click', searchUsersByName);
+    searchButton.addEventListener('click', searchUsersByName);
   } else {
-      console.error("Botão de pesquisa (.search-button) não encontrado no DOM.");
+    console.error("Botão de pesquisa (.search-button) não encontrado no DOM.");
   }
 
   // Adiciona listener para a tecla "Enter" na barra de pesquisa
   const searchInput = document.querySelector('.search-bar');
   if (searchInput) {
-      searchInput.addEventListener('keypress', function(event) {
-          if (event.key === 'Enter' || event.keyCode === 13) {
-              event.preventDefault();
-              searchUsersByName();
-          }
-      });
+    searchInput.addEventListener('keypress', function (event) {
+      if (event.key === 'Enter' || event.keyCode === 13) {
+        event.preventDefault();
+        searchUsersByName();
+      }
+    });
   } else {
-      console.error("Barra de pesquisa (.search-bar) não encontrado no DOM.");
+    console.error("Barra de pesquisa (.search-bar) não encontrado no DOM.");
   }
 
-   // Chamada para carregar a lista inicial de usuários quando a página carregar
-   loadInitialUsers();
+  // Chamada para carregar a lista inicial de usuários quando a página carregar
+  loadInitialUsers();
 
-   // --- Mantenha outros Listeners ou Funções se existirem ---
-   // Ex: Funções e listeners para dropdowns (se aplicável nesta página)
-   // Ex: window.onclick para fechar elementos, etc.
-   // Ex: Script para mostrar/ocultar o menu dropdown (se ainda usado e aplicável nesta página)
+  // --- Mantenha outros Listeners ou Funções se existirem ---
+  // Ex: Funções e listeners para dropdowns (se aplicável nesta página)
+  // Ex: window.onclick para fechar elementos, etc.
+  // Ex: Script para mostrar/ocultar o menu dropdown (se ainda usado e aplicável nesta página)
 });

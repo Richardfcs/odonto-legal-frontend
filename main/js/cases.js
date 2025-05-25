@@ -102,6 +102,12 @@ async function loadInitialCases() {
 
         if (!response.ok) {
             const errorData = await response.json().catch(() => ({ message: "Erro desconhecido." }));
+            if (response.status === 401 || response.status === 403) {
+                  alert("Sessão expirada ou não autorizada. Faça login novamente.");
+                  localStorage.removeItem('token');
+                  window.location.href = '../index.html'; // Redireciona para login
+                  return;
+             }
             throw new Error(errorData.message || "Erro ao buscar os casos iniciais.");
         }
 

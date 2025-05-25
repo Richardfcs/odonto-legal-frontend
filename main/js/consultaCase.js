@@ -34,6 +34,12 @@ async function loadCaseData() {
                   // window.location.href = 'home.html';
                   return; // Sai da função
              }
+             if (response.status === 401 || response.status === 403) {
+                  alert("Sessão expirada ou não autorizada. Faça login novamente.");
+                  localStorage.removeItem('token');
+                  window.location.href = '../index.html'; // Redireciona para login
+                  return;
+             }
              // Para outros erros, lança o erro
              throw new Error(errorData.message || "Erro ao buscar dados do caso.");
         }

@@ -160,6 +160,21 @@
         </div>
       </div>
 
+      <!-- Seção dedicada a Vítimas -->
+      <div id="victimsSection" class="bg-white p-6 rounded-lg shadow-md mb-6">
+        <div class="flex justify-between items-center mb-4">
+            <h3 class="text-xl font-semibold text-blue-900">Vítimas Relacionadas ao Caso</h3>
+            <button id="navigateAddVictimBtn" 
+                    class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded text-sm">
+                + Adicionar Vítima
+            </button>
+        </div>
+        <div id="victimsContainer" class="space-y-4">
+            <!-- Vítimas serão inseridas dinamicamente aqui pelo JS -->
+            <p id="noVictimsMessage" class="text-gray-500">Nenhuma vítima registrada para este caso ainda.</p>
+        </div>
+    </div>
+
       <!-- Seção de Evidências -->
       <div class="bg-white p-6 rounded-lg shadow-md mb-6">
         <h3 class="text-xl font-semibold text-blue-900 mb-4">Evidências Relacionadas</h3>

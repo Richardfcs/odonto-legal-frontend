@@ -55,6 +55,11 @@ const aiLoadingIndicator = document.getElementById('aiLoadingIndicator');
 const aiResponseOutput = document.getElementById('aiResponseOutput');
 // const aiEvidenceSelection = document.getElementById('aiEvidenceSelection'); // Para seleção futura
 
+// Novas referências para a seção de vítimas
+const victimsContainer = document.getElementById("victimsContainer");
+const noVictimsMessage = document.getElementById("noVictimsMessage");
+const navigateAddVictimBtn = document.getElementById("navigateAddVictimBtn");
+
 // Habilita/desabilita o botão de análise baseado na seleção
 if (aiActionSelect && analyzeWithAIButton) {
   aiActionSelect.addEventListener('change', () => {
@@ -202,13 +207,12 @@ async function loadCaseData() {
 
     // 6. Chamar outras funções que dependem dos dados do caso
     //    Agora passamos explicitamente as partes relevantes de `casoDataFromAPI`
-    loadEvidences(caseId); // Esta função geralmente só precisa do caseId
+    loadEvidences(caseId); // caseId é a variável global desta página
 
-    // Estas funções precisam dos dados da equipe e do perito responsável
-    displayTeamMembers(casoDataFromAPI.team, casoDataFromAPI.responsibleExpert);
+    // ---> CHAMAR A FUNÇÃO PARA CARREGAR VÍTIMAS <---
+    await loadCaseVictims(caseId); // Passa o caseId global da página
 
-    // checkTeamManagementPermissions agora usará `currentCaseData` (que foi atualizado)
-    // ou pode ser modificada para receber `casoDataFromAPI.responsibleExpert` e a role do usuário logado.
+    displayTeamMembers(currentCaseData.team, currentCaseData.responsibleExpert);
     checkTeamManagementPermissions();
 
   } catch (err) {
@@ -228,6 +232,78 @@ async function loadCaseData() {
     }
   }
 }
+
+async function loadCaseVictims(currentCaseId) {
+  if (!currentCaseId) {
+    console.error("ID do caso não fornecido para carregar vítimas.");
+    if (victimsContainer) victimsContainer.innerHTML = '<p class="text-red-500">Erro: ID do caso ausente.</p>';
+    if (noVictimsMessage) noVictimsMessage.classList.remove('hidden');
+    return;
+  }
+
+  if (!token) { // Adicionado verificação de token
+    console.error("Token de autenticação não encontrado.");
+    // Poderia mostrar uma mensagem na UI ou redirecionar para login
+    return;
+  }
+
+  try {
+    // Usa o endpoint GET /api/cases/:caseId/victims
+    const response = await fetch(`${API_URL}/api/case/${currentCaseId}/victims`, {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({})); // Tenta pegar erro do JSON
+      throw new Error(errorData.message || errorData.error || `Erro ${response.status} ao buscar vítimas do caso.`);
+    }
+
+    // O backend retorna um array de vítimas diretamente se houver,
+    // ou um objeto { message: "...", victims: [] } se não houver.
+    // Precisamos normalizar isso.
+    const result = await response.json();
+    const victimsArray = Array.isArray(result) ? result : result.victims; // Ajuste conforme a resposta do seu backend
+
+    if (victimsContainer) victimsContainer.innerHTML = ''; // Limpa o container antes de adicionar novos
+    if (noVictimsMessage) noVictimsMessage.classList.add('hidden'); // Oculta a mensagem por padrão
+
+    if (victimsArray && victimsArray.length > 0) {
+      victimsArray.forEach(victim => {
+        const victimCard = document.createElement('div');
+        victimCard.className = 'victim-card border p-4 rounded-lg shadow bg-gray-50 hover:shadow-md transition-shadow cursor-pointer';
+        victimCard.dataset.victimId = victim._id; // Armazena o ID da vítima no card
+
+        // Informações básicas da vítima a serem exibidas
+        // Adapte os campos conforme seu modelo 'Victim' e o que você quer mostrar
+        victimCard.innerHTML = `
+                    <h4 class="text-lg font-semibold text-blue-800">${victim.name || victim.victimCode || 'Vítima Desconhecida'}</h4>
+                    <p class="text-sm text-gray-600">Status: <span class="font-medium">${victim.identificationStatus || 'N/A'}</span></p>
+                    ${victim.ageAtDeath ? `<p class="text-sm text-gray-600">Idade: <span class="font-medium">${victim.ageAtDeath}</span></p>` : ''}
+                    ${victim.gender ? `<p class="text-sm text-gray-600">Gênero: <span class="font-medium">${victim.gender}</span></p>` : ''}
+                    <!-- Adicionar mais detalhes se desejar -->
+                `;
+
+        // Adiciona evento de clique para navegar para a página de detalhes da vítima
+        victimCard.addEventListener('click', () => {
+          // Futuramente, esta página será para visualização/edição/deleção da vítima e odontograma
+          window.location.href = `../main/vitima-detalhes.html?id=${victim._id}&caseId=${currentCaseId}`;
+        });
+
+        if (victimsContainer) victimsContainer.appendChild(victimCard);
+      });
+    } else {
+      if (noVictimsMessage) noVictimsMessage.classList.remove('hidden');
+    }
+
+  } catch (error) {
+    console.error("Erro ao carregar vítimas do caso:", error);
+    if (victimsContainer) victimsContainer.innerHTML = `<p class="text-red-500">Erro ao carregar vítimas: ${error.message}</p>`;
+    if (noVictimsMessage) noVictimsMessage.classList.add('hidden'); // Garante que a mensagem de "nenhuma vítima" não apareça com o erro
+  }
+}
+
 // Função para carregar e exibir as evidências (MODIFICADA)
 async function loadEvidences(caseId) {
   try {
@@ -864,84 +940,84 @@ function checkTeamManagementPermissions() {
 
 // Event listener para buscar usuários
 searchUserBtn.addEventListener("click", async () => {
-    const searchTerm = userSearchInput.value.trim();
-    if (searchTerm.length < 3) {
-        alert("Digite pelo menos 3 caracteres para buscar.");
-        return;
+  const searchTerm = userSearchInput.value.trim();
+  if (searchTerm.length < 3) {
+    alert("Digite pelo menos 3 caracteres para buscar.");
+    return;
+  }
+  userSearchResults.innerHTML = '<p class="text-sm text-gray-500">Buscando...</p>';
+  selectedUserIdToAddInput.value = "";
+  selectedUserDisplay.textContent = "";
+  submitAddTeamMemberBtn.disabled = true;
+
+  try {
+    const response = await fetch(`${API_URL}/api/user/search?name=${encodeURIComponent(searchTerm)}`, {
+      headers: { "Authorization": `Bearer ${token}` }
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.error || errorData.message || "Falha ao buscar usuários.");
     }
-    userSearchResults.innerHTML = '<p class="text-sm text-gray-500">Buscando...</p>';
-    selectedUserIdToAddInput.value = "";
-    selectedUserDisplay.textContent = "";
+
+    const result = await response.json();
+    const users = Array.isArray(result) ? result : result.users;
+
+    userSearchResults.innerHTML = '';
+
+    if (!users || users.length === 0) {
+      userSearchResults.innerHTML = '<p class="text-sm text-gray-500">Nenhum usuário encontrado.</p>';
+      return;
+    }
+
+    let eligibleUsersFound = 0;
+
+    users.forEach(userInLoop => { // Renomeei para userInLoop para evitar confusão de escopo
+      const isEligibleRole = userInLoop.role === 'perito' || userInLoop.role === 'assistente';
+      const isNotResponsible = !currentCaseData.responsibleExpert || userInLoop._id !== currentCaseData.responsibleExpert._id;
+      const isNotInTeam = !currentCaseData.team || !Array.isArray(currentCaseData.team) || !currentCaseData.team.some(tm => tm && tm._id === userInLoop._id);
+
+      if (isEligibleRole && isNotResponsible && isNotInTeam) {
+        eligibleUsersFound++;
+        const userDiv = document.createElement('div');
+        userDiv.className = 'p-2 border rounded hover:bg-gray-100 cursor-pointer user-search-item';
+        userDiv.textContent = `${userInLoop.name} (${userInLoop.role}) - CRO: ${userInLoop.cro || 'N/A'}`;
+
+        // Armazena os dados no dataset do elemento userDiv
+        userDiv.dataset.userId = userInLoop._id;
+        userDiv.dataset.userName = userInLoop.name;
+
+        userDiv.addEventListener('click', function () { // Usar function() para que 'this' se refira ao userDiv
+          // 'this' aqui se refere ao userDiv que foi clicado
+
+          // Remove a classe 'selected' de qualquer outro item
+          document.querySelectorAll('.user-search-item').forEach(div => {
+            div.classList.remove('bg-blue-100', 'border-blue-400', 'font-semibold');
+          });
+          // Adiciona a classe 'selected' ao item clicado (this)
+          this.classList.add('bg-blue-100', 'border-blue-400', 'font-semibold');
+
+          // ----- Acessar os dados do dataset de 'this' (o userDiv clicado) -----
+          selectedUserIdToAddInput.value = this.dataset.userId; // CORREÇÃO AQUI
+          selectedUserDisplay.textContent = `Adicionar: ${this.dataset.userName}`; // CORREÇÃO AQUI
+          submitAddTeamMemberBtn.disabled = false;
+
+          console.log("Usuário selecionado ID:", selectedUserIdToAddInput.value);
+          console.log("Usuário selecionado Nome:", this.dataset.userName); // Para depuração
+        });
+        userSearchResults.appendChild(userDiv);
+      }
+    });
+
+    if (eligibleUsersFound === 0) {
+      userSearchResults.innerHTML = '<p class="text-sm text-gray-500">Nenhum usuário elegível encontrado.</p>';
+    }
+
+  } catch (error) {
+    console.error("Erro ao buscar usuários:", error);
+    userSearchResults.innerHTML = `<p class="text-sm text-red-500">Erro ao buscar: ${error.message}</p>`;
     submitAddTeamMemberBtn.disabled = true;
-
-    try {
-        const response = await fetch(`${API_URL}/api/user/search?name=${encodeURIComponent(searchTerm)}`, {
-            headers: { "Authorization": `Bearer ${token}` }
-        });
-
-        if (!response.ok) {
-            const errorData = await response.json().catch(() => ({}));
-            throw new Error(errorData.error || errorData.message || "Falha ao buscar usuários.");
-        }
-
-        const result = await response.json();
-        const users = Array.isArray(result) ? result : result.users;
-
-        userSearchResults.innerHTML = '';
-
-        if (!users || users.length === 0) {
-            userSearchResults.innerHTML = '<p class="text-sm text-gray-500">Nenhum usuário encontrado.</p>';
-            return;
-        }
-
-        let eligibleUsersFound = 0;
-
-        users.forEach(userInLoop => { // Renomeei para userInLoop para evitar confusão de escopo
-            const isEligibleRole = userInLoop.role === 'perito' || userInLoop.role === 'assistente';
-            const isNotResponsible = !currentCaseData.responsibleExpert || userInLoop._id !== currentCaseData.responsibleExpert._id;
-            const isNotInTeam = !currentCaseData.team || !Array.isArray(currentCaseData.team) || !currentCaseData.team.some(tm => tm && tm._id === userInLoop._id);
-
-            if (isEligibleRole && isNotResponsible && isNotInTeam) {
-                eligibleUsersFound++;
-                const userDiv = document.createElement('div');
-                userDiv.className = 'p-2 border rounded hover:bg-gray-100 cursor-pointer user-search-item';
-                userDiv.textContent = `${userInLoop.name} (${userInLoop.role}) - CRO: ${userInLoop.cro || 'N/A'}`;
-                
-                // Armazena os dados no dataset do elemento userDiv
-                userDiv.dataset.userId = userInLoop._id;
-                userDiv.dataset.userName = userInLoop.name;
-
-                userDiv.addEventListener('click', function() { // Usar function() para que 'this' se refira ao userDiv
-                    // 'this' aqui se refere ao userDiv que foi clicado
-
-                    // Remove a classe 'selected' de qualquer outro item
-                    document.querySelectorAll('.user-search-item').forEach(div => {
-                        div.classList.remove('bg-blue-100', 'border-blue-400', 'font-semibold');
-                    });
-                    // Adiciona a classe 'selected' ao item clicado (this)
-                    this.classList.add('bg-blue-100', 'border-blue-400', 'font-semibold');
-
-                    // ----- Acessar os dados do dataset de 'this' (o userDiv clicado) -----
-                    selectedUserIdToAddInput.value = this.dataset.userId; // CORREÇÃO AQUI
-                    selectedUserDisplay.textContent = `Adicionar: ${this.dataset.userName}`; // CORREÇÃO AQUI
-                    submitAddTeamMemberBtn.disabled = false;
-                    
-                    console.log("Usuário selecionado ID:", selectedUserIdToAddInput.value);
-                    console.log("Usuário selecionado Nome:", this.dataset.userName); // Para depuração
-                });
-                userSearchResults.appendChild(userDiv);
-            }
-        });
-
-        if (eligibleUsersFound === 0) {
-             userSearchResults.innerHTML = '<p class="text-sm text-gray-500">Nenhum usuário elegível encontrado.</p>';
-        }
-
-    } catch (error) {
-        console.error("Erro ao buscar usuários:", error);
-        userSearchResults.innerHTML = `<p class="text-sm text-red-500">Erro ao buscar: ${error.message}</p>`;
-        submitAddTeamMemberBtn.disabled = true;
-    }
+  }
 });
 // Event listener para adicionar membro à equipe
 addTeamMemberForm.addEventListener("submit", async (e) => {
@@ -1019,91 +1095,112 @@ async function handleRemoveTeamMember(userId) {
 const generateSelectedEvidencesReportBtn = document.getElementById('generateSelectedEvidencesReportBtn');
 
 if (generateSelectedEvidencesReportBtn) {
-    generateSelectedEvidencesReportBtn.disabled = true; // Começa desabilitado
+  generateSelectedEvidencesReportBtn.disabled = true; // Começa desabilitado
 
-    // Habilitar/desabilitar o botão baseado na seleção de checkboxes
-    document.getElementById('evidencesContainer').addEventListener('change', (event) => {
-        if (event.target.classList.contains('evidence-select-checkbox')) {
-            const selectedCheckboxes = document.querySelectorAll('.evidence-select-checkbox:checked');
-            generateSelectedEvidencesReportBtn.disabled = selectedCheckboxes.length === 0;
+  // Habilitar/desabilitar o botão baseado na seleção de checkboxes
+  document.getElementById('evidencesContainer').addEventListener('change', (event) => {
+    if (event.target.classList.contains('evidence-select-checkbox')) {
+      const selectedCheckboxes = document.querySelectorAll('.evidence-select-checkbox:checked');
+      generateSelectedEvidencesReportBtn.disabled = selectedCheckboxes.length === 0;
+    }
+  });
+
+  generateSelectedEvidencesReportBtn.addEventListener('click', async () => {
+    const selectedCheckboxes = document.querySelectorAll('.evidence-select-checkbox:checked');
+    if (selectedCheckboxes.length === 0) {
+      alert("Selecione pelo menos uma evidência para gerar o laudo.");
+      return;
+    }
+
+    const evidenceIds = Array.from(selectedCheckboxes).map(cb => cb.dataset.evidenceId);
+    const reportContent = prompt("Digite o conteúdo do laudo para as evidências selecionadas:");
+
+    if (reportContent === null) return; // Cancelou
+    if (!reportContent) {
+      alert("Conteúdo do laudo não pode ser vazio.");
+      return;
+    }
+
+    generateSelectedEvidencesReportBtn.disabled = true;
+    // Opcional: Mudar texto do botão para "Gerando..."
+
+    try {
+      const token = localStorage.getItem("token");
+      // Usar a nova rota do backend
+      const response = await fetch(`${API_URL}/api/report/evidence`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          caseId: caseId, // caseId global da página
+          evidenceIds: evidenceIds,
+          content: reportContent
+        })
+      });
+
+      const result = await response.json();
+      if (!response.ok) {
+        if (response.status === 401 || response.status === 403) {
+          alert("Sessão expirada ou não autorizada. Faça login novamente.");
+          localStorage.removeItem('token');
+          window.location.href = '../index.html'; // Redireciona para login
+          return;
         }
-    });
+        throw new Error(result.error || result.message || "Erro ao gerar laudo de evidências.");
+      }
 
-    generateSelectedEvidencesReportBtn.addEventListener('click', async () => {
-        const selectedCheckboxes = document.querySelectorAll('.evidence-select-checkbox:checked');
-        if (selectedCheckboxes.length === 0) {
-            alert("Selecione pelo menos uma evidência para gerar o laudo.");
-            return;
+      alert(result.message || "Laudo de evidências gerado com sucesso!");
+      // Lógica para exibir/baixar o PDF (similar ao que você já tem)
+      if (result.pdfUrl) {
+        // ... seu código para abrir/mostrar link de download ...
+        // Exemplo:
+        const reportDownloadArea = document.getElementById("reportDownloadArea"); // Reutilize ou crie nova área
+        if (reportDownloadArea) {
+          // Limpar área anterior se houver
+          reportDownloadArea.innerHTML = `<p class="text-sm text-orange-600 mb-2">Clique no link abaixo para o laudo das evidências:</p>`;
+          const caseNameForFile = document.getElementById("caseName")?.textContent?.replace(/[^a-zA-Z0-9]/g, '_') || 'caso';
+          const filename = `Laudo_Evidencias_${caseNameForFile}_${result.reportId?.slice(-6) || Date.now()}.pdf`;
+          const downloadLink = document.createElement('a');
+          downloadLink.href = result.pdfUrl;
+          downloadLink.textContent = 'Abrir/Baixar Laudo de Evidências';
+          downloadLink.target = '_blank';
+          downloadLink.download = filename;
+          downloadLink.className = 'inline-block px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition duration-200 text-sm';
+          reportDownloadArea.appendChild(downloadLink);
         }
+      }
+      // Desmarcar checkboxes e desabilitar botão
+      selectedCheckboxes.forEach(cb => cb.checked = false);
+      generateSelectedEvidencesReportBtn.disabled = true;
 
-        const evidenceIds = Array.from(selectedCheckboxes).map(cb => cb.dataset.evidenceId);
-        const reportContent = prompt("Digite o conteúdo do laudo para as evidências selecionadas:");
+    } catch (error) {
+      console.error("Erro ao gerar laudo de evidências:", error);
+      alert("Não foi possível gerar o laudo: " + error.message);
+    }
+    // finally {
+    //     // Reabilitar botão apenas se ainda houver checkboxes selecionados (pouco provável aqui, já que desmarcamos)
+    //     // ou apenas reabilitar se o usuário puder tentar novamente.
+    //     // Por simplicidade, vamos deixar que o evento 'change' nos checkboxes reabilite se necessário.
+    //     // generateSelectedEvidencesReportBtn.disabled = document.querySelectorAll('.evidence-select-checkbox:checked').length === 0;
+    //     // ou
+    //     // generateSelectedEvidencesReportBtn.textContent = "Gerar Laudo para Evidências Selecionadas";
+    // }
+  });
+}
 
-        if (reportContent === null) return; // Cancelou
-        if (!reportContent) {
-            alert("Conteúdo do laudo não pode ser vazio.");
-            return;
-        }
-
-        generateSelectedEvidencesReportBtn.disabled = true;
-        // Opcional: Mudar texto do botão para "Gerando..."
-
-        try {
-            const token = localStorage.getItem("token");
-            // Usar a nova rota do backend
-            const response = await fetch(`${API_URL}/api/report/evidence`, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "Authorization": `Bearer ${token}`
-                },
-                body: JSON.stringify({
-                    caseId: caseId, // caseId global da página
-                    evidenceIds: evidenceIds,
-                    content: reportContent
-                })
-            });
-
-            const result = await response.json();
-            if (!response.ok) {
-                throw new Error(result.error || result.message || "Erro ao gerar laudo de evidências.");
-            }
-
-            alert(result.message || "Laudo de evidências gerado com sucesso!");
-            // Lógica para exibir/baixar o PDF (similar ao que você já tem)
-            if (result.pdfUrl) {
-                // ... seu código para abrir/mostrar link de download ...
-                // Exemplo:
-                const reportDownloadArea = document.getElementById("reportDownloadArea"); // Reutilize ou crie nova área
-                if (reportDownloadArea) {
-                     // Limpar área anterior se houver
-                    reportDownloadArea.innerHTML = `<p class="text-sm text-orange-600 mb-2">Clique no link abaixo para o laudo das evidências:</p>`;
-                    const caseNameForFile = document.getElementById("caseName")?.textContent?.replace(/[^a-zA-Z0-9]/g, '_') || 'caso';
-                    const filename = `Laudo_Evidencias_${caseNameForFile}_${result.reportId?.slice(-6) || Date.now()}.pdf`;
-                    const downloadLink = document.createElement('a');
-                    downloadLink.href = result.pdfUrl;
-                    downloadLink.textContent = 'Abrir/Baixar Laudo de Evidências';
-                    downloadLink.target = '_blank';
-                    downloadLink.download = filename;
-                    downloadLink.className = 'inline-block px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition duration-200 text-sm';
-                    reportDownloadArea.appendChild(downloadLink);
-                }
-            }
-            // Desmarcar checkboxes e desabilitar botão
-            selectedCheckboxes.forEach(cb => cb.checked = false);
-            generateSelectedEvidencesReportBtn.disabled = true;
-
-        } catch (error) {
-            console.error("Erro ao gerar laudo de evidências:", error);
-            alert("Não foi possível gerar o laudo: " + error.message);
-        } 
-        // finally {
-        //     // Reabilitar botão apenas se ainda houver checkboxes selecionados (pouco provável aqui, já que desmarcamos)
-        //     // ou apenas reabilitar se o usuário puder tentar novamente.
-        //     // Por simplicidade, vamos deixar que o evento 'change' nos checkboxes reabilite se necessário.
-        //     // generateSelectedEvidencesReportBtn.disabled = document.querySelectorAll('.evidence-select-checkbox:checked').length === 0;
-        //     // ou
-        //     // generateSelectedEvidencesReportBtn.textContent = "Gerar Laudo para Evidências Selecionadas";
-        // }
-    });
+if (navigateAddVictimBtn) {
+  navigateAddVictimBtn.addEventListener('click', () => {
+    // Leva para a página de cadastro de vítima, passando o caseId atual na URL
+    // para que a nova vítima possa ser automaticamente associada a este caso.
+    if (caseId) { // caseId é a variável global da página de detalhes do caso
+      window.location.href = `../main/cadastrar-vitima.html?caseId=${caseId}`;
+    } else {
+      alert("ID do caso não encontrado. Não é possível adicionar vítima.");
+      console.error("Tentativa de navegar para adicionar vítima sem caseId.");
+    }
+  });
+} else {
+  console.warn("Botão 'navigateAddVictimBtn' não encontrado no DOM.");
 }
