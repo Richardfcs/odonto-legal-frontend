@@ -372,3 +372,167 @@ button.secondary {
     /* flex-grow: 1;  Opcional: se você quer que eles preencham o espaço */
     /* padding: 0.8rem; (já definido globalmente) */
 }
+
+/* Se você usou .container-wrapper-ia */
+.container-wrapper-ia { 
+    /* max-width: 1200px; /* Definido inline no HTML, pode ser movido para cá */
+    /* margin: 0 auto;   /* Definido inline no HTML */
+    padding-top: 1rem; /* Adiciona um espaçamento superior dentro desta seção */
+}
+
+.container-wrapper-ia h1 { /* Estilo específico para o H1 da seção IA */
+  text-align: left; /* Para alinhar à esquerda como um título de seção */
+  font-size: 1.8rem; /* Ajustado para ser um título de seção */
+  margin-bottom: 1.5rem;
+  color: var(--primary-color); /* Ou use a cor padrão dos H1 do dashboard */
+  border-bottom: 2px solid #e2e8f0;
+  padding-bottom: 0.5rem;
+}
+
+
+/* Seções de conteúdo dentro da aba IA */
+.content-section { /* Esta classe pode já existir, verifique se os estilos são compatíveis ou use nomes mais específicos */
+  background: #ffffff;
+  padding: 1.5rem;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  margin-bottom: 1.5rem;
+}
+
+/* Gráfico de Importâncias (se os IDs/classes forem únicos) */
+.modelo-info-container h2 { /* Título dentro da seção do gráfico */
+    font-size: 1.5rem; /* Ou o tamanho que se encaixe bem */
+    border-bottom: 2px solid #e0e0e0;
+    padding-bottom: 0.25em;
+    margin-bottom: 1rem; /* Espaço antes do canvas */
+}
+#canvasGraficoImportancias {
+  max-height: 500px;
+  width: 100% !important;
+}
+#msgGraficoImportancias {
+  text-align: center;
+  color: #777;
+  font-style: italic;
+  margin-top: 1rem;
+}
+
+/* Seção de Predição (se os IDs/classes forem únicos) */
+.predicao-container h2 { /* Título dentro da seção de predição */
+    font-size: 1.5rem;
+    border-bottom: 2px solid #e0e0e0;
+    padding-bottom: 0.25em;
+    margin-bottom: 1rem;
+}
+.predicao-container p:first-of-type {
+    margin-bottom: 1rem;
+    color: #555;
+}
+
+.predicao-form {
+    display: grid;
+    grid-template-columns: 1fr; /* Padrão mobile */
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+}
+.form-group label {
+    margin-bottom: 0.3rem;
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: #444;
+}
+
+/* Inputs e Selects (verifique se estes estilos não conflitam com os existentes) */
+.predicao-container input[type="text"],
+.predicao-container input[type="number"],
+.predicao-container select {
+  padding: 0.75rem;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-size: 1rem;
+  width: 100%;
+  transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+.predicao-container input[type="text"]:focus,
+.predicao-container input[type="number"]:focus,
+.predicao-container select:focus {
+  border-color: var(--secondary-color); /* Usar variável de cor do dashboard */
+  box-shadow: 0 0 0 0.2rem rgba(var(--rgb-secondary-color), 0.25); /* Exemplo: precisa definir --rgb-secondary-color */
+  outline: none;
+}
+
+.predicao-container button#btnPredizer { /* ID específico para evitar conflito */
+  padding: 0.75rem 1.5rem;
+  background-color: var(--secondary-color); /* Usar variável de cor do dashboard */
+  color: white;
+  cursor: pointer;
+  transition: background-color 0.2s ease-in-out, transform 0.1s ease;
+  border: none;
+  border-radius: 5px;
+  font-size: 1rem;
+  font-weight: 600;
+  display: block;
+  width: auto;
+  margin: 0 auto;
+}
+.predicao-container button#btnPredizer:hover {
+  background-color: var(--primary-color); /* Exemplo de hover */
+  transform: translateY(-1px);
+}
+.predicao-container button#btnPredizer:disabled {
+  background-color: #a0cfff; /* Ajustar cor para desabilitado */
+  cursor: not-allowed;
+  transform: none;
+}
+
+#loadingPredicao {
+    text-align: center;
+    padding: 1rem;
+    font-style: italic;
+    color: var(--secondary-color);
+}
+#resultadoPredicao {
+    margin-top: 1.5rem;
+    padding: 1rem;
+    border: 1px solid #d1e7dd;
+    border-radius: 5px;
+    background-color: #f8f9fa;
+}
+#resultadoPredicao h3 {
+    color: #0f5132;
+    margin-bottom: 0.5rem;
+}
+#resultadoPredicao p { margin: 0.3rem 0; font-size: 0.95rem; }
+#resultadoPredicao strong { color: #1a253c; }
+#listaProbabilidades {
+    list-style-type: none;
+    padding-left: 0;
+}
+#listaProbabilidades li {
+    padding: 0.2rem 0;
+}
+
+/* Media Queries para Responsividade da Seção IA */
+@media (min-width: 768px) {
+  .predicao-form {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+@media (min-width: 992px) {
+  .predicao-form {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+@media (max-width: 767px) {
+    #canvasGraficoImportancias {
+        max-height: 400px;
+    }
+    .modelo-info-container h2, .predicao-container h2 { /* Ajusta os títulos H2 dentro da seção IA */
+        font-size: 1.3rem;
+    }
+}

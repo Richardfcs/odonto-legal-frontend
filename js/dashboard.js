@@ -43,6 +43,7 @@ async function loadDashboardData(dashboardId) {
     else if (dashboardId === 'victims') periodFilterId = 'victimTimeFilter';
     else if (dashboardId === 'users') periodFilterId = 'userTimeFilter';
     else if (dashboardId === 'locations') periodFilterId = 'locationTimeFilter';
+    else if (dashboardId === 'analysisIA');
     // 'activity' não usa filtro de período da mesma forma
 
     const periodElement = document.getElementById(periodFilterId);
@@ -67,6 +68,9 @@ async function loadDashboardData(dashboardId) {
             break;
         case 'activity':
             await loadActivityData();
+            break;
+        case 'analysisIA': // NOVO CASO
+            await carregarEExibirImportanciasModeloIA();
             break;
     }
 }
@@ -677,7 +681,7 @@ async function loadVictimData() {
         }
 
         const resultData = await res.json();
-        console.log(`Dados recebidos para ${datasetLabel}:`, resultData); // Log para depuração
+        // console.log(`Dados recebidos para ${datasetLabel}:`, resultData); // Log para depuração
 
         const totalElement = document.getElementById('totalVictimsInPeriod');
 
@@ -955,7 +959,7 @@ document.addEventListener('DOMContentLoaded', () => {
         mainFilterElement.addEventListener('change', () => loadDashboardData('main'));
     }
     // Os outros filtros já têm seus listeners específicos ou são tratados dentro de loadDashboardData
-
+    setupFormPredicaoIA();
     showDashboard('main', null); // Passa null para o evento na inicialização
 });
 
@@ -1004,3 +1008,135 @@ function setupCustomDateFilters() {
         });
     });
 }
+
+// --- Lógica Específica para o Dashboard de Análise IA ---
+let chartImportanciasIA = null; // Renomeado para evitar conflito com 'charts' global se existir
+const API_BASE_URL_IA = "https://backend-graficos.onrender.com/api"; // URL específica do backend de IA
+const coresGraficosIA = ['#007bff', '#28a745', '#ffc107', '#dc3545', '#17a2b8', '#6f42c1', '#fd7e14', '#20c997']; // Cores para gráficos da IA
+
+// Funções auxiliares podem ser globais se não existirem ou renomeadas
+function obterContextoCanvasIA(canvasId) { // Renomeada para evitar conflito
+    const canvas = document.getElementById(canvasId);
+    if (!canvas) {
+        console.error(`Elemento canvas com ID '${canvasId}' não encontrado (IA).`);
+        return null;
+    }
+    return canvas.getContext('2d');
+}
+
+function destruirGraficoExistenteIA(chartInstance) { // Renomeada
+    if (chartInstance) {
+        chartInstance.destroy();
+    }
+    return null;
+}
+
+async function carregarEExibirImportanciasModeloIA() {
+    const canvasId = 'canvasGraficoImportancias'; // ID do canvas na seção IA
+    const msgId = 'msgGraficoImportancias';      // ID da mensagem na seção IA
+    const msgEl = document.getElementById(msgId);
+
+    chartImportanciasIA = destruirGraficoExistenteIA(chartImportanciasIA);
+    if(msgEl) msgEl.textContent = "Carregando importâncias do modelo...";
+
+    try {
+        const response = await fetch(`${API_BASE_URL_IA}/modelo/info`); // Usando API_BASE_URL_IA
+        if (!response.ok) throw new Error(`Erro HTTP ao buscar importâncias: ${response.status}`);
+        const data = await response.json();
+
+        if (data.error || !data.features_importances) {
+            if(msgEl) msgEl.textContent = "Não foi possível carregar as importâncias do modelo.";
+            console.error("Erro ao buscar importâncias (IA):", data.error || "Formato de dados inesperado");
+            return;
+        }
+
+        const importancias = data.features_importances;
+        const topN = 20;
+        const entries = Object.entries(importancias).sort(([,a],[,b]) => b-a); 
+        const labels = entries.slice(0, topN).map(([key]) => key);
+        const dataValues = entries.slice(0, topN).map(([, value]) => value);
+        
+        if(msgEl) msgEl.textContent = ""; // Limpa mensagem de carregamento
+        const ctx = obterContextoCanvasIA(canvasId);
+        if (!ctx) return;
+
+        chartImportanciasIA = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Importância da Feature',
+                    data: dataValues,
+                    backgroundColor: coresGraficosIA[0], // Usando cores específicas da IA
+                }]
+            },
+            options: { /* ... suas opções de gráfico de importância ... */
+                indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+                scales: { x: { title: { display: true, text: 'Importância' }, beginAtZero: true }, y: { ticks: { autoSkip: false, maxRotation: 0, minRotation: 0 }}},
+                plugins: { legend: { display: false }, title: { display: true, text: 'Principais Features na Predição (Top 20)' } }
+            }
+        });
+    } catch (error) {
+        if(msgEl) msgEl.textContent = "Erro ao carregar importâncias do modelo.";
+        console.error("Falha ao carregar importâncias (IA):", error);
+    }
+}
+
+function setupFormPredicaoIA() {
+    const formPredicao = document.getElementById('formPredicao');
+    const btnPredizer = document.getElementById('btnPredizer');
+    const resultadoDiv = document.getElementById('resultadoPredicao');
+    const statusPreditoSpan = document.getElementById('statusPredito');
+    const probabilidadesUl = document.getElementById('listaProbabilidades');
+    const loadingPredicaoDiv = document.getElementById('loadingPredicao');
+
+    if (!formPredicao || !btnPredizer || !resultadoDiv || !statusPreditoSpan || !probabilidadesUl || !loadingPredicaoDiv) {
+        console.warn("Um ou mais elementos do formulário de predição IA não foram encontrados. Funcionalidade pode estar comprometida.");
+        return; // Sai se elementos essenciais não estiverem lá
+    }
+
+    formPredicao.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        btnPredizer.disabled = true;
+        resultadoDiv.style.display = 'none';
+        loadingPredicaoDiv.style.display = 'block';
+
+        const formData = new FormData(formPredicao);
+        const payload = {};
+        for (let [key, value] of formData.entries()) {
+            const inputElement = formPredicao.elements[key]; // 'key' aqui é o 'name' do input
+            payload[key] = (inputElement && inputElement.type === 'number' && value !== '') ? parseFloat(value) : value;
+        }
+        console.log("Payload para predição IA:", payload);
+
+        try {
+            const response = await fetch(`${API_BASE_URL_IA}/predizer_status_identificacao`, { // Usando API_BASE_URL_IA
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            const data = await response.json();
+            if (!response.ok) throw new Error(data.erro || data.error || `Erro HTTP na predição: ${response.status}`);
+
+            statusPreditoSpan.textContent = data.status_identificacao_predito;
+            probabilidadesUl.innerHTML = '';
+            if (data.probabilidades && typeof data.probabilidades === 'object') {
+                Object.entries(data.probabilidades).forEach(([classe, prob]) => {
+                    const li = document.createElement('li');
+                    li.textContent = `${classe}: ${(prob * 100).toFixed(2)}%`;
+                    probabilidadesUl.appendChild(li);
+                });
+            }
+            resultadoDiv.style.display = 'block';
+        } catch (error) {
+            console.error("Erro na predição IA:", error);
+            if (statusPreditoSpan) statusPreditoSpan.textContent = "Erro ao predizer";
+            if (probabilidadesUl) probabilidadesUl.innerHTML = `<li>${error.message}</li>`;
+            if (resultadoDiv) resultadoDiv.style.display = 'block';
+        } finally {
+            btnPredizer.disabled = false;
+            loadingPredicaoDiv.style.display = 'none';
+        }
+    });
+}
+// --- Fim da Lógica Específica para o Dashboard de Análise IA ---

@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OdontoForense - Odontograma</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Estilos Globais da Aplicação (podem estar em um arquivo CSS separado) */
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+            background-color: #f0f2f5; /* Cinza claro suave */
+            color: #333;
+        }
+
+        /* Estilos Comuns de Formulário (ajuste conforme seu style.css global) */
+        label {
+            display: block;
+            margin-bottom: 0.25rem;
+            font-weight: 500; /* medium */
+            color: #1e3a8a; /* text-blue-900 ou similar */
+        }
+        input[type="text"],
+        input[type="number"],
+        input[type="date"],
+        input[type="time"],
+        input[type="url"],
+        input[type="email"],
+        input[type="tel"],
+        input[type="file"], /* Adicionado para o input de imagem */
+        select,
+        textarea {
+            width: 100%;
+            padding: 0.5rem 0.75rem; /* py-2 px-3 */
+            border: 1px solid #d1d5db; /* border-gray-300 */
+            border-radius: 0.375rem; /* rounded-md */
+            font-size: 0.875rem; /* text-sm */
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #2563eb; /* focus:ring-blue-500 */
+            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.5); /* focus:ring-2 */
+        }
+        input[type="file"] { /* Estilo específico para input file */
+            padding: 0.3rem; /* Ajuste de padding */
+        }
+        button {
+            padding: 0.6rem 1.2rem;
+            border-radius: 0.375rem;
+            font-weight: 600; /* semibold */
+            transition: background-color 0.2s;
+            cursor: pointer;
+        }
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        
+        /* Estilos Específicos para esta página */
+        .form-section-title { margin-top: 1.5rem; margin-bottom: 0.75rem; font-size: 1.125rem; font-weight: 600; color: #1e3a8a; border-bottom: 1px solid #e5e7eb; padding-bottom: 0.5rem; }
+        .form-subsection-title { margin-top: 1rem; margin-bottom: 0.5rem; font-size: 1rem; font-weight: 500; color: #1d4ed8; }
+        
+        #odontogramDiagramPlaceholder {
+            width: 100%;
+            max-width: 800px;
+            height: auto; 
+            min-height: 200px; 
+            background-color: #f9fafb; 
+            border: 1px dashed #d1d5db; 
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            color: #6b7280; 
+            margin: 1rem auto;
+            font-style: italic;
+            padding: 1rem;
+            border-radius: 0.375rem;
+        }
+        #odontogramDiagramPlaceholder img { /* Estilo para a imagem de referência */
+            max-width: 100%;
+            height: auto;
+            border: 1px solid #e5e7eb;
+            margin-bottom: 0.5rem; /* Espaço entre a imagem e o texto abaixo */
+        }
+
+
+        .tooth-entry-form {
+            border: 1px solid #e5e7eb;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border-radius: 0.375rem;
+            background-color: #f9fafb;
+        }
+        .tooth-entry-form h4 {
+            font-size: 1rem; 
+            font-weight: 600;
+            color: #1e3a8a; 
+            margin-bottom: 0.75rem;
+        }
+        .tooth-grid {
+            display: grid;
+            grid-template-columns: 1fr; 
+            gap: 0.75rem;
+        }
+        @media (min-width: 640px) { 
+            .tooth-grid {
+                grid-template-columns: repeat(2, 1fr); 
+            }
+            /* Se o campo de observações precisar ocupar duas colunas no grid de 2 colunas */
+            .tooth-grid .col-span-full-if-possible { 
+                 grid-column: span 2 / span 2;
+            }
+        }
+
+
+        .loading-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(255, 255, 255, 0.8); z-index: 9999; display: flex; align-items: center; justify-content: center; }
+        .loading-overlay.hidden { display: none; }
+        .spinner { border: 4px solid rgba(0, 0, 0, .1); width: 36px; height: 36px; border-radius: 50%; border-left-color: #1e40af; animation: spin 1s ease infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .form-grid-responsive {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1rem; 
+        }
+        @media (min-width: 768px) { 
+            .form-grid-responsive {
+                grid-template-columns: repeat(2, 1fr); 
+                gap: 1.5rem; 
+            }
+             .form-grid-responsive-3 { 
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-100 py-8 px-4">
+    <!-- Overlay de Carregamento -->
+    <div id="loadingOverlay" class="loading-overlay hidden">
+        <div class="spinner"></div>
+        <p class="ml-3 text-gray-700">Carregando...</p>
+    </div>
+
+    <div class="container mx-auto max-w-5xl bg-white p-6 sm:p-8 rounded-lg shadow-xl">
+        <header class="mb-6">
+            <div class="flex justify-between items-center mb-2">
+                <a href="#" id="backToVictimLink" class="text-sm text-blue-600 hover:underline">← Voltar para Detalhes da Vítima</a>
+            </div>
+            <h1 class="text-3xl font-bold text-blue-900 text-center">Odontograma</h1>
+            <p class="text-gray-600 text-center">
+                Vítima: <span id="victimIdentifier" class="font-medium">Carregando...</span> | 
+                Caso: <a id="caseLinkOdontogram" href="#" class="text-blue-600 hover:underline font-medium">Carregando...</a>
+            </p>
+        </header>
+
+        <form id="odontogramForm" class="space-y-6">
+            <input type="hidden" id="victimId" name="victimId">
+            <input type="hidden" id="caseId" name="caseId">
+            <input type="hidden" id="odontogramId" name="odontogramId">
+            <input type="hidden" id="examinerId" name="examinerId">
+            <input type="hidden" id="odontogramImageBase64" name="odontogramImageBase64">
+
+
+            <section>
+                <h2 class="form-section-title">Informações Gerais do Odontograma</h2>
+                <div class="form-grid-responsive">
+                    <div>
+                        <label for="odontogramType">Tipo de Odontograma <span class="text-red-500">*</span></label>
+                        <select id="odontogramType" name="odontogramType" required>
+                            <option value="post_mortem">Post-Mortem (Exame Atual)</option>
+                            <option value="ante_mortem_registro">Ante-Mortem (Registro Prévio)</option>
+                            <option value="comparativo">Comparativo (Análise)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="examinationDate">Data do Exame <span class="text-red-500">*</span></label>
+                        <input type="date" id="examinationDate" name="examinationDate" required>
+                    </div>
+                    <div>
+                        <label for="examinerName">Examinador (Perito)</label>
+                        <input type="text" id="examinerName" name="examinerName" readonly disabled class="bg-gray-100">
+                    </div>
+                     <div>
+                        <label for="odontogramImageFile">Imagem de Referência do Odontograma (Opcional)</label>
+                        <input type="file" id="odontogramImageFile" name="odontogramImageFile" accept="image/*" class="file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+                        <img id="odontogramImagePreview" src="#" alt="Preview da Imagem" class="mt-2 max-w-xs h-auto rounded shadow hidden">
+                    </div>
+                    <div class="md:col-span-2"> <!-- Ocupa duas colunas em telas médias/grandes -->
+                        <label for="odontogramImageNotes">Notas sobre a Imagem de Referência</label>
+                        <input type="text" id="odontogramImageNotes" name="odontogramImageNotes" placeholder="Ex: Diagrama preenchido manualmente, Escaneamento da ficha X">
+                    </div>
+                </div>
+            </section>
+
+            <section>
+                <h2 class="form-section-title">Diagrama Odontológico e Registro Dentário</h2>
+                <div id="odontogramDiagramPlaceholder">
+                    <!-- Imagem de referência FDI -->
+                    <img src="../img/odontograma-referencia.jpg" alt="Diagrama Odontológico FDI de Referência">
+                    <p class="text-sm text-gray-600 mt-2">Use este diagrama como referência para a numeração FDI dos dentes abaixo.</p>
+                </div>
+
+                <div class="mt-6">
+                    <h3 class="form-subsection-title">Registro Detalhado por Dente</h3>
+                    <p class="text-sm text-gray-600 mb-4">Preencha o estado para cada dente. Dentes não modificados manterão o status "Não Examinado" ou o valor carregado.</p>
+                    <button type="button" id="initializeTeethButton" class="mb-4 px-4 py-2 bg-indigo-500 text-white rounded hover:bg-indigo-600 text-sm">
+                        Iniciar/Reiniciar Registro dos 32 Dentes
+                    </button>
+                    <div id="teethEntriesContainer" class="space-y-4">
+                        <!-- Campos para os dentes serão gerados aqui pelo JS -->
+                    </div>
+                </div>
+            </section>
+
+            <section>
+                <h2 class="form-section-title">Observações Gerais e Sumário para Identificação</h2>
+                <div>
+                    <label for="generalObservations">Observações Gerais sobre a Arcada Dentária</label>
+                    <textarea id="generalObservations" name="generalObservations" rows="4" placeholder="Descreva aspectos gerais, oclusão, higiene, anomalias generalizadas, patologias não localizadas, etc." class="h-24"></textarea>
+                </div>
+                <div class="mt-4">
+                    <label for="summaryForIdentification">Sumário com Características Relevantes para Identificação</label>
+                    <textarea id="summaryForIdentification" name="summaryForIdentification" rows="3" placeholder="Resuma as características dentárias mais distintivas, raras ou individualizantes que podem auxiliar em um processo de identificação." class="h-20"></textarea>
+                </div>
+            </section>
+            
+            <section id="comparisonSection" class="hidden">
+                <h2 class="form-section-title">Comparação e Conclusão da Identificação (Opcional)</h2>
+                <div>
+                    <label for="anteMortemDataSources">Fontes de Dados Ante-Mortem (separar por vírgula)</label>
+                    <textarea id="anteMortemDataSources" name="anteMortemDataSources" rows="2" placeholder="Ex: Ficha Clínica Dr. Silva (2019), Radiografia Panorâmica Hospital X (2021)" class="h-16"></textarea>
+                </div>
+                <div class="form-grid-responsive mt-4">
+                    <div>
+                        <label for="identificationConclusionStatus">Status da Conclusão da Identificação</label>
+                        <select id="identificationConclusionStatus" name="identificationConclusionStatus">
+                            <option value="pendente">Pendente</option>
+                            <option value="identificacao_positiva">Identificação Positiva</option>
+                            <option value="identificacao_provavel">Identificação Provável</option>
+                            <option value="dados_insuficientes">Dados Insuficientes para Conclusão</option>
+                            <option value="exclusao">Exclusão (Não é a pessoa X)</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="mt-4">
+                    <label for="identificationConclusionJustification">Justificativa da Conclusão</label>
+                    <textarea id="identificationConclusionJustification" name="identificationConclusionJustification" rows="3" placeholder="Descreva a base para a conclusão, pontos de concordância/discordância significativos." class="h-20"></textarea>
+                </div>
+            </section>
+
+            <div class="mt-8 flex flex-col sm:flex-row justify-end sm:space-x-3 space-y-3 sm:space-y-0" id="formActionButtons">
+                <!-- O botão de deletar será inserido aqui pelo JS se estiver em modo de edição -->
+                <button type="button" id="cancelOdontogramBtn" class="w-full sm:w-auto px-6 py-2 bg-gray-500 hover:bg-gray-600 text-white font-semibold rounded-md">
+                    Cancelar
+                </button>
+                <button type="submit" id="saveOdontogramBtn" class="w-full sm:w-auto px-6 py-2 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-md">
+                    Salvar Odontograma
+                </button>
+            </div>
+        </form>
+        <p id="odontogramErrorMessage" class="mt-4 text-red-600 text-center hidden"></p>
+
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/jwt-decode@3.1.2/build/jwt-decode.min.js"></script>
+    <script src="./js/odontograma.js"></script>
+</body>
+</html>

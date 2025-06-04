@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="pt-br">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,26 +9,29 @@
     <style>
         .detail-section { margin-bottom: 1.5rem; padding-bottom: 1.5rem; border-bottom: 1px solid #e5e7eb; }
         .detail-section:last-child { border-bottom: none; }
-        .detail-title { font-size: 1.25rem; font-weight: 600; color: #1e40af; margin-bottom: 1rem; } /* text-xl font-semibold text-blue-800 */
+        .detail-title { font-size: 1.25rem; font-weight: 600; color: #1e40af; margin-bottom: 1rem; }
         .detail-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem; }
         .detail-item { margin-bottom: 0.75rem; }
-        .detail-label { font-weight: 500; color: #374151; display: block; } /* font-medium text-gray-700 */
-        .detail-value { color: #1f2937; margin-left: 0.5rem; display: inline-block; word-break: break-word; } /* text-gray-900 */
+        .detail-label { font-weight: 500; color: #374151; display: block; }
+        .detail-value { color: #1f2937; margin-left: 0.5rem; display: inline-block; word-break: break-word; }
         .detail-value-list { list-style: disc; margin-left: 1.5rem; padding-left: 0.5rem; }
         .detail-value-list li { margin-bottom: 0.25rem; }
         .action-buttons { margin-top: 2rem; display: flex; flex-wrap: wrap; gap: 0.75rem; justify-content: center; }
         .action-buttons button { padding: 0.6rem 1.2rem; border-radius: 0.375rem; font-weight: 600; transition: background-color 0.2s; }
+        /* Estilo para sub-títulos dentro de uma seção */
+        .detail-subtitle { font-size: 1.1rem; font-weight: 500; color: #1d4ed8; margin-top: 1rem; margin-bottom: 0.5rem; }
     </style>
 </head>
+
 <body class="bg-gray-100 py-8 px-4">
     <div class="container mx-auto max-w-4xl bg-white p-6 sm:p-8 rounded-lg shadow-xl">
         <header class="mb-6 text-center">
             <h1 class="text-3xl font-bold text-blue-900">Detalhes da Vítima</h1>
-            <p class="text-gray-600">Caso Associado: <a id="caseLink" href="#" class="text-blue-600 hover:underline">Carregando...</a></p>
+            <p class="text-gray-600">Caso Associado: <a id="caseLink" href="#"
+                    class="text-blue-600 hover:underline">Carregando...</a></p>
         </header>
 
         <div id="victimDetailsContainer">
-            <!-- Dados da Vítima serão preenchidos aqui pelo JS -->
             <p id="loadingMessage" class="text-center text-gray-500">Carregando dados da vítima...</p>
 
             <!-- SEÇÃO: IDENTIFICAÇÃO FUNDAMENTAL -->
@@ -56,12 +60,12 @@
             <!-- SEÇÃO: CONTATO E ENDEREÇO -->
             <div id="sectionContatoEndereco" class="detail-section hidden">
                 <h2 class="detail-title">Contato e Último Endereço Conhecido</h2>
-                <h3 class="text-lg font-medium text-gray-800 mb-2 mt-4">Contato</h3>
+                <h3 class="detail-subtitle">Contato</h3>
                 <div class="detail-grid">
                     <div class="detail-item" id="itemContactTelephone"><span class="detail-label">Telefone:</span><span id="contactTelephone" class="detail-value"></span></div>
                     <div class="detail-item" id="itemContactEmail"><span class="detail-label">Email:</span><span id="contactEmail" class="detail-value"></span></div>
                 </div>
-                <h3 class="text-lg font-medium text-gray-800 mb-2 mt-4">Endereço</h3>
+                <h3 class="detail-subtitle">Endereço</h3>
                 <div class="detail-grid">
                     <div class="detail-item" id="itemAddressStreet"><span class="detail-label">Logradouro:</span><span id="addressStreet" class="detail-value"></span></div>
                     <div class="detail-item" id="itemAddressNumber"><span class="detail-label">Número:</span><span id="addressNumber" class="detail-value"></span></div>
@@ -107,30 +111,47 @@
                     <span class="detail-label">Características Esqueléticas Notáveis:</span>
                     <ul id="skeletalFeatures" class="detail-value detail-value-list"></ul>
                 </div>
+                
+                <!-- ODONTOGRAMA POST-MORTEM PRINCIPAL -->
+                <div class="detail-item mt-4" id="itemOdontogramStatus">
+                    <span class="detail-label">Odontograma Post-Mortem Principal:</span>
+                    <span id="odontogramStatus" class="detail-value">Não registrado</span>
+                    <!-- O botão manageOdontogramBtn nos action-buttons lidará com Ver/Editar/Adicionar o Post-Mortem -->
+                </div>
+
+                <!-- NOVA SUB-SEÇÃO PARA REGISTROS ANTE-MORTEM -->
+                <div class="mt-6 pt-4 border-t border-gray-200">
+                    <h3 class="detail-subtitle">Registros Odontológicos Ante-Mortem</h3>
+                    <div id="anteMortemOdontogramsList" class="space-y-2">
+                        <p id="noAnteMortemMessage" class="text-gray-500">Nenhum registro ante-mortem adicionado.</p>
+                    </div>
+                    <button id="addAnteMortemOdontogramBtn" class="mt-3 px-4 py-1.5 bg-sky-500 hover:bg-sky-600 text-white text-sm font-semibold rounded-md">
+                        + Adicionar Registro Ante-Mortem
+                    </button>
+                </div>
             </div>
 
             <!-- SEÇÃO: DADOS FORENSES ADICIONAIS -->
             <div id="sectionForenses" class="detail-section hidden">
                 <h2 class="detail-title">Dados Forenses Adicionais</h2>
-                <h3 class="text-lg font-medium text-gray-800 mb-2 mt-4">Intervalo Post-Mortem (IPM)</h3>
+                <h3 class="detail-subtitle">Intervalo Post-Mortem (IPM)</h3>
                 <div class="detail-grid">
                     <div class="detail-item" id="itemPostMortemMin"><span class="detail-label">Mín. Horas:</span><span id="postMortemMinHours" class="detail-value"></span></div>
                     <div class="detail-item" id="itemPostMortemMax"><span class="detail-label">Máx. Horas:</span><span id="postMortemMaxHours" class="detail-value"></span></div>
                     <div class="detail-item" id="itemPostMortemMethod"><span class="detail-label">Método Estimação IPM:</span><span id="postMortemEstimationMethod" class="detail-value"></span></div>
                 </div>
-                <h3 class="text-lg font-medium text-gray-800 mb-2 mt-4">Análise Toxicológica</h3>
+                <h3 class="detail-subtitle">Análise Toxicológica</h3>
                 <div class="detail-grid">
                     <div class="detail-item"><span class="detail-label">Triagem Realizada:</span><span id="toxicologyPerformed" class="detail-value"></span></div>
                     <div class="detail-item" id="itemToxicologySummary"><span class="detail-label">Sumário Resultados:</span><span id="toxicologyResultsSummary" class="detail-value"></span></div>
-                    <!-- Substâncias detectadas podem ser uma lista aqui -->
                 </div>
-                <h3 class="text-lg font-medium text-gray-800 mb-2 mt-4">Análise de DNA</h3>
+                <h3 class="detail-subtitle">Análise de DNA</h3>
                 <div class="detail-grid">
                     <div class="detail-item"><span class="detail-label">Amostra Coletada:</span><span id="dnaSampleCollected" class="detail-value"></span></div>
                     <div class="detail-item"><span class="detail-label">Perfil Obtido:</span><span id="dnaProfileObtained" class="detail-value"></span></div>
                     <div class="detail-item" id="itemDnaComparison"><span class="detail-label">Resultado Comparação DNA:</span><span id="dnaComparisonResult" class="detail-value"></span></div>
                 </div>
-                <h3 class="text-lg font-medium text-gray-800 mb-2 mt-4">Análise de Impressões Digitais</h3>
+                <h3 class="detail-subtitle">Análise de Impressões Digitais</h3>
                 <div class="detail-grid">
                     <div class="detail-item"><span class="detail-label">Coletadas:</span><span id="fingerprintCollected" class="detail-value"></span></div>
                     <div class="detail-item" id="itemFingerprintQuality"><span class="detail-label">Qualidade:</span><span id="fingerprintQuality" class="detail-value"></span></div>
@@ -143,7 +164,7 @@
                 <h2 class="detail-title">Metadados e Outros</h2>
                 <div class="detail-item" id="itemPhotosUrls">
                     <span class="detail-label">Fotos (URLs):</span>
-                    <div id="photosUrls" class="detail-value"></div> <!-- Exibir como links ou imagens pequenas -->
+                    <div id="photosUrls" class="detail-value flex flex-wrap gap-2"></div> <!-- Adicionado flex-wrap e gap -->
                 </div>
                 <div class="detail-item" id="itemAdditionalNotes">
                     <span class="detail-label">Notas Adicionais:</span>
@@ -162,11 +183,13 @@
         <div id="victimActionButtons" class="action-buttons hidden">
             <button id="editVictimBtn" class="bg-yellow-500 hover:bg-yellow-600 text-white">Editar Vítima</button>
             <button id="deleteVictimBtn" class="bg-red-600 hover:bg-red-700 text-white">Deletar Vítima</button>
+            <!-- O texto deste botão será atualizado pelo JS -->
             <button id="manageOdontogramBtn" class="bg-green-500 hover:bg-green-600 text-white">Odontograma</button>
         </div>
     </div>
 
-    <script src="./js/vitimaDetalhes.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jwt-decode@3.1.2/build/jwt-decode.min.js"></script>
+    <script src="./js/vitimaDetalhes.js"></script> 
     <script src="https://cdn.jsdelivr.net/npm/flowbite@1.4.0/dist/flowbite.min.js"></script>
 </body>
 </html>

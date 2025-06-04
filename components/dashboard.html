@@ -5,7 +5,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Dashboard de Evidências Mobile</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="../css/dashboard.css">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/alpinejs@2.8.2/dist/alpine.min.js" defer></script>
@@ -142,6 +141,7 @@
             <button class="nav-button" onclick="showDashboard('users', event)">Usuários</button>
             <button class="nav-button" onclick="showDashboard('locations', event)">Locais</button>
             <button class="nav-button" onclick="showDashboard('activity', event)">Atividades</button>
+            <button class="nav-button" onclick="showDashboard('analysisIA', event)">Análise IA</button>
         </div>
 
         <!-- Dashboard Geral -->
@@ -258,7 +258,7 @@
             <div class="chart-container" style="position: relative;">
                 <canvas id="victimChart"></canvas>
             </div>
-            
+
         </div>
 
         <!-- Dashboard de Usuários -->
@@ -358,7 +358,105 @@
                 </div>
             </div>
         </div>
+
+        <!-- =============================================== -->
+        <!-- ==== NOVA SEÇÃO: Dashboard de Análise IA ==== -->
+        <!-- =============================================== -->
+        <div id="analysisIADashboard" class="dashboard-section">
+            <!-- O conteúdo do seu HTML de Análise Forense e Predição virá aqui -->
+            <!-- Remova o <body>, <head> e o script src="script.js" específico dele -->
+            <!-- O <div class="container-wrapper"> pode ser removido se .dashboard-section já centraliza -->
+            <!-- Ou mantenha se quiser um controle de largura específico para esta seção -->
+
+            <!-- Mantendo o container-wrapper para consistência de layout com o original -->
+            <div class="container-wrapper-ia" style="max-width: 1200px; margin: 0 auto;">
+                <!-- Renomeado para evitar conflito -->
+                <h1
+                    style="font-size: 1.8rem; color: var(--primary-color); text-align: left; border-bottom: 2px solid #e2e8f0; padding-bottom: 0.5rem;">
+                    Análise Forense e Predição com IA</h1>
+
+                <!-- Container para Gráfico de Importâncias do Modelo -->
+                <section class="content-section modelo-info-container">
+                    <h2>Importância das Features para Predição de "Status Identificação"</h2>
+                    <canvas id="canvasGraficoImportancias"></canvas>
+                    <p id="msgGraficoImportancias"></p>
+                </section>
+
+                <!-- Container para Predição Individual -->
+                <section class="content-section predicao-container">
+                    <h2>Predizer Status de Identificação de Vítima</h2>
+                    <p>Preencha os dados da vítima para obter uma predição. Use os mesmos nomes de colunas e valores que
+                        no arquivo CSV original do modelo.</p>
+                    <form id="formPredicao">
+                        <div class="predicao-form">
+                            <!-- Campos de exemplo baseados no seu CSV e modelo. ADICIONE MAIS CAMPOS CONFORME NECESSÁRIO! -->
+                            <div class="form-group">
+                                <label for="pred_genero">Gênero:</label>
+                                <input type="text" id="pred_genero" name="Gênero" placeholder="Ex: masculino, feminino">
+                            </div>
+                            <div class="form-group">
+                                <label for="pred_etnia">Etnia/Raça:</label>
+                                <input type="text" id="pred_etnia" name="Etnia/Raça" placeholder="Ex: parda, branca">
+                            </div>
+                            <div class="form-group">
+                                <label for="pred_causa_morte">Causa Primária Morte:</label>
+                                <input type="text" id="pred_causa_morte" name="Causa Primária Morte"
+                                    placeholder="Ex: ferimento_arma_fogo">
+                            </div>
+                            <div class="form-group">
+                                <label for="pred_idade_registrada">Idade Registrada:</label>
+                                <input type="number" id="pred_idade_registrada" name="Idade Registrada"
+                                    placeholder="Ex: 25">
+                            </div>
+                            <div class="form-group">
+                                <label for="pred_estatura_cm">Estatura (cm):</label>
+                                <input type="number" id="pred_estatura_cm" name="Estatura (cm)" placeholder="Ex: 165">
+                            </div>
+                            <div class="form-group">
+                                <label for="pred_latitude">Latitude:</label>
+                                <input type="text" id="pred_latitude" name="Latitude" placeholder="Ex: -23.5505">
+                            </div>
+                            <div class="form-group">
+                                <label for="pred_longitude">Longitude:</label>
+                                <input type="text" id="pred_longitude" name="Longitude" placeholder="Ex: -46.6333">
+                            </div>
+                            <div class="form-group">
+                                <label for="pred_idade_estimada_min">Idade Estimada (Min):</label>
+                                <input type="number" id="pred_idade_estimada_min" name="Idade Estimada (Min)"
+                                    placeholder="Ex: 20">
+                            </div>
+                            <div class="form-group">
+                                <label for="pred_idade_estimada_max">Idade Estimada (Max):</label>
+                                <input type="number" id="pred_idade_estimada_max" name="Idade Estimada (Max)"
+                                    placeholder="Ex: 30">
+                            </div>
+                            <!--
+                          ADICIONE AQUI MAIS CAMPOS CONFORME AS 'feature_columns_colab'
+                          Exemplo para uma feature booleana/sim/nao que foi LabelEncoded:
+                          <div class="form-group">
+                              <label for="pred_dna_coletada">DNA (Coletada):</label>
+                              <input type="text" id="pred_dna_coletada" name="DNA (Coletada)" placeholder="Ex: sim, nao, desconhecido">
+                          </div>
+                          -->
+                        </div>
+                        <button type="submit" id="btnPredizer">Predizer</button>
+                    </form>
+                    <div id="loadingPredicao" style="display: none;">Carregando predição...</div>
+                    <div id="resultadoPredicao" style="display: none;">
+                        <h3>Resultado da Predição:</h3>
+                        <p><strong>Status Identificação Predito:</strong> <span id="statusPredito"></span></p>
+                        <p><strong>Probabilidades:</strong></p>
+                        <ul id="listaProbabilidades"></ul>
+                    </div>
+                </section>
+            </div> <!-- Fim do container-wrapper-ia -->
+        </div>
+        <!-- =============================================== -->
+        <!-- ============ FIM NOVA SEÇÃO IA ============ -->
+        <!-- =============================================== -->
+
     </div>
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/flowbite@1.4.0/dist/flowbite.min.js"></script>
     <script src="../js/dashboard.js"></script>
 </body>
