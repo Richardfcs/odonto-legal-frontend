@@ -1,7 +1,7 @@
 // ../js/vitimaDetalhes.js
 
 document.addEventListener('DOMContentLoaded', () => {
-    const API_URL = 'http://localhost:3000';
+    const API_URL = 'https://odonto-legal-backend.onrender.com';
     const token = localStorage.getItem('token');
     let loggedInUserRole = null; 
 

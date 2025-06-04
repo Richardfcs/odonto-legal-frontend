@@ -1,5 +1,5 @@
 let currentCaseData = null;
-const API_URL = 'http://localhost:3000';
+const API_URL = 'https://odonto-legal-backend.onrender.com';
 
 const params = new URLSearchParams(window.location.search);
 const caseId = params.get("id");
