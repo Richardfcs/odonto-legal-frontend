@@ -141,7 +141,7 @@ async function searchUsersByName() {
   const token = localStorage.getItem("token");
 
   try {
-    const response = await fetch(`${API_URL}/api/user/fname?name=${encodeURIComponent(searchTerm)}`, {
+    const response = await fetch(`${API_URL}/api/user/search?name=${encodeURIComponent(searchTerm)}`, {
       headers: { Authorization: `Bearer ${token}` }
     });
 
